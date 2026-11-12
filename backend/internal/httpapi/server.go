@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"site-assistant/internal/ai"
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/knowledge"
@@ -30,10 +31,19 @@ type Server struct {
 }
 
 func New(s *core.Service, c config.Config, modules ...*knowledge.Service) http.Handler {
+	return newServer(s, c, nil, modules...)
+}
+func NewWithAI(s *core.Service, c config.Config, k *knowledge.Service, engine *ai.Service) http.Handler {
+	return newServer(s, c, engine, k)
+}
+func newServer(s *core.Service, c config.Config, engine *ai.Service, modules ...*knowledge.Service) http.Handler {
 	a := &Server{service: s, config: c, attempts: map[string]bucket{}, authSlots: make(chan struct{}, 4), uploadSlots: make(chan struct{}, 2)}
 	m := http.NewServeMux()
 	for _, k := range modules {
 		a.knowledgeRoutes(m, k)
+	}
+	if engine != nil {
+		a.aiRoutes(m, engine)
 	}
 	m.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { respond(w, 200, map[string]string{"status": "ok"}) })
 	m.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {

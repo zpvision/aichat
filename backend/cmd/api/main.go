@@ -6,10 +6,12 @@ import (
 	"flag"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	foundation "site-assistant"
+	"site-assistant/internal/ai"
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/database"
@@ -57,11 +59,19 @@ func run() error {
 	}
 	auth := core.NewService(store)
 	ks := knowledge.New(auth, kc)
+	ac, e := ai.LoadConfig(c.Production)
+	if e != nil {
+		return e
+	}
+	engine := ai.New(auth, ks, ac)
 	workerCtx, workerCancel := context.WithCancel(ctx)
 	workerDone := make(chan struct{})
 	go func() { defer close(workerDone); ks.Run(workerCtx) }()
 	defer func() { workerCancel(); <-workerDone }()
-	srv := &http.Server{Addr: c.Addr, Handler: httpapi.New(auth, c, ks), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
+	aiDone := make(chan struct{})
+	go func() { defer close(aiDone); engine.Run(workerCtx) }()
+	defer func() { workerCancel(); <-aiDone }()
+	srv := &http.Server{Addr: c.Addr, Handler: httpapi.NewWithAI(auth, c, ks, engine), BaseContext: func(net.Listener) context.Context { return ctx }, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
 	done := make(chan error, 1)
 	go func() {
 		slog.Info("server listening", "addr", c.Addr, "region", c.Region)

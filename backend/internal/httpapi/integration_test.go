@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	foundation "site-assistant"
+	"site-assistant/internal/ai"
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/database"
@@ -63,7 +64,14 @@ func TestIntegration(t *testing.T) {
 	}
 	kc.FileRoot = t.TempDir()
 	k := knowledge.New(auth, kc)
-	h := New(auth, config.Config{PublicURL: "http://localhost:5173"}, k)
+	t.Setenv("AI_PROVIDER", "mock")
+	ac, err := ai.LoadConfig(false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine := ai.New(auth, previewTestRetriever{}, ac)
+	engine.Provider = &ai.MockProvider{}
+	h := NewWithAI(auth, config.Config{PublicURL: "http://localhost:5173"}, k, engine)
 	call := func(method, path, body, token string, want int) map[string]any {
 		t.Helper()
 		r := httptest.NewRequest(method, path, bytes.NewBufferString(body))
@@ -118,6 +126,29 @@ func TestIntegration(t *testing.T) {
 	call("GET", base+"/sites", "", bt, 404)
 	assistant := call("POST", base+"/assistants", `{"name":"Helper","default_locale":"de","language_policy":"visitor"}`, token, 201)
 	aid := assistant["id"].(string)
+	aiBase := base + "/assistants/" + aid
+	call("GET", aiBase+"/ai/settings", "", token, 200)
+	call("PATCH", aiBase+"/ai/settings", `{"role":"Support","language_policy":"fixed","response_locale":"de"}`, token, 200)
+	conversation := call("POST", aiBase+"/preview/conversations", `{}`, token, 201)
+	chatPath := aiBase + "/preview/conversations/" + conversation["id"].(string)
+	call("GET", chatPath, "", bt, 404)
+	messageBody := fmt.Sprintf(`{"request_id":%q,"content":"What is the price?"}`, core.ID())
+	call("POST", chatPath+"/messages", messageBody, token, 200)
+	replayed := call("POST", chatPath+"/messages", messageBody, token, 200)
+	if replayed["replay"] != true {
+		t.Fatal("HTTP replay")
+	}
+	streamReq := httptest.NewRequest("POST", chatPath+"/messages/stream", strings.NewReader(fmt.Sprintf(`{"request_id":%q,"content":"Hello"}`, core.ID())))
+	streamReq.Header.Set("Origin", "http://localhost:5173")
+	streamReq.Header.Set("X-CSRF-Protection", "1")
+	streamReq.Header.Set("Content-Type", "application/json")
+	streamReq.AddCookie(&http.Cookie{Name: "session", Value: token})
+	streamResponse := httptest.NewRecorder()
+	h.ServeHTTP(streamResponse, streamReq)
+	if streamResponse.Code != 200 || !strings.Contains(streamResponse.Body.String(), "event: delta") || !strings.Contains(streamResponse.Body.String(), "event: complete") {
+		t.Fatal("HTTP SSE", streamResponse.Code, streamResponse.Body.String())
+	}
+	call("GET", chatPath, "", token, 200)
 	kbase := base + "/assistants/" + aid + "/knowledge"
 	article := call("POST", kbase+"/articles", `{"title":"Article","content":"Knowledge content","language":"en"}`, token, 202)
 	kid := article["id"].(string)
@@ -146,6 +177,9 @@ func TestIntegration(t *testing.T) {
 	call("GET", base, "", bt, 200)
 	call("POST", base+"/assistants", `{"name":"blocked"}`, bt, 403)
 	call("GET", kbase+"/"+kid, "", bt, 200)
+	call("GET", chatPath, "", bt, 200)
+	call("POST", chatPath+"/messages", fmt.Sprintf(`{"request_id":%q,"content":"Hi"}`, core.ID()), bt, 403)
+	call("PATCH", aiBase+"/ai/settings", `{"role":"Forbidden"}`, bt, 403)
 	call("POST", kbase+"/articles", `{"title":"Forbidden","content":"No"}`, bt, 403)
 	call("DELETE", kbase+"/"+kid, `{}`, bt, 403)
 	call("DELETE", base+"/sites/"+site["id"].(string), `{}`, bt, 403)
@@ -155,6 +189,8 @@ func TestIntegration(t *testing.T) {
 	call("POST", kbase+"/"+kid+"/reindex", `{}`, bt, 202)
 	call("DELETE", kbase+"/"+kid, `{}`, token, 200)
 	call("GET", kbase+"/"+kid, "", token, 404)
+	call("POST", chatPath+"/cancel", `{}`, token, 200)
+	call("DELETE", chatPath, `{}`, token, 200)
 	for _, locale := range []string{"ru", "en", "cs", "de"} {
 		call("PATCH", "/api/v1/profile", fmt.Sprintf(`{"preferred_locale":%q}`, locale), token, 200)
 	}

@@ -44,6 +44,24 @@
 
 Дополнительные ошибки: file_too_large (413), empty_document/invalid_file/unsupported_file/ocr_required/unsafe_url/html_required/robots_denied (422), knowledge_limit (429), embedding_unavailable/embedding_invalid/embedding_changed/extractor_unavailable (503). Временные import/robots ошибки могут иметь 503 и повторяться worker; постоянные — 422. import_partial — предупреждение у ready web-источника. Search score: cosine для semantic и RRF для hybrid; similarity всегда cosine, это не вероятность. Полный контракт и поля — openapi.json.
 
+## AI/preview API (этап 3)
+
+`A=/api/v1/organizations/{id}/assistants/{assistantId}`. GET доступны членам, изменения/генерация — owner/admin. Conversation ID всегда проверяется вместе с company/assistant; IDs в JSON не принимаются. Cookie/Origin/JSON/X-CSRF-Protection: 1 сохранены и для SSE.
+
+| Метод | Путь | Назначение |
+|---|---|---|
+| GET, PATCH | A/ai/settings | Настройки инструкций и configured provider metadata |
+| GET, POST | A/preview/conversations | Последние 100 диалогов / создать preview |
+| GET | A/preview/conversations/{conversationId} | 100 сообщений, executions/sources, next_before; query before для прошлой страницы |
+| DELETE | A/preview/conversations/{conversationId} | Отменить и удалить историю |
+| POST | A/preview/conversations/{conversationId}/cancel | Идемпотентная отмена активного запуска |
+| POST | A/preview/conversations/{conversationId}/messages | JSON request_id/content, полный AIResult |
+| POST | A/preview/conversations/{conversationId}/messages/stream | POST SSE start/delta/complete/error |
+
+Создание — 201, JSON results/replay — 200. Stream использует fetch и HttpOnly cookie, не EventSource и не токены в URL. Ошибки до stream start — HTTP JSON; после — event:error с machine code. Полный контракт в OpenAPI. Sources — контекст запроса, не гарантированные цитаты. Mock result явно содержит provider=mock/model=deterministic-demo-v1; stats неизвестных токенов null.
+
+Коды: ai_disabled/ai_busy/ai_unavailable (503), ai_timeout (504), ai_invalid_response/ai_incomplete (502), ai_canceled/request_in_progress/request_conflict/conversation_busy/conversation_closed (409), ai_context_limit (422). При BGE-M3 ошибке нет скрытого fallback; при нуле подходящих sources policy_fallback=true, для Ollama ответ формируется сервером без вызова модели. Same UUID/content replay не запускает новую генерацию; failed/canceled execution возвращается как сохранённый result, новая попытка требует нового request_id.
+
 Коды ошибок: validation (422), invalid_credentials/unauthorized (401), csrf/forbidden (403), not_found (404), conflict (409), rate_limited (429, Retry-After 900), ai_not_configured (422), internal (500), not_ready (503). Login не различает отсутствующую почту и неверный пароль. Регистрация не означает подтверждение email и не имитирует отправку письма.
 
 Минимальные payload: компания `{name,country}` (timezone по умолчанию UTC, default_locale en); ассистент `{name}` (draft, visitor, en); сайт `{name,domain,assistant_id}`. Language policy visitor/fixed — только сохранённая настройка. Страна — две ASCII-буквы ISO, timezone — имя IANA, языки ru/en/cs/de. Domain — DNS-имя, а не URL, IP, путь или wildcard. Владение сайтом не проверяется.

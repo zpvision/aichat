@@ -1,6 +1,6 @@
-# site-assistant — этапы 1–2
+# site-assistant — этапы 1–3
 
-Фундамент SaaS и база знаний: компании, роли, ассистенты, статьи, документы TXT/MD/PDF/DOCX, безопасный импорт сайтов, фоновые задания и многоязычный hybrid retrieval. Кабинет RU/EN/CS/DE. Embeddings — Ollama BGE-M3; генерация ответов пока не подключена. Публичное название задаёт `APP_BRAND_NAME`.
+Фундамент SaaS, база знаний и внутренний AI-движок: компании, роли, ассистенты, документы/импорт сайтов, hybrid retrieval, инструкции и тестовый чат с историей, streaming и отменой. Кабинет RU/EN/CS/DE. Embeddings — настоящая Ollama BGE-M3. Генерация по умолчанию — **явный MockProvider**, настоящая Gemma не подключена и не проверена. Публичное название задаёт `APP_BRAND_NAME`.
 
 Требования: Go 1.27.4+, Node.js 22+ (проверено на 24), Docker Compose. В корне сохранён исходный учебный пример GoLand; приложение запускается из `backend/`, а не через корневой `main.go`. При разрешённом GOTOOLCHAIN=auto Go сам загрузит требуемую версию из backend/go.mod.
 
@@ -28,6 +28,8 @@ npm run dev
 Открыть **http://localhost:5173** (именно localhost, как в `PUBLIC_APP_URL`). Backend: http://localhost:8080/healthz. Регистрация даёт одинаковый ответ для нового/существующего адреса; затем войдите с паролем. Подтверждения email пока нет.
 
 Ollama устанавливается локально и запускается через `ollama serve`, если служба ещё не работает. Без Ollama кабинет/API продолжают работать, но индексация и поиск показывают явную ошибку. PDF использует одноразовый ограниченный контейнер extractor, не отдельный API. GPU не обязателен. **При обновлении с этапа 1 не перезаписывайте существующий backend/.env** — добавьте нужные параметры из примера. Volume PostgreSQL сохраняется; `docker compose up` пересоздаст только контейнер с новым образом PostgreSQL 17 Alpine + pgvector.
+
+Этап 3: применить новую миграцию той же командой `./scripts/backend.ps1 -Migrate`, в кабинете открыть «Тестовый чат» у ассистента. AI_PROVIDER=mock по умолчанию не обращается к Gemma; в production этот режим запрещён (явно выбрать disabled/ollama). AI_BASE_URL генерации независим от OLLAMA_BASE_URL embeddings. Старый GPU-сервер не использовать и Gemma локально не скачивать. Конфигурация/будущее подключение — [AI engine](docs/ai-engine.md).
 
 Linux/macOS: `cp backend/.env.example backend/.env`; в каталоге backend выполнить `set -a; . ./.env; set +a`, затем `go run ./cmd/api -migrate` и `go run ./cmd/api`. Остальные команды аналогичны. Миграции запускаются явно перед API.
 
@@ -60,3 +62,4 @@ npm audit
 - [Локализация](docs/localization.md), [развёртывание](docs/deployment.md), [следующие этапы](docs/roadmap.md).
 - [Правила для следующих сессий](AGENTS.md).
 - [База знаний/RAG](docs/rag.md), [проверки обоих этапов](docs/testing.md).
+- [AI-движок и тестовый чат](docs/ai-engine.md). Для browser suite использовать существующую site_assistant_test, AI_PROVIDER=mock и отдельный KNOWLEDGE_FILE_ROOT=./data/knowledge-test. Mock generation не заменяет реальный BGE-M3 retrieval.

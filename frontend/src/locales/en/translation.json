@@ -35,7 +35,7 @@
   "home": "Overview",
   "homeHint": "Your company at a glance.",
   "assistants": "AI employees",
-  "assistantsHint": "Create and configure your company's assistants.",
+  "assistantsHint": "Create and configure your company\u0027s assistants.",
   "sites": "Websites",
   "sitesHint": "Manage the websites connected to your assistants.",
   "settings": "Settings",
@@ -47,7 +47,7 @@
   "createAssistant": "Create assistant",
   "editAssistant": "Edit assistant",
   "addSite": "Add website",
-  "draftNotice": "Assistants are drafts. AI, knowledge and the public widget will be connected in later stages.",
+  "draftNotice": "Assistants remain drafts for public launch. Configure knowledge and test the preview chat; a real AI model is not connected yet.",
   "draft": "Draft",
   "noDescription": "No description yet",
   "edit": "Edit",
@@ -57,7 +57,7 @@
   "delete": "Delete",
   "description": "Description",
   "languagePolicy": "Response language",
-  "visitorLanguage": "Follow the visitor's language",
+  "visitorLanguage": "Follow the visitor\u0027s language",
   "fixedLanguage": "Use the default language",
   "domain": "Domain",
   "domainExample": "example.com",
@@ -111,7 +111,20 @@
     "processing_interrupted": "Processing was interrupted. Start it again.",
     "superseded": "This version has been superseded.",
     "import_partial": "Some pages are unavailable or disallowed by site rules. Available pages have been saved.",
-    "upload_busy": "Too many uploads are running. Please retry shortly."
+    "upload_busy": "Too many uploads are running. Please retry shortly.",
+    "ai_disabled": "AI generation is disabled.",
+    "ai_unavailable": "Generation service is unavailable or the model is not configured.",
+    "ai_busy": "All generation slots are busy. Please try again shortly.",
+    "ai_timeout": "Response timed out. The unfinished answer was not saved.",
+    "ai_canceled": "Generation was canceled.",
+    "ai_invalid_response": "The service returned an invalid response. Please try again.",
+    "ai_incomplete": "The response stream was interrupted. The unfinished answer was not saved.",
+    "ai_interrupted": "The request was interrupted by a restart or server failure.",
+    "ai_context_limit": "Instructions exceed the context budget.",
+    "conversation_busy": "A response is already being generated in this conversation.",
+    "conversation_closed": "This conversation is closed. Create a new one.",
+    "request_conflict": "This request ID was already used for a different message.",
+    "request_in_progress": "This message is already being processed. Wait for completion."
   },
   "knowledge": "Knowledge base",
   "knowledgeHint": "Materials and retrieval for your assistants.",
@@ -165,5 +178,53 @@
     "emptyHint": "Add materials for the selected assistant.",
     "notExtracted": "Text has not been extracted yet. Check processing status.",
     "confirmDelete": "Delete this material and its index?"
+  },
+  "preview": "Test chat",
+  "previewHint": "Check assistant settings and the question-to-answer flow.",
+  "chat": {
+    "provider": "AI mode",
+    "demo": "Demonstration mode — responses are test responses. A real AI model is not connected yet.",
+    "disabled": "AI is disabled. A real model is not connected.",
+    "ollamaConfigured": "Ollama is configured. Model availability and compatibility are checked when a request is sent.",
+    "settings": "Assistant instructions",
+    "sources": "Sources passed to AI",
+    "conversation": "Conversation",
+    "selectConversation": "Select a conversation",
+    "new": "New conversation",
+    "older": "Load earlier messages",
+    "empty": "Start a test conversation",
+    "emptyHint": "Create a conversation and enter your question.",
+    "roles": {
+      "user": "Visitor",
+      "assistant": "Assistant"
+    },
+    "generating": "Preparing response…",
+    "messageStatus": {
+      "processing": "Generating",
+      "completed": "Completed",
+      "failed": "Failed",
+      "canceled": "Canceled"
+    },
+    "message": "Message",
+    "enterHint": "Enter to send, Shift+Enter for a new line.",
+    "cancel": "Stop generation",
+    "send": "Send",
+    "confirmDelete": "Delete this test conversation and its entire history?",
+    "fields": {
+      "display_name": "Assistant name in chat",
+      "role": "Assistant role",
+      "company_description": "Company description",
+      "style": "Communication style",
+      "instructions": "Additional instructions",
+      "no_answer": "No-knowledge message (optional)"
+    },
+    "languagePolicy": "Response language",
+    "language": {
+      "auto": "Follow the message language",
+      "fixed": "Always a fixed language",
+      "default": "Assistant default language"
+    },
+    "fixedLocale": "Fixed language",
+    "offerOperator": "Suggest contacting staff when information is missing"
   }
 }

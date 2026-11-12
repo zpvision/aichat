@@ -12,6 +12,10 @@ CSRF: точное совпадение Origin с PUBLIC_APP_URL, `X-CSRF-Protec
 
 Расширение: знания реализованы модулем knowledge в этом же процессе; inference и widget будут добавлены позже с organization_id и тем же механизмом прав. Пользователь имеет независимый UUID: будущие OIDC identities будут отдельной таблицей с `(issuer, subject)`, связанной с users; перед добавлением OIDC password_hash станет nullable миграцией. Не связывать пользователей автоматически по неподтверждённой почте.
 
+Этап 3 реализует `internal/ai`: AIProvider (disabled/mock/ollama), PromptBuilder, общий conversation/AI service и SQL repository. RAG переиспользуется через knowledge.Search. Инструкции/история/источники ограничены budget; snapshots сохраняют фактические версии. HTTP preview использует JSON или POST SSE с прежней авторизацией и CSRF. DB row lock, request UUID и partial UNIQUE защищают от повторной/параллельной генерации. Partial output и model thinking не сохраняются. Server BaseContext связан с lifecycle приложения, cancel прекращает upstream; expired executions восстанавливаются как failed.
+
+Mock разрешён только dev/test и явно помечен в UI. Настоящий Ollama /api/chat адаптер проверен на HTTP-стенде, не на Gemma. Embedding/generation URLs независимы. Active ассистента по-прежнему запрещён: внутренний preview не означает готовность публичного AI. Отдельный публичный канал/виджет и действия не созданы. Подробности — [ai-engine.md](ai-engine.md).
+
 Ограничения: нет пагинации, истории аудита, приглашений, ревокации всех сессий, email verification и recovery. Модальные окна удерживают фокус и закрываются по Escape; перед production нужен отдельный accessibility review. Graceful shutdown: 10 секунд, HTTP timeouts, закрытие pgx pool. Логи JSON с операционными событиями без содержимого запросов.
 
 ## Модуль знаний

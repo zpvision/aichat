@@ -47,7 +47,7 @@
   "createAssistant": "Assistent erstellen",
   "editAssistant": "Assistent bearbeiten",
   "addSite": "Website hinzufügen",
-  "draftNotice": "Assistenten sind Entwürfe. AI, Wissensdatenbank und öffentliches Widget folgen in späteren Etappen.",
+  "draftNotice": "Assistenten bleiben Entwürfe für den öffentlichen Start. Konfigurieren Sie Wissen und testen Sie den Testchat; ein echtes AI-Modell ist noch nicht verbunden.",
   "draft": "Entwurf",
   "noDescription": "Noch keine Beschreibung",
   "edit": "Bearbeiten",
@@ -111,7 +111,20 @@
     "processing_interrupted": "Die Verarbeitung wurde unterbrochen. Starten Sie sie erneut.",
     "superseded": "Diese Version wurde ersetzt.",
     "import_partial": "Einige Seiten sind nicht erreichbar oder durch Website-Regeln gesperrt. Verfügbare Seiten wurden gespeichert.",
-    "upload_busy": "Es laufen zu viele Uploads. Versuchen Sie es gleich erneut."
+    "upload_busy": "Es laufen zu viele Uploads. Versuchen Sie es gleich erneut.",
+    "ai_disabled": "AI-Generierung ist deaktiviert.",
+    "ai_unavailable": "Generierungsdienst nicht verfügbar oder Modell nicht konfiguriert.",
+    "ai_busy": "Alle Generierungsplätze sind belegt. Versuchen Sie es gleich erneut.",
+    "ai_timeout": "Zeitüberschreitung. Die unvollständige Antwort wurde nicht gespeichert.",
+    "ai_canceled": "Generierung wurde abgebrochen.",
+    "ai_invalid_response": "Der Dienst lieferte eine ungültige Antwort. Wiederholen Sie die Anfrage.",
+    "ai_incomplete": "Der Antwortstream wurde unterbrochen. Die unvollständige Antwort wurde nicht gespeichert.",
+    "ai_interrupted": "Die Anfrage wurde durch Neustart oder Serverfehler unterbrochen.",
+    "ai_context_limit": "Anweisungen überschreiten das Kontextlimit.",
+    "conversation_busy": "In dieser Unterhaltung wird bereits eine Antwort generiert.",
+    "conversation_closed": "Diese Unterhaltung ist geschlossen. Erstellen Sie eine neue.",
+    "request_conflict": "Diese Anfrage-ID wurde bereits für eine andere Nachricht verwendet.",
+    "request_in_progress": "Diese Nachricht wird bereits verarbeitet. Warten Sie auf den Abschluss."
   },
   "knowledge": "Wissensdatenbank",
   "knowledgeHint": "Materialien und Suche für Ihre Assistenten.",
@@ -165,5 +178,53 @@
     "emptyHint": "Fügen Sie Materialien für den gewählten Assistenten hinzu.",
     "notExtracted": "Der Text wurde noch nicht extrahiert. Prüfen Sie den Verarbeitungsstatus.",
     "confirmDelete": "Material und Index löschen?"
+  },
+  "preview": "Testchat",
+  "previewHint": "Prüfen Sie die Assistenteneinstellungen und den Ablauf von Frage zu Antwort.",
+  "chat": {
+    "provider": "AI-Modus",
+    "demo": "Demonstrationsmodus — Antworten sind Testantworten. Ein echtes AI-Modell ist noch nicht verbunden.",
+    "disabled": "AI ist deaktiviert. Ein echtes Modell ist nicht verbunden.",
+    "ollamaConfigured": "Ollama ist konfiguriert. Verfügbarkeit und Kompatibilität werden beim Senden geprüft.",
+    "settings": "Assistentenanweisungen",
+    "sources": "An AI übergebene Quellen",
+    "conversation": "Unterhaltung",
+    "selectConversation": "Unterhaltung auswählen",
+    "new": "Neue Unterhaltung",
+    "older": "Ältere Nachrichten laden",
+    "empty": "Testunterhaltung starten",
+    "emptyHint": "Erstellen Sie eine Unterhaltung und geben Sie Ihre Frage ein.",
+    "roles": {
+      "user": "Besucher",
+      "assistant": "Assistent"
+    },
+    "generating": "Antwort wird vorbereitet…",
+    "messageStatus": {
+      "processing": "Wird generiert",
+      "completed": "Abgeschlossen",
+      "failed": "Fehlgeschlagen",
+      "canceled": "Abgebrochen"
+    },
+    "message": "Nachricht",
+    "enterHint": "Enter zum Senden, Shift+Enter für eine neue Zeile.",
+    "cancel": "Generierung stoppen",
+    "send": "Senden",
+    "confirmDelete": "Testunterhaltung und gesamten Verlauf löschen?",
+    "fields": {
+      "display_name": "Assistentenname im Chat",
+      "role": "Rolle des Assistenten",
+      "company_description": "Unternehmensbeschreibung",
+      "style": "Kommunikationsstil",
+      "instructions": "Zusätzliche Anweisungen",
+      "no_answer": "Nachricht bei fehlendem Wissen (optional)"
+    },
+    "languagePolicy": "Antwortsprache",
+    "language": {
+      "auto": "Sprache der Nachricht verwenden",
+      "fixed": "Immer eine feste Sprache",
+      "default": "Standardsprache des Assistenten"
+    },
+    "fixedLocale": "Feste Sprache",
+    "offerOperator": "Bei fehlenden Informationen Kontakt zu einem Mitarbeiter vorschlagen"
   }
 }

@@ -47,7 +47,7 @@
   "createAssistant": "Vytvořit asistenta",
   "editAssistant": "Upravit asistenta",
   "addSite": "Přidat web",
-  "draftNotice": "Asistenti jsou koncepty. AI, znalostní báze a veřejný widget budou připojeny v dalších etapách.",
+  "draftNotice": "Asistenti zůstávají koncepty pro veřejné spuštění. Nastavte znalosti a vyzkoušejte testovací chat; skutečný AI model zatím není připojen.",
   "draft": "Koncept",
   "noDescription": "Zatím bez popisu",
   "edit": "Upravit",
@@ -111,7 +111,20 @@
     "processing_interrupted": "Zpracování bylo přerušeno. Spusťte jej znovu.",
     "superseded": "Tato verze byla nahrazena novou.",
     "import_partial": "Některé stránky nejsou dostupné nebo jsou zakázány pravidly webu. Dostupné stránky byly uloženy.",
-    "upload_busy": "Právě probíhá příliš mnoho nahrávání. Zkuste to za chvíli."
+    "upload_busy": "Právě probíhá příliš mnoho nahrávání. Zkuste to za chvíli.",
+    "ai_disabled": "Generování AI je vypnuto.",
+    "ai_unavailable": "Služba generování není dostupná nebo model není nastaven.",
+    "ai_busy": "Všechna místa pro generování jsou obsazena. Zkuste to za chvíli.",
+    "ai_timeout": "Vypršel čas čekání. Nedokončená odpověď nebyla uložena.",
+    "ai_canceled": "Generování bylo zrušeno.",
+    "ai_invalid_response": "Služba vrátila neplatnou odpověď. Opakujte požadavek.",
+    "ai_incomplete": "Proud odpovědi byl přerušen. Nedokončená odpověď nebyla uložena.",
+    "ai_interrupted": "Požadavek byl přerušen restartem nebo chybou serveru.",
+    "ai_context_limit": "Instrukce překračují limit kontextu.",
+    "conversation_busy": "V této konverzaci se již generuje odpověď.",
+    "conversation_closed": "Tato konverzace je uzavřena. Vytvořte novou.",
+    "request_conflict": "Tento identifikátor požadavku již patří jiné zprávě.",
+    "request_in_progress": "Tato zpráva se již zpracovává. Počkejte na dokončení."
   },
   "knowledge": "Znalostní báze",
   "knowledgeHint": "Podklady a vyhledávání pro vaše asistenty.",
@@ -165,5 +178,53 @@
     "emptyHint": "Přidejte podklady pro vybraného asistenta.",
     "notExtracted": "Text zatím nebyl extrahován. Zkontrolujte stav zpracování.",
     "confirmDelete": "Smazat podklad a jeho index?"
+  },
+  "preview": "Testovací chat",
+  "previewHint": "Ověřte nastavení asistenta a postup od dotazu k odpovědi.",
+  "chat": {
+    "provider": "Režim AI",
+    "demo": "Ukázkový režim — odpovědi jsou testovací. Skutečný AI model zatím není připojen.",
+    "disabled": "AI je vypnuta. Skutečný model není připojen.",
+    "ollamaConfigured": "Ollama je nastavena. Dostupnost a kompatibilita modelu se ověřuje při odeslání požadavku.",
+    "settings": "Instrukce asistenta",
+    "sources": "Zdroje předané AI",
+    "conversation": "Konverzace",
+    "selectConversation": "Vyberte konverzaci",
+    "new": "Nová konverzace",
+    "older": "Načíst starší zprávy",
+    "empty": "Začněte testovací konverzaci",
+    "emptyHint": "Vytvořte konverzaci a zadejte vlastní dotaz.",
+    "roles": {
+      "user": "Návštěvník",
+      "assistant": "Asistent"
+    },
+    "generating": "Příprava odpovědi…",
+    "messageStatus": {
+      "processing": "Generování",
+      "completed": "Dokončeno",
+      "failed": "Chyba",
+      "canceled": "Zrušeno"
+    },
+    "message": "Zpráva",
+    "enterHint": "Enter odešle, Shift+Enter vloží nový řádek.",
+    "cancel": "Zastavit generování",
+    "send": "Odeslat",
+    "confirmDelete": "Smazat testovací konverzaci a celou její historii?",
+    "fields": {
+      "display_name": "Jméno asistenta v chatu",
+      "role": "Role asistenta",
+      "company_description": "Popis společnosti",
+      "style": "Styl komunikace",
+      "instructions": "Další instrukce",
+      "no_answer": "Zpráva při nedostatku znalostí (volitelné)"
+    },
+    "languagePolicy": "Jazyk odpovědi",
+    "language": {
+      "auto": "Podle jazyka zprávy",
+      "fixed": "Vždy zadaný jazyk",
+      "default": "Výchozí jazyk asistenta"
+    },
+    "fixedLocale": "Zadaný jazyk",
+    "offerOperator": "Při nedostatku informací navrhnout kontakt s pracovníkem"
   }
 }

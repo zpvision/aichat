@@ -14,6 +14,7 @@ import {
 } from "./api";
 import "./style.css";
 import { Knowledge } from "./Knowledge";
+import { PreviewChat } from "./PreviewChat";
 
 function App() {
   const { t } = useTranslation();
@@ -369,6 +370,7 @@ function App() {
                   "home",
                   "assistants",
                   "knowledge",
+                  "preview",
                   "sites",
                   ...(org.role === "owner" ? ["settings"] : []),
                 ].map((p) => (
@@ -549,6 +551,14 @@ function App() {
                           <button
                             onClick={() => {
                               setKnowledgeAssistant(a.id);
+                              setPage("preview");
+                            }}
+                          >
+                            {t("preview")}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setKnowledgeAssistant(a.id);
                               setPage("knowledge");
                             }}
                           >
@@ -619,6 +629,15 @@ function App() {
                 )}
                 {page === "knowledge" && (
                   <Knowledge
+                    key={org.id + knowledgeAssistant}
+                    organizationId={org.id}
+                    assistants={assistants}
+                    writable={writable}
+                    initialAssistant={knowledgeAssistant}
+                  />
+                )}
+                {page === "preview" && (
+                  <PreviewChat
                     key={org.id + knowledgeAssistant}
                     organizationId={org.id}
                     assistants={assistants}

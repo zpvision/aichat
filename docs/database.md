@@ -19,3 +19,11 @@ Composite FK source → `(organization_id,assistant_id)` assistants; jobs/chunks
 UNIQUE upload checksum и URL ограничены компанией и ассистентом; UNIQUE(source_id,revision,position) предотвращает дубли chunks; UNIQUE(source_id,revision) — дубли jobs. Scope/queue/GIN индексы; HNSW нет. Vector без фиксированной typmod-размерности, потому что фактическая размерность проверяется у провайдера; CHECK vector_dims=dimensions. На настоящей BGE-M3 получено 1024. Поиск обязательно фильтруется model/digest/dimensions. Полная новая версия публикуется транзакционно, предыдущие chunks удаляются после смены active_revision в той же транзакции. История полных старых документов пока не хранится; старые активные chunks сохраняются до успешной замены.
 
 Образ PostgreSQL сохранён на Alpine/major 17, расширение собирается из pgvector v0.8.7. Именованный volume остаётся прежним. Миграции forward-only, extension создаёт привилегированный мигратор. Подробнее — docs/rag.md.
+
+## Этап 3
+
+`003_ai_conversations.sql` добавляет assistant_ai_settings, conversations, ai_executions, conversation_messages. Старые таблицы/миграции не изменены. Settings имеют composite assistant FK; conversation — organization/assistant/id и created_by; executions/messages — composite tenant/conversation FKs. CASCADE ограничен удалением preview conversation и её executions/messages; удаления компании API по-прежнему нет.
+
+Execution хранит request UUID/hash, provider/model, статус processing/completed/failed/canceled, wall/provider duration и nullable tokens, error_code, selected sources JSON snapshot, settings snapshot, response_language, policy_fallback и expires_at. UNIQUE(conversation_id,request_id) + partial UNIQUE processing не допускают повторного или параллельного запуска. Context/history статусы проверяются сервером. Model thinking, URL-токены и raw inference errors не хранятся.
+
+Messages имеют monotonic bigint sequence для порядка и cursor pagination, один user и один assistant на execution. Незавершённый assistant content пуст; только успешный Finish сохраняет полный текст транзакционно. История prompt исключает failed/canceled execution целиком. Sources snapshot не FK на mutable knowledge_chunks: source/chunk IDs, revisions и текст остаются для истории после reindex/delete знания. При удалении preview удаляются и snapshots; перед production нужна retention-политика.

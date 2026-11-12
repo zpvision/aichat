@@ -681,3 +681,122 @@ footer {
     gap: 8px;
   }
 }
+.preview-chat {
+  max-width: 1100px;
+}
+.chat-provider {
+  margin-bottom: 22px;
+}
+.chat-provider .info {
+  margin-bottom: 12px;
+}
+.chat-toolbar {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+.chat-toolbar label {
+  flex: 1;
+  min-width: 200px;
+}
+.chat-panel {
+  padding: 28px;
+}
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 24px 0;
+  max-height: 650px;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+.chat-message {
+  max-width: 90%;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: #f2f5fc;
+  min-width: 0;
+}
+.chat-message.user {
+  align-self: flex-end;
+  background: #eaf4ff;
+}
+.chat-message.assistant {
+  align-self: flex-start;
+  background: #f5f2fc;
+}
+.chat-message p {
+  margin: 10px 0;
+}
+.chat-message small {
+  font-size: 11px;
+  color: #65748a;
+}
+.chat-sources {
+  border-top: 1px solid #dce4ef;
+  margin-top: 16px;
+  padding-top: 14px;
+  font-size: 13px;
+}
+.chat-sources summary {
+  cursor: pointer;
+  color: #0877da;
+}
+.chat-sources article {
+  padding: 16px 0;
+  border-bottom: 1px solid #e7ecf4;
+}
+.chat-sources p {
+  max-height: 200px;
+  overflow: auto;
+}
+.chat-sources a {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #0877da;
+}
+.chat-send {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.chat-settings {
+  margin-bottom: 24px;
+}
+.chat-settings textarea {
+  min-height: 75px;
+}
+.chat-settings label:nth-child(5) textarea {
+  min-height: 130px;
+}
+.chat-panel > form textarea {
+  min-height: 100px;
+}
+@media (max-width: 600px) {
+  .chat-panel {
+    padding: 20px;
+  }
+  .chat-message {
+    max-width: 100%;
+    padding: 16px;
+  }
+  .chat-toolbar label {
+    flex-basis: 100%;
+  }
+  .chat-toolbar button {
+    flex: 1;
+  }
+  .chat-send {
+    flex-wrap: wrap;
+  }
+  .chat-send button {
+    width: 100%;
+  }
+  .chat-messages {
+    max-height: 600px;
+  }
+}
