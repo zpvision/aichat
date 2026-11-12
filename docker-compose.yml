@@ -1,0 +1,24 @@
+name: site-assistant
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: site_assistant
+      POSTGRES_PASSWORD: local-development-only
+      POSTGRES_DB: site_assistant
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U site_assistant"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  postgres_data:
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${DOCKER_SUBNET:-10.253.87.0/24}

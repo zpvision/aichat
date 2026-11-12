@@ -1,0 +1,11 @@
+.idea/
+.env
+**/.env
+node_modules/
+dist/
+*.exe
+coverage.out
+playwright-report/
+test-results/
+tmp/
+*.tsbuildinfo
