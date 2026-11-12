@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
+	"site-assistant/internal/knowledge"
 	"strings"
 	"sync"
 	"time"
@@ -20,16 +21,20 @@ type bucket struct {
 	until time.Time
 }
 type Server struct {
-	service   *core.Service
-	config    config.Config
-	mu        sync.Mutex
-	attempts  map[string]bucket
-	authSlots chan struct{}
+	service     *core.Service
+	config      config.Config
+	mu          sync.Mutex
+	attempts    map[string]bucket
+	authSlots   chan struct{}
+	uploadSlots chan struct{}
 }
 
-func New(s *core.Service, c config.Config) http.Handler {
-	a := &Server{service: s, config: c, attempts: map[string]bucket{}, authSlots: make(chan struct{}, 4)}
+func New(s *core.Service, c config.Config, modules ...*knowledge.Service) http.Handler {
+	a := &Server{service: s, config: c, attempts: map[string]bucket{}, authSlots: make(chan struct{}, 4), uploadSlots: make(chan struct{}, 2)}
 	m := http.NewServeMux()
+	for _, k := range modules {
+		a.knowledgeRoutes(m, k)
+	}
 	m.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) { respond(w, 200, map[string]string{"status": "ok"}) })
 	m.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), time.Second*2)
@@ -146,7 +151,8 @@ func New(s *core.Service, c config.Config) http.Handler {
 			}
 		}()
 		if r.Method != "GET" && r.Method != "HEAD" {
-			if r.Header.Get("Origin") != c.PublicURL || r.Header.Get("X-CSRF-Protection") != "1" || !strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
+			multipartUpload := r.Method == "POST" && strings.HasSuffix(r.URL.Path, "/knowledge/upload") && strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;")
+			if r.Header.Get("Origin") != c.PublicURL || r.Header.Get("X-CSRF-Protection") != "1" || (!strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") && !multipartUpload) {
 				a.err(w, core.Fail("csrf", 403))
 				return
 			}
@@ -170,7 +176,10 @@ func (a *Server) protect(next func(http.ResponseWriter, *http.Request, core.User
 	}
 }
 func (a *Server) decode(w http.ResponseWriter, r *http.Request, v any) bool {
-	r.Body = http.MaxBytesReader(w, r.Body, 32*1024)
+	return a.decodeLimit(w, r, v, 32*1024)
+}
+func (a *Server) decodeLimit(w http.ResponseWriter, r *http.Request, v any, limit int64) bool {
+	r.Body = http.MaxBytesReader(w, r.Body, limit)
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if e := d.Decode(v); e != nil {

@@ -14,6 +14,7 @@ import (
 	"site-assistant/internal/core"
 	"site-assistant/internal/database"
 	"site-assistant/internal/httpapi"
+	"site-assistant/internal/knowledge"
 	"syscall"
 	"time"
 	_ "time/tzdata"
@@ -50,7 +51,17 @@ func run() error {
 		return database.Migrate(ctx, pool, foundation.Migrations)
 	}
 	store := &core.Store{DB: pool}
-	srv := &http.Server{Addr: c.Addr, Handler: httpapi.New(core.NewService(store), c), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second, WriteTimeout: 20 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
+	kc, e := knowledge.LoadConfig()
+	if e != nil {
+		return e
+	}
+	auth := core.NewService(store)
+	ks := knowledge.New(auth, kc)
+	workerCtx, workerCancel := context.WithCancel(ctx)
+	workerDone := make(chan struct{})
+	go func() { defer close(workerDone); ks.Run(workerCtx) }()
+	defer func() { workerCancel(); <-workerDone }()
+	srv := &http.Server{Addr: c.Addr, Handler: httpapi.New(auth, c, ks), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
 	done := make(chan error, 1)
 	go func() {
 		slog.Info("server listening", "addr", c.Addr, "region", c.Region)

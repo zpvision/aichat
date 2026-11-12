@@ -24,6 +24,26 @@
 
 Все мутации требуют Origin=PUBLIC_APP_URL, `X-CSRF-Protection: 1` и Content-Type=application/json. Не хранить cookie вручную в localStorage. Сервер не выдаёт access tokens. Создание компании/ассистента/сайта — 201; регистрация — 202; остальные успешные действия — 200. Readiness при недоступной БД — 503.
 
+## Knowledge API (этап 2)
+
+Базовый путь `K=/api/v1/organizations/{id}/assistants/{assistantId}/knowledge`. Все операции требуют сессии и членства; изменения — owner/admin. Каждый documentId дополнительно ограничен компанией и ассистентом. List/get/search доступны operator. Все ответы и ошибки — существующий JSON-контракт.
+
+| Метод | Путь | Назначение |
+|---|---|---|
+| GET | K | Список metadata (content в списке пустой) |
+| POST | K/articles | Создать статью `{title,content,language?,enabled?}`, 202 |
+| POST | K/upload | Multipart с одним полем file TXT/MD/PDF/DOCX, 202 |
+| POST | K/import-url | `{url,crawl?}`; очередь импорта, 202 |
+| GET | K/{documentId} | Извлечённый текст и metadata |
+| PATCH | K/{documentId} | Частичные title/language/enabled; content только у статьи, 202 |
+| DELETE | K/{documentId} | Удалить источник, jobs/chunks и локальный оригинал |
+| POST | K/{documentId}/reindex | `{}`, новая revision; web вручную обновляется, 202 |
+| POST | K/search | `{query,mode?:hybrid\|semantic}`, список максимум 5 фрагментов |
+
+Единственное исключение JSON Content-Type — POST K/upload с multipart/form-data. Origin и X-CSRF-Protection: 1 обязательны и здесь. Успешный 202 означает сохранение/очередь, не готовый индекс. Poll GET K для pending/processing/ready/failed и error_code; active_revision указывает рабочий индекс. Извлечённый текст доступен после extraction даже при ошибке embeddings. Оригиналы и внутренний file_key API не возвращает.
+
+Дополнительные ошибки: file_too_large (413), empty_document/invalid_file/unsupported_file/ocr_required/unsafe_url/html_required/robots_denied (422), knowledge_limit (429), embedding_unavailable/embedding_invalid/embedding_changed/extractor_unavailable (503). Временные import/robots ошибки могут иметь 503 и повторяться worker; постоянные — 422. import_partial — предупреждение у ready web-источника. Search score: cosine для semantic и RRF для hybrid; similarity всегда cosine, это не вероятность. Полный контракт и поля — openapi.json.
+
 Коды ошибок: validation (422), invalid_credentials/unauthorized (401), csrf/forbidden (403), not_found (404), conflict (409), rate_limited (429, Retry-After 900), ai_not_configured (422), internal (500), not_ready (503). Login не различает отсутствующую почту и неверный пароль. Регистрация не означает подтверждение email и не имитирует отправку письма.
 
 Минимальные payload: компания `{name,country}` (timezone по умолчанию UTC, default_locale en); ассистент `{name}` (draft, visitor, en); сайт `{name,domain,assistant_id}`. Language policy visitor/fixed — только сохранённая настройка. Страна — две ASCII-буквы ISO, timezone — имя IANA, языки ru/en/cs/de. Domain — DNS-имя, а не URL, IP, путь или wildcard. Владение сайтом не проверяется.

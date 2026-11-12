@@ -14,6 +14,7 @@ import (
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/database"
+	"site-assistant/internal/knowledge"
 	"strings"
 	"testing"
 )
@@ -55,7 +56,14 @@ func TestIntegration(t *testing.T) {
 		}
 	}
 	store := &core.Store{DB: db}
-	h := New(core.NewService(store), config.Config{PublicURL: "http://localhost:5173"})
+	auth := core.NewService(store)
+	kc, err := knowledge.LoadConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	kc.FileRoot = t.TempDir()
+	k := knowledge.New(auth, kc)
+	h := New(auth, config.Config{PublicURL: "http://localhost:5173"}, k)
 	call := func(method, path, body, token string, want int) map[string]any {
 		t.Helper()
 		r := httptest.NewRequest(method, path, bytes.NewBufferString(body))
@@ -110,6 +118,13 @@ func TestIntegration(t *testing.T) {
 	call("GET", base+"/sites", "", bt, 404)
 	assistant := call("POST", base+"/assistants", `{"name":"Helper","default_locale":"de","language_policy":"visitor"}`, token, 201)
 	aid := assistant["id"].(string)
+	kbase := base + "/assistants/" + aid + "/knowledge"
+	article := call("POST", kbase+"/articles", `{"title":"Article","content":"Knowledge content","language":"en"}`, token, 202)
+	kid := article["id"].(string)
+	call("GET", kbase+"/"+kid, "", token, 200)
+	call("GET", kbase+"/"+kid, "", bt, 404)
+	call("PATCH", kbase+"/"+kid, `{"content":"Updated content"}`, token, 202)
+	call("POST", kbase+"/import-url", `{"url":"http://127.0.0.1"}`, token, 422)
 	call("PATCH", base+"/assistants/"+aid, `{"status":"active"}`, token, 422)
 	call("POST", base+"/assistants", `{"name":""}`, token, 422)
 	site := call("POST", base+"/sites", fmt.Sprintf(`{"name":"Website","domain":"EXAMPLE.com.","assistant_id":%q}`, aid), token, 201)
@@ -130,10 +145,16 @@ func TestIntegration(t *testing.T) {
 	}
 	call("GET", base, "", bt, 200)
 	call("POST", base+"/assistants", `{"name":"blocked"}`, bt, 403)
+	call("GET", kbase+"/"+kid, "", bt, 200)
+	call("POST", kbase+"/articles", `{"title":"Forbidden","content":"No"}`, bt, 403)
+	call("DELETE", kbase+"/"+kid, `{}`, bt, 403)
 	call("DELETE", base+"/sites/"+site["id"].(string), `{}`, bt, 403)
 	db.Exec(ctx, "UPDATE organization_members SET role='admin' WHERE organization_id=$1 AND user_id=$2", id, b["id"])
 	call("PATCH", base, `{"name":"blocked"}`, bt, 403)
 	call("PATCH", base+"/assistants/"+aid, `{"description":"updated"}`, bt, 200)
+	call("POST", kbase+"/"+kid+"/reindex", `{}`, bt, 202)
+	call("DELETE", kbase+"/"+kid, `{}`, token, 200)
+	call("GET", kbase+"/"+kid, "", token, 404)
 	for _, locale := range []string{"ru", "en", "cs", "de"} {
 		call("PATCH", "/api/v1/profile", fmt.Sprintf(`{"preferred_locale":%q}`, locale), token, 200)
 	}

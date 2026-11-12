@@ -1,0 +1,245 @@
+{
+  "dataset": "internal/knowledge/testdata/multilingual.json",
+  "dimensions": 1024,
+  "hybrid_recall_at_5": 1,
+  "mock": false,
+  "model": "bge-m3",
+  "model_digest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+  "results": [
+    {
+      "expected": "ru-accounting",
+      "found_in_top5": true,
+      "kind": "ru-ru",
+      "mode": "semantic",
+      "query": "Кто рассчитывает зарплату и готовит налоговую отчётность для малого бизнеса?",
+      "returned": 5,
+      "titles": [
+        "Бухгалтерское сопровождение Север",
+        "Steuerpaket Berg",
+        "Условия юридических услуг Орион",
+        "Rechtsberatung Linden",
+        "Tarif Jantar Plus"
+      ]
+    },
+    {
+      "expected": "de-legal",
+      "found_in_top5": true,
+      "kind": "de-de",
+      "mode": "semantic",
+      "query": "Wie lange dauert die juristische Erstberatung bei Linden?",
+      "returned": 5,
+      "titles": [
+        "Rechtsberatung Linden",
+        "Условия юридических услуг Орион",
+        "Contact Cedar Support",
+        "Tarif Jantar Plus",
+        "Kontakt kancelář Most"
+      ]
+    },
+    {
+      "expected": "cs-tariff",
+      "found_in_top5": true,
+      "kind": "cs-cs",
+      "mode": "semantic",
+      "query": "Kolik dokladů zahrnuje tarif Jantar Plus?",
+      "returned": 3,
+      "titles": [
+        "Tarif Jantar Plus",
+        "Steuerpaket Berg",
+        "Harbor service terms"
+      ]
+    },
+    {
+      "expected": "en-contact",
+      "found_in_top5": true,
+      "kind": "en-en",
+      "mode": "semantic",
+      "query": "When is Cedar Support open and how can I contact them?",
+      "returned": 2,
+      "titles": [
+        "Contact Cedar Support",
+        "Kontakt kancelář Most"
+      ]
+    },
+    {
+      "expected": "ru-accounting",
+      "found_in_top5": true,
+      "kind": "de-ru",
+      "mode": "semantic",
+      "query": "Welche Firma übernimmt die Lohnabrechnung und Steuerberichte für kleine Unternehmen?",
+      "returned": 5,
+      "titles": [
+        "Бухгалтерское сопровождение Север",
+        "Steuerpaket Berg",
+        "Условия юридических услуг Орион",
+        "Rechtsberatung Linden",
+        "Tarif Jantar Plus"
+      ]
+    },
+    {
+      "expected": "cs-tariff",
+      "found_in_top5": true,
+      "kind": "en-cs",
+      "mode": "semantic",
+      "query": "What is the monthly price and cancellation period of the Jantar Plus accounting plan?",
+      "returned": 4,
+      "titles": [
+        "Tarif Jantar Plus",
+        "Harbor service terms",
+        "Steuerpaket Berg",
+        "Бухгалтерское сопровождение Север"
+      ]
+    },
+    {
+      "expected": "cs-tariff",
+      "found_in_top5": true,
+      "kind": "exact-tariff",
+      "mode": "semantic",
+      "query": "Jantar Plus",
+      "returned": 1,
+      "titles": [
+        "Tarif Jantar Plus"
+      ]
+    },
+    {
+      "expected": "en-terms",
+      "found_in_top5": true,
+      "kind": "price",
+      "mode": "semantic",
+      "query": "How much does Standard Care website maintenance cost?",
+      "returned": 3,
+      "titles": [
+        "Harbor service terms",
+        "Tarif Jantar Plus",
+        "Steuerpaket Berg"
+      ]
+    },
+    {
+      "expected": "",
+      "found_in_top5": false,
+      "kind": "absent",
+      "mode": "semantic",
+      "query": "What is the launch date of the next spacecraft mission to Jupiter?",
+      "returned": 0,
+      "titles": []
+    },
+    {
+      "expected": "ru-accounting",
+      "found_in_top5": true,
+      "kind": "ru-ru",
+      "mode": "hybrid",
+      "query": "Кто рассчитывает зарплату и готовит налоговую отчётность для малого бизнеса?",
+      "returned": 5,
+      "titles": [
+        "Бухгалтерское сопровождение Север",
+        "Steuerpaket Berg",
+        "Условия юридических услуг Орион",
+        "Rechtsberatung Linden",
+        "Tarif Jantar Plus"
+      ]
+    },
+    {
+      "expected": "de-legal",
+      "found_in_top5": true,
+      "kind": "de-de",
+      "mode": "hybrid",
+      "query": "Wie lange dauert die juristische Erstberatung bei Linden?",
+      "returned": 5,
+      "titles": [
+        "Rechtsberatung Linden",
+        "Условия юридических услуг Орион",
+        "Contact Cedar Support",
+        "Tarif Jantar Plus",
+        "Kontakt kancelář Most"
+      ]
+    },
+    {
+      "expected": "cs-tariff",
+      "found_in_top5": true,
+      "kind": "cs-cs",
+      "mode": "hybrid",
+      "query": "Kolik dokladů zahrnuje tarif Jantar Plus?",
+      "returned": 3,
+      "titles": [
+        "Tarif Jantar Plus",
+        "Steuerpaket Berg",
+        "Harbor service terms"
+      ]
+    },
+    {
+      "expected": "en-contact",
+      "found_in_top5": true,
+      "kind": "en-en",
+      "mode": "hybrid",
+      "query": "When is Cedar Support open and how can I contact them?",
+      "returned": 2,
+      "titles": [
+        "Contact Cedar Support",
+        "Kontakt kancelář Most"
+      ]
+    },
+    {
+      "expected": "ru-accounting",
+      "found_in_top5": true,
+      "kind": "de-ru",
+      "mode": "hybrid",
+      "query": "Welche Firma übernimmt die Lohnabrechnung und Steuerberichte für kleine Unternehmen?",
+      "returned": 5,
+      "titles": [
+        "Бухгалтерское сопровождение Север",
+        "Steuerpaket Berg",
+        "Условия юридических услуг Орион",
+        "Rechtsberatung Linden",
+        "Tarif Jantar Plus"
+      ]
+    },
+    {
+      "expected": "cs-tariff",
+      "found_in_top5": true,
+      "kind": "en-cs",
+      "mode": "hybrid",
+      "query": "What is the monthly price and cancellation period of the Jantar Plus accounting plan?",
+      "returned": 4,
+      "titles": [
+        "Tarif Jantar Plus",
+        "Harbor service terms",
+        "Steuerpaket Berg",
+        "Бухгалтерское сопровождение Север"
+      ]
+    },
+    {
+      "expected": "cs-tariff",
+      "found_in_top5": true,
+      "kind": "exact-tariff",
+      "mode": "hybrid",
+      "query": "Jantar Plus",
+      "returned": 1,
+      "titles": [
+        "Tarif Jantar Plus"
+      ]
+    },
+    {
+      "expected": "en-terms",
+      "found_in_top5": true,
+      "kind": "price",
+      "mode": "hybrid",
+      "query": "How much does Standard Care website maintenance cost?",
+      "returned": 3,
+      "titles": [
+        "Harbor service terms",
+        "Tarif Jantar Plus",
+        "Steuerpaket Berg"
+      ]
+    },
+    {
+      "expected": "",
+      "found_in_top5": false,
+      "kind": "absent",
+      "mode": "hybrid",
+      "query": "What is the launch date of the next spacecraft mission to Jupiter?",
+      "returned": 0,
+      "titles": []
+    }
+  ],
+  "semantic_recall_at_5": 1
+}

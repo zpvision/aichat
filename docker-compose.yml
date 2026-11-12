@@ -1,7 +1,16 @@
 name: site-assistant
 services:
+  extractor:
+    profiles: [tools]
+    image: site-assistant-extractor:local
+    build:
+      context: .
+      dockerfile: docker/extractor.Dockerfile
   postgres:
-    image: postgres:17-alpine
+    build:
+      context: .
+      dockerfile: docker/postgres.Dockerfile
+    image: site-assistant-postgres:17-vector
     environment:
       POSTGRES_USER: site_assistant
       POSTGRES_PASSWORD: local-development-only

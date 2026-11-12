@@ -13,6 +13,7 @@ import {
   type Site,
 } from "./api";
 import "./style.css";
+import { Knowledge } from "./Knowledge";
 
 function App() {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ function App() {
   const [orgs, setOrgs] = useState<Organization[]>([]);
   const [org, setOrg] = useState<Organization | null>(null);
   const [assistants, setAssistants] = useState<Assistant[]>([]);
+  const [knowledgeAssistant, setKnowledgeAssistant] = useState("");
   const [sites, setSites] = useState<Site[]>([]);
   const [page, setPage] = useState("home");
   const [dialog, setDialog] = useState("");
@@ -366,6 +368,7 @@ function App() {
                 {[
                   "home",
                   "assistants",
+                  "knowledge",
                   "sites",
                   ...(org.role === "owner" ? ["settings"] : []),
                 ].map((p) => (
@@ -543,6 +546,14 @@ function App() {
                         <section className="card" key={a.id}>
                           <span className="badge">{t("draft")}</span>
                           <h2>{a.name}</h2>
+                          <button
+                            onClick={() => {
+                              setKnowledgeAssistant(a.id);
+                              setPage("knowledge");
+                            }}
+                          >
+                            {t("knowledge")}
+                          </button>
                           <p className="description">
                             {a.description || t("noDescription")}
                           </p>
@@ -605,6 +616,15 @@ function App() {
                       </section>
                     )}
                   </>
+                )}
+                {page === "knowledge" && (
+                  <Knowledge
+                    key={org.id + knowledgeAssistant}
+                    organizationId={org.id}
+                    assistants={assistants}
+                    writable={writable}
+                    initialAssistant={knowledgeAssistant}
+                  />
                 )}
                 {page === "settings" && org.role === "owner" && (
                   <section className="card form-card">

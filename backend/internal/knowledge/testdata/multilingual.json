@@ -1,0 +1,23 @@
+{
+ "documents":[
+ {"key":"ru-accounting","language":"ru","title":"Бухгалтерское сопровождение Север","content":"Компания Север оказывает бухгалтерские услуги малому бизнесу. Мы ведём бухгалтерский и налоговый учёт, рассчитываем зарплату и готовим налоговую отчётность. Первичная консультация бухгалтера бесплатна. ИНН компании 7701234567."},
+ {"key":"de-legal","language":"de","title":"Rechtsberatung Linden","content":"Die Kanzlei Linden berät Unternehmen im Arbeitsrecht. Wir prüfen Arbeitsverträge und begleiten Kündigungen. Eine juristische Erstberatung dauert 45 Minuten und kostet 120 Euro. Termine sind nur nach Vereinbarung möglich."},
+ {"key":"cs-tariff","language":"cs","title":"Tarif Jantar Plus","content":"Tarif Jantar Plus stojí 7900 Kč měsíčně. Cena zahrnuje vedení účetnictví, zpracování až 120 dokladů a měsíční konzultaci. Smlouvu lze ukončit s výpovědní lhůtou 30 dní. Nejsme plátci DPH."},
+ {"key":"en-contact","language":"en","title":"Contact Cedar Support","content":"Cedar Support can be reached by email at help@cedar.example. Our office is open Monday to Friday from 09:00 to 17:00 Central European Time. We reply to email within two business days. Weekend visits are not available."},
+ {"key":"ru-contract","language":"ru","title":"Условия юридических услуг Орион","content":"Юридическая компания Орион готовит договоры поставки для организаций. Для начала работы необходимо предоставить реквизиты сторон и описание сделки. Предоплата составляет 50 процентов. Готовый проект передаётся в течение пяти рабочих дней."},
+ {"key":"de-tax","language":"de","title":"Steuerpaket Berg","content":"Das Steuerpaket Berg kostet 280 Euro im Monat. Es umfasst die laufende Umsatzsteuervoranmeldung und die jährliche Gewinnermittlung für Einzelunternehmer. Lohnabrechnungen sind nicht enthalten."},
+ {"key":"cs-contact","language":"cs","title":"Kontakt kancelář Most","content":"Kancelář Most sídlí na adrese Dlouhá 18, Praha. Telefon je +420 222 555 019. Osobní konzultace jsou možné v úterý a ve čtvrtek od 10 do 16 hodin. Návštěvu je nutné předem objednat."},
+ {"key":"en-terms","language":"en","title":"Harbor service terms","content":"Harbor provides website maintenance. The Standard Care plan costs 65 EUR per month and includes security updates and daily backups. Design changes are billed separately. Customers may cancel with thirty days notice."}
+ ],
+ "questions":[
+ {"query":"Кто рассчитывает зарплату и готовит налоговую отчётность для малого бизнеса?","expected":"ru-accounting","kind":"ru-ru"},
+ {"query":"Wie lange dauert die juristische Erstberatung bei Linden?","expected":"de-legal","kind":"de-de"},
+ {"query":"Kolik dokladů zahrnuje tarif Jantar Plus?","expected":"cs-tariff","kind":"cs-cs"},
+ {"query":"When is Cedar Support open and how can I contact them?","expected":"en-contact","kind":"en-en"},
+ {"query":"Welche Firma übernimmt die Lohnabrechnung und Steuerberichte für kleine Unternehmen?","expected":"ru-accounting","kind":"de-ru"},
+ {"query":"What is the monthly price and cancellation period of the Jantar Plus accounting plan?","expected":"cs-tariff","kind":"en-cs"},
+ {"query":"Jantar Plus","expected":"cs-tariff","kind":"exact-tariff"},
+ {"query":"How much does Standard Care website maintenance cost?","expected":"en-terms","kind":"price"},
+ {"query":"What is the launch date of the next spacecraft mission to Jupiter?","expected":"","kind":"absent"}
+ ]
+}

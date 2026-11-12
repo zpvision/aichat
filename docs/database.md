@@ -9,3 +9,13 @@ Membership PK `(organization_id,user_id)`, индекс по user_id. Роль C
 Команда `go run ./cmd/api -migrate` применяет SQL по имени в одной транзакции под advisory lock и записывает версии. Повторный запуск безопасен. Это forward-only миграции: автоматического down нет; восстановление production через проверенный backup/новую миграцию. После публикации не менять применённый SQL. Интеграционный тест дважды применяет миграцию в чистой случайной схеме отдельной БД с суффиксом `_test`.
 
 Tenant isolation реализована в приложении и FK; PostgreSQL RLS пока не используется. Новые repository методы обязаны включать organization_id. Регионы используют независимые БД без общей таблицы пользователей или синхронизации.
+
+## Этап 2
+
+`002_knowledge.sql` добавляет public.vector и три таблицы: knowledge_sources (источник, текущее содержимое, checksum, revision/active_revision, enabled, язык, metadata файла/web, статус), knowledge_jobs (очередь с attempts, available_at, lease_until и fencing lease_token), knowledge_chunks (упорядоченные fragments/page, vector, model/digest/dimensions и generated simple tsvector).
+
+Composite FK source → `(organization_id,assistant_id)` assistants; jobs/chunks → `(organization_id,assistant_id,id)` source. CASCADE применяется только к принадлежащим удаляемому источнику jobs/chunks. Миграция не изменяет и не очищает таблицы этапа 1. Файлы находятся вне БД, UUID ключ не выдаётся API.
+
+UNIQUE upload checksum и URL ограничены компанией и ассистентом; UNIQUE(source_id,revision,position) предотвращает дубли chunks; UNIQUE(source_id,revision) — дубли jobs. Scope/queue/GIN индексы; HNSW нет. Vector без фиксированной typmod-размерности, потому что фактическая размерность проверяется у провайдера; CHECK vector_dims=dimensions. На настоящей BGE-M3 получено 1024. Поиск обязательно фильтруется model/digest/dimensions. Полная новая версия публикуется транзакционно, предыдущие chunks удаляются после смены active_revision в той же транзакции. История полных старых документов пока не хранится; старые активные chunks сохраняются до успешной замены.
+
+Образ PostgreSQL сохранён на Alpine/major 17, расширение собирается из pgvector v0.8.7. Именованный volume остаётся прежним. Миграции forward-only, extension создаёт привилегированный мигратор. Подробнее — docs/rag.md.
