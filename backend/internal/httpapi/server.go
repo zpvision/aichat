@@ -12,6 +12,7 @@ import (
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/knowledge"
+	"site-assistant/internal/widget"
 	"strings"
 	"sync"
 	"time"
@@ -36,9 +37,18 @@ func New(s *core.Service, c config.Config, modules ...*knowledge.Service) http.H
 func NewWithAI(s *core.Service, c config.Config, k *knowledge.Service, engine *ai.Service) http.Handler {
 	return newServer(s, c, engine, k)
 }
+func NewWithWidget(s *core.Service, c config.Config, k *knowledge.Service, engine *ai.Service, widgets *widget.Service) http.Handler {
+	return newServerWithWidget(s, c, engine, widgets, k)
+}
 func newServer(s *core.Service, c config.Config, engine *ai.Service, modules ...*knowledge.Service) http.Handler {
+	return newServerWithWidget(s, c, engine, nil, modules...)
+}
+func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, widgets *widget.Service, modules ...*knowledge.Service) http.Handler {
 	a := &Server{service: s, config: c, attempts: map[string]bucket{}, authSlots: make(chan struct{}, 4), uploadSlots: make(chan struct{}, 2)}
 	m := http.NewServeMux()
+	if widgets != nil {
+		a.widgetRoutes(m, widgets)
+	}
 	for _, k := range modules {
 		a.knowledgeRoutes(m, k)
 	}
@@ -160,8 +170,8 @@ func newServer(s *core.Service, c config.Config, engine *ai.Service, modules ...
 				a.err(w, core.Fail("internal", 500))
 			}
 		}()
-		if r.Method != "GET" && r.Method != "HEAD" {
-			multipartUpload := r.Method == "POST" && strings.HasSuffix(r.URL.Path, "/knowledge/upload") && strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;")
+		if r.Method != "GET" && r.Method != "HEAD" && !strings.HasPrefix(r.URL.Path, "/api/v1/public/widgets/") {
+			multipartUpload := r.Method == "POST" && (strings.HasSuffix(r.URL.Path, "/knowledge/upload") || strings.HasSuffix(r.URL.Path, "/widget/logo")) && strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;")
 			if r.Header.Get("Origin") != c.PublicURL || r.Header.Get("X-CSRF-Protection") != "1" || (!strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") && !multipartUpload) {
 				a.err(w, core.Fail("csrf", 403))
 				return

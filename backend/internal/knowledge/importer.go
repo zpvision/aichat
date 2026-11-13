@@ -18,6 +18,16 @@ import (
 
 type Importer struct{ Client *http.Client }
 
+// Fixed ownership challenges reuse the same DNS-pinned, bounded SSRF transport (not a crawler).
+func (i *Importer) Verification(ctx context.Context, raw string) ([]byte, error) {
+	u, e := NormalizeURL(raw)
+	if e != nil {
+		return nil, e
+	}
+	b, _, _, e := i.fetch(ctx, u, true)
+	return b, e
+}
+
 func PublicIP(ip netip.Addr) bool {
 	ip = ip.Unmap()
 	if !ip.IsGlobalUnicast() || ip.IsPrivate() || ip.IsLoopback() || ip.IsLinkLocalUnicast() || ip.IsMulticast() {

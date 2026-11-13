@@ -184,6 +184,11 @@ func (s *Service) Search(ctx context.Context, user, org, a string, in SearchInpu
 	}
 	return s.search(ctx, org, a, in)
 }
+
+// Retrieve is for trusted internal channels after their own authorization; never bind it directly to HTTP IDs.
+func (s *Service) Retrieve(ctx context.Context, org, a string, in SearchInput) ([]Hit, error) {
+	return s.search(ctx, org, a, in)
+}
 func (s *Service) search(ctx context.Context, org, a string, in SearchInput) ([]Hit, error) {
 	if strings.TrimSpace(in.Query) == "" || len(in.Query) > 2000 || (in.Mode != "" && in.Mode != "semantic" && in.Mode != "hybrid") {
 		return nil, core.Fail("validation", 422)

@@ -1,4 +1,20 @@
-# Результаты проверок этапа 1
+# Результаты проверок этапов 1–4
+
+## Этап 4 — 13 ноября 2026
+
+Полный `go test ./... -count=1 -v` с TEST_DATABASE_URL существующей `site_assistant_test`, PDF_TESTS=1, PUBLIC_IMPORT_TESTS=1, REAL_EMBEDDINGS=1 — PASS, без пропусков. Изолированные schema; мигратор применяется дважды, сохраняет foundation/knowledge/preview. `go vet ./...`, `go build ./cmd/api` — PASS. `go run golang.org/x/vuln/cmd/govulncheck@latest ./...` — No vulnerabilities found. Новые HTTP/service проверки: exact Origin/CORS, чужие widget/session/token/tenant IDs, preview/website separation, operator read-only, expiry/disabled widget/provider, replay без двойного бюджета, session/hourly/concurrency quotas, одновременные посетители/один conversation, cancel, production verification guard, SSRF-safe verifier, SVG/oversized logo rejection.
+
+Настоящая BGE-M3 (1024 dimensions, digest `7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab`) на прежнем мультиязычном наборе: semantic Recall@5 **8/8**, hybrid **8/8**. Отсутствующая информация и tenant isolation проверены отдельно. Реальные RAG revisions 1/2 переданы в Mock AI в интеграционном тесте; public browser scenario также индексирует настоящей моделью и выполняет RAG. Это результат retrieval, не качество генерации Gemma.
+
+Frontend: 13/13 unit tests; widget: 4/4 (RU/EN/CS/DE parity, origin/source/channel bridge, Unicode SSE + credentials omit/bearer, incomplete stream rejection). TypeScript и обе production builds — PASS; npm audit обоих проектов — 0 уязвимостей. Loader 4.35 KB / 2.00 KB gzip; основной iframe bundle ~242 KB / 77 KB gzip загружается при открытии.
+
+Playwright Chromium: **5/5 PASS, 59.8 seconds**. Регрессия stages 1–3 плюс создание/сохранение appearance в кабинете, live iframe preview, установка настоящего script на независимую demo HTML, lazy iframe, streaming mock answer, close/reopen/reload/sessionStorage, новый conversation, отмена, ошибочный postMessage, чужой visitor token, XSS plain text, длинные слова/URL, disabled widget. Проверены RU/EN/CS/DE, ширины 360/768/1440, viewport 360×480, 200% размера текста, Tab в подтверждении. Предыдущий прогон после длительной паузы окружения завершился таймаутами и не считается успешным; итоговый suite выполнен заново. В preview test устранена гонка: проверка Stop выполняется до ожидания первого текста, а не после возможного завершения короткого mock ответа.
+
+Снимки — `frontend/test-results/widget-*.png`, отчётные копии в игнорируемом `artifacts/stage4/` (desktop/mobile/tablet/welcome); backend log и фактический RAG JSON там же. Desktop/mobile/welcome просмотрены визуально; исправлены сброс position кнопки Shadow DOM, блокировка native submit sandbox и повтор уведомления cancellation. Экранная клавиатура настоящего телефона, Safari/Firefox, WordPress инсталляция, production TLS/domain challenge и многопроцессный load не проверены. HTML demo проверяет именно обычную интеграцию; WordPress использует тот же script, но отдельного CMS стенда нет.
+
+Повторение: собрать widget, API на существующей `_test` БД с AI_PROVIDER=mock, WIDGET_ALLOW_LOCALHOST=true, отдельными KNOWLEDGE_FILE_ROOT/WIDGET_FILE_ROOT для тестов; локальные BGE-M3 и extractor доступны; frontend5173 и widget demo4173 запущены. В frontend `npx playwright test`. Между полными suite перезапускать только свой локальный API для сброса auth/IP in-memory limits. Настоящая Gemma/GPU не использовалась; старый сервер и production не затронуты. [Настройка/безопасность widget](widget.md).
+
+## Этап 1
 
 Локально, Windows, 12 ноября 2026. Go обновлён с 1.26.5 до 1.27.4, Node 24.19.0, PostgreSQL 17 в Docker. Production и чужие БД не использовались.
 

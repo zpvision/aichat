@@ -64,4 +64,10 @@
 
 Коды ошибок: validation (422), invalid_credentials/unauthorized (401), csrf/forbidden (403), not_found (404), conflict (409), rate_limited (429, Retry-After 900), ai_not_configured (422), internal (500), not_ready (503). Login не различает отсутствующую почту и неверный пароль. Регистрация не означает подтверждение email и не имитирует отправку письма.
 
-Минимальные payload: компания `{name,country}` (timezone по умолчанию UTC, default_locale en); ассистент `{name}` (draft, visitor, en); сайт `{name,domain,assistant_id}`. Language policy visitor/fixed — только сохранённая настройка. Страна — две ASCII-буквы ISO, timezone — имя IANA, языки ru/en/cs/de. Domain — DNS-имя, а не URL, IP, путь или wildcard. Владение сайтом не проверяется.
+Минимальные payload: компания `{name,country}` (timezone по умолчанию UTC, default_locale en); ассистент `{name}` (draft, visitor, en); сайт `{name,domain,assistant_id}`. Language policy visitor/fixed — сохранённая настройка; AI имеет отдельную policy auto/fixed/default. Страна — две ASCII-буквы ISO, timezone — имя IANA, языки ru/en/cs/de. Domain — DNS-имя, а не URL, IP, путь или wildcard. Для production widget требуется отдельное подтверждение владения.
+
+## Публичный widget, этап 4
+
+Добавлены GET/POST/PATCH `/organizations/{id}/sites/{siteId}/widget`, POST `/widget/logo` (multipart) и `/widget/verify` (JSON), с прежними cookie/Origin/CSRF и ролями owner/admin для записи. Все пути с `/api/v1`.
+
+Public: GET `/public/widgets/{widgetId}/config`, POST `/sessions`, GET/POST `/sessions/{sessionId}/messages`, POST `/sessions/{sessionId}/cancel`, GET `/logo`. История/отправка/отмена требуют opaque visitor Bearer, точный разрешённый Origin и проверку widget/session/expiry; cabinet cookie не используется. Public JSON writes требуют Origin/Content-Type, отдельный cabinet CSRF header им не нужен. CORS только для проверенных origins. POST messages — SSE start/delta/complete/error, тот же idempotency contract, публичная схема исключает tenant IDs/внутренние источники. Ошибки: widget_unavailable (404), widget_origin (403), visitor_unauthorized (401), widget_rate/widget_capacity/widget_session_limit (429), widget_verification/widget_logo (422), inference codes этапа 3. Полные schemas — [OpenAPI](openapi.json), threat model/limits — [widget.md](widget.md).

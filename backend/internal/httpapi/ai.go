@@ -1,14 +1,10 @@
 package httpapi
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"site-assistant/internal/ai"
 	"site-assistant/internal/core"
 	"strconv"
-	"time"
 )
 
 func (a *Server) aiRoutes(m *http.ServeMux, s *ai.Service) {
@@ -72,26 +68,8 @@ func (a *Server) aiRoutes(m *http.ServeMux, s *ai.Service) {
 			return
 		}
 		started := false
-		controller := http.NewResponseController(w)
-		send := func(event ai.Event) error {
-			if !started {
-				w.Header().Set("Content-Type", "text/event-stream; charset=utf-8")
-				w.Header().Set("X-Accel-Buffering", "no")
-				w.Header().Set("Cache-Control", "no-store")
-				started = true
-			}
-			if e := controller.SetWriteDeadline(time.Now().Add(10 * time.Second)); e != nil && !errors.Is(e, http.ErrNotSupported) {
-				return e
-			}
-			b, e := json.Marshal(event.Data)
-			if e != nil {
-				return e
-			}
-			if _, e = fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event.Type, b); e != nil {
-				return e
-			}
-			return controller.Flush()
-		}
+		sender := newEventSender(w)
+		send := func(event ai.Event) error { started = true; return sender(event) }
 		v, e := s.Message(r.Context(), u.ID, scope(r), in, true, send)
 		if e != nil {
 			e = ai.Error(e)

@@ -15,6 +15,7 @@ import {
 import "./style.css";
 import { Knowledge } from "./Knowledge";
 import { PreviewChat } from "./PreviewChat";
+import { WidgetSettings } from "./WidgetSettings";
 
 function App() {
   const { t } = useTranslation();
@@ -29,6 +30,7 @@ function App() {
   const [org, setOrg] = useState<Organization | null>(null);
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [knowledgeAssistant, setKnowledgeAssistant] = useState("");
+  const [widgetSite, setWidgetSite] = useState("");
   const [sites, setSites] = useState<Site[]>([]);
   const [page, setPage] = useState("home");
   const [dialog, setDialog] = useState("");
@@ -372,6 +374,7 @@ function App() {
                   "knowledge",
                   "preview",
                   "sites",
+                  "widget",
                   ...(org.role === "owner" ? ["settings"] : []),
                 ].map((p) => (
                   <button
@@ -382,7 +385,7 @@ function App() {
                       setDialog("");
                     }}
                   >
-                    {t(p)}
+                    {t(p === "widget" ? "widgetTitle" : p)}
                   </button>
                 ))}
               </>
@@ -486,7 +489,7 @@ function App() {
                 </div>
                 <div className="page-heading">
                   <div>
-                    <h1>{t(page)}</h1>
+                    <h1>{t(page === "widget" ? "widgetTitle" : page)}</h1>
                     <p>{t(page + "Hint")}</p>
                   </div>
                   {writable && (page === "assistants" || page === "sites") && (
@@ -608,6 +611,14 @@ function App() {
                             </small>
                           </div>
                           <span className="badge">{t("unverified")}</span>
+                          <button
+                            onClick={() => {
+                              setWidgetSite(s.id);
+                              setPage("widget");
+                            }}
+                          >
+                            {t("widget.appearance")}
+                          </button>
                           {writable && (
                             <button
                               className="danger"
@@ -643,6 +654,15 @@ function App() {
                     assistants={assistants}
                     writable={writable}
                     initialAssistant={knowledgeAssistant}
+                  />
+                )}
+                {page === "widget" && (
+                  <WidgetSettings
+                    key={org.id + widgetSite}
+                    organizationId={org.id}
+                    sites={sites}
+                    initialSite={widgetSite}
+                    writable={writable}
                   />
                 )}
                 {page === "settings" && org.role === "owner" && (

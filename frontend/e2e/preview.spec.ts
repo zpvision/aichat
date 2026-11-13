@@ -76,9 +76,9 @@ test("preview chat uses real RAG and explicit mock generation with history and c
   await message.press("Shift+Enter");
   await expect(message).toHaveValue("Wie viel kostet der Tarif Aurora?\n");
   await message.press("Enter");
-  await expect(page.locator(".chat-message.assistant")).toHaveCount(1);
-  await expect(page.locator('.chat-message.assistant')).toContainText('Demonstrationsantwort');
   await expect(page.getByRole('button',{name:'Stop generation'})).toBeVisible();
+  await expect(page.locator(".chat-message.assistant")).toHaveCount(1);
+  await expect(page.locator('.chat-message.assistant')).toContainText('Demonstrationsantwort',{timeout:45000});
   await expect(
     page.getByRole("button", { name: "Stop generation" }),
   ).toHaveCount(0, { timeout: 45000 });

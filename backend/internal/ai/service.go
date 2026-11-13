@@ -5,7 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"github.com/jackc/pgx/v5"
 	"regexp"
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
@@ -20,18 +19,20 @@ type Retriever interface {
 	Search(context.Context, string, string, string, knowledge.SearchInput) ([]knowledge.Hit, error)
 }
 type Service struct {
-	Auth      *core.Service
-	Store     *Store
-	Knowledge Retriever
-	Provider  AIProvider
-	Config    Config
-	slots     chan struct{}
-	mu        sync.Mutex
-	active    map[string]context.CancelFunc
+	Auth          *core.Service
+	Store         *Store
+	Knowledge     Retriever
+	Provider      AIProvider
+	Config        Config
+	slots         chan struct{}
+	mu            sync.Mutex
+	active        map[string]context.CancelFunc
+	WebsiteLimits WebsiteLimits
 }
 
 func New(auth *core.Service, k Retriever, c Config) *Service {
 	s := &Service{Auth: auth, Knowledge: k, Store: &Store{DB: auth.Store.DB}, Config: c, slots: make(chan struct{}, c.Concurrency), active: map[string]context.CancelFunc{}}
+	s.WebsiteLimits = DefaultWebsiteLimits()
 	switch c.Provider {
 	case "mock":
 		s.Provider = &MockProvider{Delay: 40 * time.Millisecond}
@@ -133,25 +134,7 @@ func (s *Service) Cancel(ctx context.Context, user string, v Scope) error {
 	if e := s.Access(ctx, user, v, true); e != nil {
 		return e
 	}
-	id, e := s.Store.Active(ctx, v)
-	if errors.Is(e, pgx.ErrNoRows) {
-		return nil
-	}
-	if e != nil {
-		return e
-	}
-	s.mu.Lock()
-	cancel := s.active[id]
-	s.mu.Unlock()
-	if cancel != nil {
-		cancel()
-	}
-	e = s.Store.Finish(ctx, v, id, "canceled", "", "", "ai_canceled", 0, Usage{})
-	var f *core.Fault
-	if errors.As(e, &f) && f.Code == "ai_canceled" {
-		return nil
-	}
-	return e
+	return s.cancel(ctx, v)
 }
 func (s *Service) Delete(ctx context.Context, user string, v Scope) error {
 	if e := s.Cancel(ctx, user, v); e != nil {
@@ -181,6 +164,9 @@ func (s *Service) Message(parent context.Context, user string, v Scope, in Messa
 	if e := s.Access(parent, user, v, true); e != nil {
 		return result, e
 	}
+	return s.generate(parent, user, v, in, stream, emit, false)
+}
+func (s *Service) generate(parent context.Context, user string, v Scope, in MessageInput, stream bool, emit func(Event) error, website bool) (result Result, err error) {
 	if !requestUUID.MatchString(in.RequestID) || strings.TrimSpace(in.Content) == "" || !utf8.ValidString(in.Content) || utf8.RuneCountInString(in.Content) > 2000 || strings.ContainsRune(in.Content, 0) {
 		return result, core.Fail("validation", 422)
 	}
@@ -197,7 +183,11 @@ func (s *Service) Message(parent context.Context, user string, v Scope, in Messa
 		return result, e
 	}
 	digest := sha256.Sum256([]byte(in.Content))
-	result, err = s.Store.Begin(parent, v, in, DetectLanguage(in.Content), hex.EncodeToString(digest[:]), s.Config.Provider, s.model(), s.Config.Timeout)
+	var budget *WebsiteLimits
+	if website {
+		budget = &s.WebsiteLimits
+	}
+	result, err = s.Store.begin(parent, v, in, DetectLanguage(in.Content), hex.EncodeToString(digest[:]), s.Config.Provider, s.model(), s.Config.Timeout, budget)
 	if err != nil {
 		return result, err
 	}
@@ -261,27 +251,42 @@ func (s *Service) Message(parent context.Context, user string, v Scope, in Messa
 			return result, err
 		}
 	}
-	settings, e := s.Settings(ctx, user, Scope{OrganizationID: v.OrganizationID, AssistantID: v.AssistantID})
+	settings, e := s.Store.Settings(ctx, v.OrganizationID, v.AssistantID)
 	if e != nil {
 		return result, e
 	}
-	assistant, e := s.Auth.Assistant(ctx, user, v.OrganizationID, v.AssistantID)
+	assistant, e := s.Auth.Store.Assistant(ctx, v.OrganizationID, v.AssistantID)
 	if e != nil {
 		return result, e
+	}
+	if settings.DisplayName == "" {
+		settings.DisplayName = ClipRunes(assistant.Name, 120)
 	}
 	history, e := s.Store.History(ctx, v, s.Config.HistoryMessages)
 	if e != nil {
 		return result, e
 	}
-	hits, e := s.Knowledge.Search(ctx, user, v.OrganizationID, v.AssistantID, knowledge.SearchInput{Query: clipBytes(in.Content, 2000), Mode: "hybrid"})
+	var hits []knowledge.Hit
+	query := knowledge.SearchInput{Query: clipBytes(in.Content, 2000), Mode: "hybrid"}
+	if website {
+		retriever, ok := s.Knowledge.(interface {
+			Retrieve(context.Context, string, string, knowledge.SearchInput) ([]knowledge.Hit, error)
+		})
+		if !ok {
+			return result, core.Fail("internal", 500)
+		}
+		hits, e = retriever.Retrieve(ctx, v.OrganizationID, v.AssistantID, query)
+	} else {
+		hits, e = s.Knowledge.Search(ctx, user, v.OrganizationID, v.AssistantID, query)
+	}
 	if e != nil {
 		return result, e
 	}
-	request, sources, e := BuildPrompt(s.Config, settings.Settings, assistant.Locale, in.Content, history, hits)
+	request, sources, e := BuildPrompt(s.Config, settings, assistant.Locale, in.Content, history, hits)
 	if e != nil {
 		return result, e
 	}
-	if err = s.Store.Context(ctx, v, id, settings.Settings, sources, request.Language); err != nil {
+	if err = s.Store.Context(ctx, v, id, settings, sources, request.Language); err != nil {
 		return result, err
 	}
 	delta := func(text string) error {
@@ -313,6 +318,9 @@ func (s *Service) Message(parent context.Context, user string, v Scope, in Messa
 	}
 	stopWatch()
 	<-watchDone
+	if website && !s.Store.Running(ctx, v, id) {
+		return result, core.Fail("ai_canceled", 409)
+	}
 	if err = s.Store.Finish(ctx, v, id, "completed", answer.Content, request.Language, "", time.Since(start).Milliseconds(), answer.Usage); err != nil {
 		return result, err
 	}

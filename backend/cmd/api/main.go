@@ -17,6 +17,7 @@ import (
 	"site-assistant/internal/database"
 	"site-assistant/internal/httpapi"
 	"site-assistant/internal/knowledge"
+	"site-assistant/internal/widget"
 	"syscall"
 	"time"
 	_ "time/tzdata"
@@ -64,6 +65,11 @@ func run() error {
 		return e
 	}
 	engine := ai.New(auth, ks, ac)
+	wc, e := widget.Load(c)
+	if e != nil {
+		return e
+	}
+	widgets := widget.New(auth, engine, wc)
 	workerCtx, workerCancel := context.WithCancel(ctx)
 	workerDone := make(chan struct{})
 	go func() { defer close(workerDone); ks.Run(workerCtx) }()
@@ -71,7 +77,7 @@ func run() error {
 	aiDone := make(chan struct{})
 	go func() { defer close(aiDone); engine.Run(workerCtx) }()
 	defer func() { workerCancel(); <-aiDone }()
-	srv := &http.Server{Addr: c.Addr, Handler: httpapi.NewWithAI(auth, c, ks, engine), BaseContext: func(net.Listener) context.Context { return ctx }, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
+	srv := &http.Server{Addr: c.Addr, Handler: httpapi.NewWithWidget(auth, c, ks, engine, widgets), BaseContext: func(net.Listener) context.Context { return ctx }, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
 	done := make(chan error, 1)
 	go func() {
 		slog.Info("server listening", "addr", c.Addr, "region", c.Region)

@@ -79,4 +79,6 @@ Frontend: `npm test`, `npm run build`, `npx playwright test` с API на сущ�
 
 Когда GPU вернётся, отдельным разрешённым заданием: подтвердить регион/адрес и фактический model tag; настроить AI_PROVIDER=ollama, AI_BASE_URL, AI_MODEL, сохранив отдельный BGE-M3 endpoint; проверить think/options/format/context/tokenizer и NDJSON/cancel на этой модели; затем выполнить RU/EN/CS/DE, cross-language, grounding/abstention, red-team и нагрузочные испытания. До этих проверок не утверждать качество Gemma и не активировать публичный канал.
 
-Официальный контракт: [Ollama /api/chat](https://docs.ollama.com/api/chat). Этап 4 не начат.
+Официальный контракт: [Ollama /api/chat](https://docs.ollama.com/api/chat).
+
+Этап 4 добавил website канал в тот же Conversation/AIService: visitor token/origin/session разрешаются через AI.WebsiteScope, затем общий generate, SQL begin/history/prompt/RAG/provider/finish. Существующий cookie preview API не принимает website conversation. Public адаптер фильтрует SSE и историю до visitor messages; внутренние sources остаются в execution. PG session/site/org budgets дополняют общий AI concurrency limit. Отключение widget/expiry отменяют активное выполнение. Подробности — [widget.md](widget.md). Реальные ответы Gemma по-прежнему не проверены.

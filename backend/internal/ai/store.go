@@ -65,12 +65,18 @@ func (s *Store) List(ctx context.Context, org, a string) ([]Conversation, error)
 	return rowsJSON[Conversation](ctx, s, "SELECT row_to_json(c) FROM conversations c WHERE organization_id=$1 AND assistant_id=$2 AND kind='preview' ORDER BY updated_at DESC,id LIMIT 100", org, a)
 }
 func (s *Store) Conversation(ctx context.Context, v Scope) (Conversation, error) {
-	return rowJSON[Conversation](ctx, s, "SELECT row_to_json(c) FROM conversations c WHERE organization_id=$1 AND assistant_id=$2 AND id=$3 AND kind='preview'", v.OrganizationID, v.AssistantID, v.ConversationID)
+	return s.conversation(ctx, v, true)
+}
+func (s *Store) conversation(ctx context.Context, v Scope, preview bool) (Conversation, error) {
+	return rowJSON[Conversation](ctx, s, "SELECT row_to_json(c) FROM conversations c WHERE organization_id=$1 AND assistant_id=$2 AND id=$3 AND ($4=false OR kind='preview')", v.OrganizationID, v.AssistantID, v.ConversationID, preview)
 }
 func (s *Store) Detail(ctx context.Context, v Scope, before int64) (Detail, error) {
+	return s.detail(ctx, v, before, true)
+}
+func (s *Store) detail(ctx context.Context, v Scope, before int64, preview bool) (Detail, error) {
 	var d Detail
 	var e error
-	d.Conversation, e = s.Conversation(ctx, v)
+	d.Conversation, e = s.conversation(ctx, v, preview)
 	if e != nil {
 		return d, e
 	}
@@ -109,6 +115,9 @@ func (s *Store) History(ctx context.Context, v Scope, limit int) ([]ChatMessage,
 	return out, rows.Err()
 }
 func (s *Store) Begin(ctx context.Context, v Scope, in MessageInput, language, hash, provider, model string, timeout time.Duration) (Result, error) {
+	return s.begin(ctx, v, in, language, hash, provider, model, timeout, nil)
+}
+func (s *Store) begin(ctx context.Context, v Scope, in MessageInput, language, hash, provider, model string, timeout time.Duration, budget *WebsiteLimits) (Result, error) {
 	out := Result{}
 	tx, e := s.DB.Begin(ctx)
 	if e != nil {
@@ -116,7 +125,11 @@ func (s *Store) Begin(ctx context.Context, v Scope, in MessageInput, language, h
 	}
 	defer tx.Rollback(ctx)
 	var status string
-	e = tx.QueryRow(ctx, "SELECT status FROM conversations WHERE organization_id=$1 AND assistant_id=$2 AND id=$3 AND kind='preview' FOR UPDATE", v.OrganizationID, v.AssistantID, v.ConversationID).Scan(&status)
+	kind := "preview"
+	if budget != nil {
+		kind = "website"
+	}
+	e = tx.QueryRow(ctx, "SELECT status FROM conversations WHERE organization_id=$1 AND assistant_id=$2 AND id=$3 AND kind=$4 FOR UPDATE", v.OrganizationID, v.AssistantID, v.ConversationID, kind).Scan(&status)
 	if e != nil {
 		return out, e
 	}
@@ -143,6 +156,11 @@ func (s *Store) Begin(ctx context.Context, v Scope, in MessageInput, language, h
 	}
 	if active {
 		return out, core.Fail("conversation_busy", 409)
+	}
+	if budget != nil {
+		if e = s.websiteBudget(ctx, tx, v, *budget); e != nil {
+			return out, e
+		}
 	}
 	id := core.ID()
 	_, e = tx.Exec(ctx, "INSERT INTO ai_executions(id,organization_id,assistant_id,conversation_id,request_id,request_hash,provider,model,status,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'processing',now()+$9 * interval '1 second')", id, v.OrganizationID, v.AssistantID, v.ConversationID, in.RequestID, hash, provider, model, int(timeout.Seconds())+15)
@@ -228,7 +246,7 @@ func (s *Store) Active(ctx context.Context, v Scope) (string, error) {
 }
 func (s *Store) Running(ctx context.Context, v Scope, id string) bool {
 	var running bool
-	e := s.DB.QueryRow(ctx, "SELECT status='processing' FROM ai_executions WHERE organization_id=$1 AND assistant_id=$2 AND conversation_id=$3 AND id=$4", v.OrganizationID, v.AssistantID, v.ConversationID, id).Scan(&running)
+	e := s.DB.QueryRow(ctx, `SELECT e.status='processing' AND (c.kind='preview' OR EXISTS(SELECT 1 FROM widget_sessions s JOIN widgets w ON w.id=s.widget_id WHERE s.id=c.anonymous_session_id AND s.expires_at>now() AND w.enabled AND s.origin=ANY(w.origins))) FROM ai_executions e JOIN conversations c ON c.id=e.conversation_id AND c.organization_id=e.organization_id AND c.assistant_id=e.assistant_id WHERE e.organization_id=$1 AND e.assistant_id=$2 AND e.conversation_id=$3 AND e.id=$4`, v.OrganizationID, v.AssistantID, v.ConversationID, id).Scan(&running)
 	return e == nil && running
 }
 func (s *Store) Delete(ctx context.Context, v Scope) error {
