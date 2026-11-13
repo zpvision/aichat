@@ -12,6 +12,7 @@ import (
 	"site-assistant/internal/ai"
 	"site-assistant/internal/core"
 	"site-assistant/internal/inbox"
+	"site-assistant/internal/leads"
 	"site-assistant/internal/widget"
 	"strings"
 	"time"
@@ -19,6 +20,7 @@ import (
 
 func (a *Server) widgetRoutes(m *http.ServeMux, s *widget.Service) {
 	a.inboxRoutes(m, s.Inbox)
+	a.leadRoutes(m, s.Leads)
 	admin := "/api/v1/organizations/{id}/sites/{siteId}/widget"
 	scope := func(r *http.Request) (string, string) { return r.PathValue("id"), r.PathValue("siteId") }
 	m.HandleFunc("GET "+admin, a.protect(func(w http.ResponseWriter, r *http.Request, u core.User) {
@@ -128,8 +130,26 @@ func (a *Server) widgetRoutes(m *http.ServeMux, s *widget.Service) {
 	}
 	m.HandleFunc("OPTIONS "+public+"/{rest...}", protect(func(http.ResponseWriter, *http.Request, widget.Widget, string) {}))
 	m.HandleFunc("GET "+public+"/config", protect(func(w http.ResponseWriter, r *http.Request, v widget.Widget, origin string) {
-		respond(w, 200, s.Public(v))
+		conf := s.Public(v)
+		enabled, e := s.Leads.Enabled(r.Context(), v.OrganizationID, v.AssistantID)
+		conf.LeadEnabled = enabled
+		a.result(w, 200, conf, e)
 	}))
+	m.HandleFunc("GET "+public+"/sessions/{sessionId}/collection", protect(func(w http.ResponseWriter, r *http.Request, v widget.Widget, origin string) {
+		state, e := s.Leads.VisitorView(r.Context(), v.ID, r.PathValue("sessionId"), bearer(r), origin)
+		a.result(w, 200, state, e)
+	}))
+	for _, kind := range []string{"start", "edit", "cancel", "submit"} {
+		kind := kind
+		m.HandleFunc("POST "+public+"/sessions/{sessionId}/collection/"+kind, protect(func(w http.ResponseWriter, r *http.Request, v widget.Widget, origin string) {
+			var in leads.Input
+			if !a.decodeLimit(w, r, &in, 128<<10) {
+				return
+			}
+			state, e := s.Leads.VisitorAction(r.Context(), v.ID, r.PathValue("sessionId"), bearer(r), origin, kind, in)
+			a.result(w, 200, state, e)
+		}))
+	}
 	m.HandleFunc("POST "+public+"/sessions", protect(func(w http.ResponseWriter, r *http.Request, v widget.Widget, origin string) {
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 		if !s.Limiter.Allow("new:"+v.ID+":"+ip, 5, time.Minute) {

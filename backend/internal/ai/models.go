@@ -3,6 +3,7 @@ package ai
 import (
 	"context"
 	"encoding/json"
+	"github.com/jackc/pgx/v5"
 	"site-assistant/internal/knowledge"
 	"time"
 )
@@ -101,11 +102,20 @@ type ChatMessage struct {
 	Content string `json:"content"`
 }
 type GenerateRequest struct {
-	Messages     []ChatMessage
-	Language     string
-	Fallback     string
-	HasKnowledge bool
-	JSONSchema   json.RawMessage
+	CollectionQuestion string
+	Messages           []ChatMessage
+	Language           string
+	Fallback           string
+	HasKnowledge       bool
+	JSONSchema         json.RawMessage
+}
+type CollectionPreparation struct {
+	Instructions string
+	Question     string
+	Commit       func(context.Context, pgx.Tx) error
+}
+type CollectionHook interface {
+	Prepare(context.Context, Scope, string, string, string, string) (CollectionPreparation, error)
 }
 type Usage struct {
 	InputTokens  *int64

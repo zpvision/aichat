@@ -1,0 +1,205 @@
+.lead-settings,
+.leads-page {
+  min-width: 0;
+}
+.lead-settings > .card,
+.lead-settings form > .card {
+  margin: 20px 0;
+  padding: 24px;
+}
+.lead-settings summary {
+  font-size: 17px;
+  font-weight: 650;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.lead-field[open] summary {
+  margin-bottom: 20px;
+}
+.lead-form-grid,
+.lead-field-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.lead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+}
+.lead-filters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.lead-workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.lead-list {
+  padding: 12px;
+}
+.lead-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: white;
+  padding: 16px;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+.lead-row.selected {
+  background: #edf6ff;
+  box-shadow: inset 3px 0 #1890ff;
+}
+.lead-row time,
+.lead-row small {
+  font-size: 12px;
+  color: #53627b;
+}
+.lead-summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.lead-detail {
+  padding: 24px;
+  overflow-wrap: anywhere;
+}
+.lead-detail h2 {
+  font-size: 24px;
+}
+.lead-detail > a {
+  display: block;
+  margin: 16px 0;
+}
+.lead-data {
+  margin: 24px 0;
+}
+.lead-data > div {
+  padding: 14px 0;
+  border-bottom: 1px solid #edf0f7;
+}
+.lead-data dt {
+  color: #53627b;
+  font-size: 13px;
+}
+.lead-data dd {
+  margin: 6px 0;
+  white-space: pre-wrap;
+}
+.lead-data small,
+.lead-history small {
+  display: block;
+  margin-top: 6px;
+  color: #53627b;
+  font-size: 12px;
+}
+.lead-history {
+  max-height: 400px;
+  overflow: auto;
+}
+.lead-history article {
+  padding: 14px;
+  border-radius: 10px;
+  background: #f6f8fc;
+  margin-bottom: 10px;
+}
+.lead-history p {
+  white-space: pre-wrap;
+}
+.lead-badge {
+  background: #eef5ff;
+  color: #1259a0;
+  border-radius: 20px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.lead-back {
+  display: none;
+}
+.lead-collection {
+  border-top: 1px solid #dde5ef;
+  padding-top: 14px;
+  margin-top: 20px;
+  overflow-wrap: anywhere;
+}
+.lead-collection button {
+  margin: 4px 6px 4px 0;
+}
+.lead-collection a {
+  display: block;
+  font-size: 13px;
+  margin-top: 12px;
+}
+.lead-collection input {
+  min-width: 0;
+}
+.lead-collection .lead-field-inputs {
+  grid-template-columns: 1fr;
+}
+.lead-delete {
+  background: #fff2ef;
+  border: 1px solid #facac1;
+  padding: 16px;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+.lead-settings .check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lead-settings .check input {
+  width: auto;
+  margin: 0;
+}
+.lead-detail select,
+.lead-settings select {
+  max-width: 100%;
+}
+@media (max-width: 1000px) {
+  .lead-workspace {
+    grid-template-columns: 1fr;
+  }
+  .lead-selected .lead-list {
+    display: none;
+  }
+  .lead-back {
+    display: inline-flex;
+  }
+  .lead-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .lead-form-grid,
+  .lead-field-inputs {
+    grid-template-columns: 1fr;
+  }
+  .lead-detail,
+  .lead-settings form > .card {
+    padding: 16px;
+  }
+  .lead-filters {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .lead-filters label {
+    font-size: 12px;
+  }
+  .lead-settings summary {
+    font-size: 16px;
+  }
+}

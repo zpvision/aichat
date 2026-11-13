@@ -3,7 +3,9 @@ package core
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -145,6 +147,10 @@ func (s *Store) AddSite(ctx context.Context, v Site) (Site, error) {
 }
 func (s *Store) DeleteSite(ctx context.Context, org, id string) error {
 	tag, e := s.DB.Exec(ctx, "DELETE FROM sites WHERE organization_id=$1 AND id=$2", org, id)
+	var constraint *pgconn.PgError
+	if errors.As(e, &constraint) && constraint.Code == "23503" {
+		return Fail("site_in_use", 409)
+	}
 	if e == nil && tag.RowsAffected() == 0 {
 		return pgx.ErrNoRows
 	}

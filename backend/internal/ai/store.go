@@ -254,6 +254,9 @@ func (s *Store) Context(ctx context.Context, v Scope, id string, settings Settin
 	return e
 }
 func (s *Store) Finish(ctx context.Context, v Scope, id, status, content, language, code string, duration int64, usage Usage) error {
+	return s.FinishWith(ctx, v, id, status, content, language, code, duration, usage, nil)
+}
+func (s *Store) FinishWith(ctx context.Context, v Scope, id, status, content, language, code string, duration int64, usage Usage, commit func(context.Context, pgx.Tx) error) error {
 	tx, e := s.DB.Begin(ctx)
 	if e != nil {
 		return e
@@ -266,6 +269,11 @@ func (s *Store) Finish(ctx context.Context, v Scope, id, status, content, langua
 	}
 	if status == "completed" && !valid {
 		return core.Fail("ai_canceled", 409)
+	}
+	if status == "completed" && commit != nil {
+		if e = commit(ctx, tx); e != nil {
+			return e
+		}
 	}
 	tag, e := tx.Exec(ctx, "UPDATE ai_executions SET status=$5,error_code=$6,duration_ms=CASE WHEN $7::bigint=0 THEN GREATEST(0,(extract(epoch FROM now()-created_at)*1000)::bigint) ELSE $7 END,input_tokens=$8,output_tokens=$9,provider_duration_ns=$10,finished_at=now() WHERE organization_id=$1 AND assistant_id=$2 AND conversation_id=$3 AND id=$4 AND status='processing'", v.OrganizationID, v.AssistantID, v.ConversationID, id, status, code, duration, usage.InputTokens, usage.OutputTokens, usage.DurationNS)
 	if e != nil {

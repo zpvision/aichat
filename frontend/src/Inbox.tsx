@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, ApiError, type Site, type Assistant } from "./api";
+import { LeadCollection } from "./LeadCollection";
 type Conversation = {
   id: string;
   site: string;
@@ -60,12 +61,16 @@ export function Inbox({
   role,
   sites,
   assistants,
+  initialConversation = "",
+  onLead,
 }: {
   organizationId: string;
   userId: string;
   role: string;
   sites: Site[];
   assistants: Assistant[];
+  initialConversation?: string;
+  onLead?: (id: string) => void;
 }) {
   const { t, i18n } = useTranslation();
   const tr = (k: string) => t("inbox." + k);
@@ -82,7 +87,7 @@ export function Inbox({
       from: "",
       to: "",
     });
-  const [selected, setSelected] = useState(""),
+  const [selected, setSelected] = useState(initialConversation),
     [data, setData] = useState<Page | null>(null),
     [members, setMembers] = useState<Member[]>([]),
     [text, setText] = useState(""),
@@ -731,6 +736,13 @@ export function Inbox({
         </section>
         {c && (
           <aside className="inbox-info">
+            <LeadCollection
+              key={c.id}
+              organizationId={organizationId}
+              conversationId={c.id}
+              canWrite={writable}
+              onLead={onLead}
+            />
             <h3>{tr("details")}</h3>
             <dl>
               <dt>{tr("site")}</dt>

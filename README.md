@@ -67,3 +67,7 @@ npm audit
 - [Правила для следующих сессий](AGENTS.md).
 - [База знаний/RAG](docs/rag.md), [проверки обоих этапов](docs/testing.md).
 - [AI-движок и тестовый чат](docs/ai-engine.md). Для browser suite использовать существующую site_assistant_test, AI_PROVIDER=mock и отдельный KNOWLEDGE_FILE_ROOT=./data/knowledge-test. Mock generation не заменяет реальный BGE-M3 retrieval.
+
+## Stage 6: scenarios and leads
+
+Apply the appended migration 006 with `./scripts/backend.ps1 -Migrate`. Build both clients as above. Open Scenarios, select the assistant, enable collection and configure fields; set a privacy URL in Website chat settings. Use Start a request in the installed widget, then review and explicitly send. Leads contains assignments, statuses, notes and links to existing conversations. No new dependencies or GPU are required. See [docs/leads.md](docs/leads.md) for mock fixtures, validation, permissions, API and retention limits.

@@ -46,6 +46,19 @@ it("reuses the staff reply idempotency key after a lost response", async () => {
   };
   const sent: Record<string, unknown>[] = [];
   vi.mocked(api).mockImplementation(async (path, method, body) => {
+    if (path.endsWith("/collection"))
+      return {
+        state: "idle",
+        version: 0,
+        conversation_version: 2,
+        values: {},
+        fields: [],
+        missing: [],
+        paused: true,
+        enabled: false,
+        privacy_url: "",
+        error_code: "",
+      };
     if (path.endsWith("/members")) return [];
     if (path.includes("/conversations?"))
       return { items: [c], next_cursor: "" };

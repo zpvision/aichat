@@ -19,6 +19,9 @@ import { PreviewChat } from "./PreviewChat";
 import { WidgetSettings } from "./WidgetSettings";
 import { Inbox } from "./Inbox";
 import { Team } from "./Team";
+import { LeadSettings } from "./LeadSettings";
+import { Leads } from "./Leads";
+import "./leads.css";
 
 function App() {
   const { t } = useTranslation();
@@ -36,6 +39,8 @@ function App() {
   const [widgetSite, setWidgetSite] = useState("");
   const [sites, setSites] = useState<Site[]>([]);
   const [page, setPage] = useState("home");
+  const [leadId, setLeadId] = useState("");
+  const [conversationId, setConversationId] = useState("");
   const [dialog, setDialog] = useState("");
   const [editing, setEditing] = useState<Assistant | null>(null);
   const [siteDelete, setSiteDelete] = useState<Site | null>(null);
@@ -442,6 +447,8 @@ function App() {
                 {[
                   "home",
                   "inbox",
+                  "leads",
+                  ...(org.role !== "operator" ? ["scenarios"] : []),
                   "assistants",
                   "knowledge",
                   ...(org.role !== "operator" ? ["preview"] : []),
@@ -745,12 +752,39 @@ function App() {
                 )}
                 {page === "inbox" && (
                   <Inbox
-                    key={org.id}
+                    key={org.id + conversationId}
+                    initialConversation={conversationId}
+                    onLead={(id) => {
+                      setLeadId(id);
+                      setPage("leads");
+                    }}
                     organizationId={org.id}
                     userId={user.id}
                     role={org.role}
                     sites={sites}
                     assistants={assistants}
+                  />
+                )}
+                {page === "scenarios" && writable && (
+                  <LeadSettings
+                    key={org.id}
+                    organizationId={org.id}
+                    assistants={assistants}
+                  />
+                )}
+                {page === "leads" && (
+                  <Leads
+                    key={org.id + leadId}
+                    organizationId={org.id}
+                    userId={user.id}
+                    role={org.role}
+                    sites={sites}
+                    assistants={assistants}
+                    initialLead={leadId}
+                    onConversation={(id) => {
+                      setConversationId(id);
+                      setPage("inbox");
+                    }}
                   />
                 )}
                 {page === "team" && org.role !== "operator" && (

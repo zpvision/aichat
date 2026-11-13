@@ -24,6 +24,7 @@ export type Config = {
   provider: string;
   demo: boolean;
   available: boolean;
+  lead_enabled?: boolean;
   max_message_chars: number;
 };
 export type Session = { id: string; token: string; expires_at?: string };

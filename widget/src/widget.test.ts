@@ -10,6 +10,10 @@ describe("widget security and localization", () => {
         Object.keys(dictionaries.en).sort(),
       );
       expect(text(locale, "demo")).toBeTruthy();
+      expect(Object.keys(leadDictionaries[locale]).sort()).toEqual(
+        Object.keys(leadDictionaries.en).sort(),
+      );
+      expect(leadText(locale, "confirm")).not.toBe("confirm");
     }
   });
   it("checks source, origin and per-instance channel", () => {
@@ -92,3 +96,4 @@ describe("widget security and localization", () => {
     ).rejects.toEqual(new APIError("ai_incomplete"));
   });
 });
+import { leadDictionaries, leadText } from "./lead-locales";

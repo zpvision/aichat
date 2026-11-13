@@ -34,6 +34,9 @@ func (m *MockProvider) Generate(ctx context.Context, r GenerateRequest, stream b
 	if !r.HasKnowledge {
 		body = r.Fallback
 	}
+	if r.CollectionQuestion != "" {
+		body = r.CollectionQuestion
+	}
 	if body == "" {
 		body = "Test request processed."
 	}

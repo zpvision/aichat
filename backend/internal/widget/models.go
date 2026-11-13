@@ -61,6 +61,7 @@ type Input struct {
 	Settings *Settings `json:"settings"`
 }
 type PublicConfig struct {
+	LeadEnabled     bool     `json:"lead_enabled"`
 	ID              string   `json:"id"`
 	Settings        Settings `json:"settings"`
 	LogoURL         string   `json:"logo_url"`

@@ -185,11 +185,14 @@ test("installed widget: appearance, anonymous sessions, streaming, cancellation 
   await expect(
     chat.getByRole("textbox", { name: "Write your message…" }),
   ).toBeVisible();
-  expect(
-    await page
-      .locator("iframe.sa-frame")
-      .evaluate((el) => el.getBoundingClientRect().height),
-  ).toBeLessThanOrEqual(480);
+  await expect
+    .poll(
+      async () =>
+        await page
+          .locator("iframe.sa-frame")
+          .evaluate((el) => el.getBoundingClientRect().height),
+    )
+    .toBeLessThanOrEqual(480);
   await chat
     .getByRole("button", { name: "New conversation", exact: true })
     .click();

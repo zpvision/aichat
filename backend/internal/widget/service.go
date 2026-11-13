@@ -17,6 +17,7 @@ import (
 	"site-assistant/internal/core"
 	"site-assistant/internal/inbox"
 	"site-assistant/internal/knowledge"
+	"site-assistant/internal/leads"
 	"strings"
 	"unicode/utf8"
 )
@@ -30,11 +31,13 @@ type Service struct {
 	Importer *knowledge.Importer
 	Limiter  *Limiter
 	Inbox    *inbox.Service
+	Leads    *leads.Service
 }
 
 func New(auth *core.Service, engine *ai.Service, c Config) *Service {
 	engine.WebsiteLimits = c.Limits
-	return &Service{Auth: auth, AI: engine, Store: &Store{DB: auth.Store.DB}, Config: c, Files: knowledge.LocalStorage{Root: c.FileRoot}, Importer: knowledge.NewImporter(), Limiter: NewLimiter(), Inbox: inbox.New(auth, engine, c.AppURL)}
+	box := inbox.New(auth, engine, c.AppURL)
+	return &Service{Auth: auth, AI: engine, Store: &Store{DB: auth.Store.DB}, Config: c, Files: knowledge.LocalStorage{Root: c.FileRoot}, Importer: knowledge.NewImporter(), Limiter: NewLimiter(), Inbox: box, Leads: leads.New(auth, engine, box)}
 }
 func (s *Service) Access(ctx context.Context, user, org, site string, write bool) error {
 	if _, e := s.Auth.Access(ctx, user, org, write, false); e != nil {

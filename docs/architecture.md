@@ -27,3 +27,7 @@ Mock разрешён только dev/test и явно помечен в UI. Н
 `internal/knowledge`: service — права/валидация, repository — SQL, worker — pipeline, extraction/chunking/importer/embeddings — ограниченные адаптеры. HTTP маршруты в httpapi/knowledge.go, UI — отдельный Knowledge.tsx с четырьмя вкладками. Используется существующий pool и core.Service.Access; параллельной авторизации/архитектуры нет. Фоновая очередь — PostgreSQL, без Redis. Worker запускается и останавливается вместе с API; embeddings — внешняя региональная зависимость, не условие запуска API. EmbeddingProvider и FileStorage — два минимальных интерфейса с одной production-реализацией каждый.
 
 Origin/custom-header CSRF сохранены. Исключение Content-Type только для конкретного POST knowledge/upload: multipart с прежней проверкой Origin/header. У остальных методов JSON. Увеличен общий HTTP ReadTimeout до 30 секунд для upload, WriteTimeout до 150 секунд для реального CPU embedding поиска; JSON базовых API остаётся ограничен 32 KiB, article input — 3 MiB с доменной границей content 2 MiB. Оригиналы не раздаются, plain text не исполняется. Детали транзакций, SSRF и лимитов — [rag.md](rag.md).
+
+## Stage 6 additions
+
+`internal/leads` extends the monolith through an optional AI CollectionHook. Structured extraction is separate from streaming generation. Existing knowledge retrieval, conversations, website tokens and PostgreSQL handoff fencing remain authoritative. Only successful AI FinishWith may atomically publish extracted values. Explicit version-checked confirmation creates a lead. See leads.md.

@@ -12,6 +12,7 @@ import {
 import { text, languageNames, type Key } from "./locales";
 import { request, stream, APIError } from "./transport";
 import "./style.css";
+import { LeadCard } from "./LeadCard";
 const params = new URLSearchParams(location.search);
 const parentOrigin = params.get("parent_origin") || "";
 const channel = params.get("channel") || "";
@@ -73,6 +74,7 @@ function App() {
     polling = useRef(false);
   const modeVersion = useRef(0);
   const session = useRef<Session | null>(null);
+  const [sessionId, setSessionId] = useState("");
   const abort = useRef<AbortController | null>(null);
   const generationAI = useRef(false);
   const retry = useRef<{ request_id: string; content: string } | null>(null);
@@ -90,6 +92,7 @@ function App() {
     setMode("ai_active");
     setEvents([]);
     session.current = s;
+    setSessionId(s?.id || "");
     post("session", s);
   }
   function problem(e: unknown) {
@@ -269,6 +272,7 @@ function App() {
             safeSession(event.data.data?.session)
           ) {
             session.current = event.data.data.session;
+            setSessionId(session.current!.id);
             try {
               await history(session.current!);
             } catch (e) {
@@ -647,6 +651,32 @@ function App() {
               {t(errorKey)}
             </div>
           )}
+        {!preview && (cfg?.lead_enabled || sessionId) && (
+          <LeadCard
+            enabled={!!cfg?.lead_enabled}
+            widgetId={id}
+            parentOrigin={parentOrigin}
+            locale={locale}
+            sessionId={sessionId}
+            getSession={() => session.current}
+            isVisible={() => shown.current}
+            disabled={busy || mode === "closed"}
+            mode={mode}
+            ensureSession={async () => {
+              if (session.current) return session.current;
+              const s = await request<Session>(
+                id,
+                parentOrigin,
+                "/sessions",
+                "POST",
+                null,
+                {},
+              );
+              store(s);
+              return s;
+            }}
+          />
+        )}
       </div>
       <footer className="composer-area">
         <form
