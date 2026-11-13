@@ -30,7 +30,9 @@ export type Session = { id: string; token: string; expires_at?: string };
 export type Message = {
   id: string;
   request_id: string;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "operator";
+  sequence: number;
+  change_seq: number;
   content: string;
   status: string;
   created_at: string;

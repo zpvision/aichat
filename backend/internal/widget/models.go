@@ -2,6 +2,7 @@ package widget
 
 import (
 	"site-assistant/internal/ai"
+	"site-assistant/internal/inbox"
 	"time"
 )
 
@@ -74,12 +75,29 @@ type Session struct {
 	ExpiresAt time.Time `json:"expires_at"`
 }
 type PublicMessage struct {
+	Sequence  int64     `json:"sequence"`
+	ChangeSeq int64     `json:"change_seq"`
 	ID        string    `json:"id"`
 	RequestID string    `json:"request_id"`
 	Role      string    `json:"role"`
 	Content   string    `json:"content"`
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
+}
+
+func PublicPage(p inbox.Page) map[string]any {
+	messages := []PublicMessage{}
+	for _, m := range p.Messages {
+		messages = append(messages, FromMessage(m, m.RequestID))
+	}
+	events := []map[string]any{}
+	for _, ev := range p.Events {
+		events = append(events, map[string]any{"id": ev.ID, "sequence": ev.Sequence, "kind": ev.Kind, "created_at": ev.CreatedAt})
+	}
+	return map[string]any{"messages": messages, "events": events, "control_mode": p.Conversation.Mode, "state_version": p.Conversation.Version, "cursor": p.Cursor, "next_before": p.NextBefore, "more": p.More}
+}
+func FromMessage(m ai.Message, requestID string) PublicMessage {
+	return PublicMessage{ID: m.ID, RequestID: requestID, Role: m.Role, Content: m.Content, Status: m.Status, CreatedAt: m.CreatedAt, Sequence: m.Sequence, ChangeSeq: m.ChangeSeq}
 }
 
 func publicMessages(d ai.Detail) []PublicMessage {

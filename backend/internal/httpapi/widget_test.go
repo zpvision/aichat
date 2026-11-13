@@ -187,6 +187,20 @@ func TestWidgetIntegration(t *testing.T) {
 	if len(history["messages"].([]any)) != 4 {
 		t.Fatal("history")
 	}
+	call("POST", pub+"/sessions/"+sid+"/request-human", fmt.Sprintf(`{"request_id":%q}`, core.ID()), "", wc.PublicURL, "http://localhost:4173", token, 200)
+	var inboxID string
+	if e = db.QueryRow(ctx, "SELECT id FROM conversations WHERE anonymous_session_id=$1", sid).Scan(&inboxID); e != nil {
+		t.Fatal(e)
+	}
+	inboxPath := "/api/v1/organizations/" + org.ID + "/conversations/" + inboxID
+	page := call("GET", inboxPath, "", cookie, c.PublicURL, "", "", 200)
+	state := page["conversation"].(map[string]any)["state_version"]
+	taken := call("POST", inboxPath+"/take", fmt.Sprintf(`{"request_id":%q,"version":%v}`, core.ID(), state), cookie, c.PublicURL, "", "", 200)
+	call("POST", inboxPath+"/notes", fmt.Sprintf(`{"request_id":%q,"version":%v,"content":"private-operator-note"}`, core.ID(), taken["state_version"]), cookie, c.PublicURL, "", "", 200)
+	publicHistory := call("GET", messages, "", "", wc.PublicURL, "http://localhost:4173", token, 200)["raw"].(string)
+	if strings.Contains(publicHistory, "private-operator-note") || strings.Contains(publicHistory, org.ID) || strings.Contains(publicHistory, "actor_id") {
+		t.Fatal("public inbox metadata leak", publicHistory)
+	}
 	// A public ID never grants membership, and a visitor token cannot move between widgets/tenants.
 	outsider, e := auth.Register(ctx, "outsider@example.com", "outsider-password-123", "en")
 	if e != nil {
@@ -223,9 +237,9 @@ func TestWidgetIntegration(t *testing.T) {
 	}
 	call("GET", path, "", outsiderToken, c.PublicURL, "", "", 200)
 	call("PATCH", path, `{"enabled":false}`, outsiderToken, c.PublicURL, "", "", 403)
-	// Disabled inference is an explicit failure before consuming the visitor's budget.
+	// Disabled inference still accepts a budgeted visitor message for manual handling.
 	engine.Config.Provider = "disabled"
-	call("POST", pub+"/sessions/"+other["id"].(string)+"/messages", fmt.Sprintf(`{"request_id":%q,"content":"Hello"}`, core.ID()), "", wc.PublicURL, origins[0], other["token"].(string), 503)
+	call("POST", pub+"/sessions/"+other["id"].(string)+"/messages", fmt.Sprintf(`{"request_id":%q,"content":"Hello"}`, core.ID()), "", wc.PublicURL, origins[0], other["token"].(string), 200)
 	engine.Config.Provider = "mock"
 	engine.WebsiteLimits.SiteHourly = 2
 	call("POST", pub+"/sessions/"+other["id"].(string)+"/messages", fmt.Sprintf(`{"request_id":%q,"content":"Budget"}`, core.ID()), "", wc.PublicURL, origins[0], other["token"].(string), 429)

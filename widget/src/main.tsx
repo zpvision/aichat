@@ -17,6 +17,14 @@ const parentOrigin = params.get("parent_origin") || "";
 const channel = params.get("channel") || "";
 const id = location.pathname.split("/").filter(Boolean).at(-1) || "";
 const preview = id === "preview";
+function mergeMessages(old: Message[], incoming: Message[]) {
+  const map = new Map(old.map((m) => [m.id, m]));
+  for (const m of incoming) {
+    if ((map.get(m.id)?.change_seq || 0) > (m.change_seq || 0)) continue;
+    map.set(m.id, m);
+  }
+  return Array.from(map.values()).sort((a, b) => a.sequence - b.sequence);
+}
 function Icon({ name }: { name: "chat" | "close" | "send" | "new" | "stop" }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -54,16 +62,33 @@ function App() {
   const [confirmNew, setConfirmNew] = useState(false);
   const [loading, setLoading] = useState(!preview);
   const [ready, setReady] = useState(false);
+  const [mode, setMode] = useState("ai_active");
+  const [olderBefore, setOlderBefore] = useState(0),
+    [olderBusy, setOlderBusy] = useState(false);
+  const [events, setEvents] = useState<
+    { id: string; kind: string; created_at: string; sequence: number }[]
+  >([]);
+  const cursor = useRef(0),
+    shown = useRef(true),
+    polling = useRef(false);
+  const modeVersion = useRef(0);
   const session = useRef<Session | null>(null);
   const abort = useRef<AbortController | null>(null);
+  const generationAI = useRef(false);
   const retry = useRef<{ request_id: string; content: string } | null>(null);
   const list = useRef<HTMLDivElement | null>(null);
+  const oldScroll = useRef<{ height: number; top: number } | null>(null);
   const input = useRef<HTMLTextAreaElement | null>(null);
   const dialog = useRef<HTMLElement | null>(null);
   const t = (key: Key) => text(locale, key);
   const post = (type: string, data?: unknown) =>
     window.parent.postMessage({ type, channel, data }, parentOrigin);
   function store(s: Session | null) {
+    cursor.current = 0;
+    setOlderBefore(0);
+    modeVersion.current = 0;
+    setMode("ai_active");
+    setEvents([]);
     session.current = s;
     post("session", s);
   }
@@ -75,16 +100,128 @@ function App() {
       setMessages([]);
     }
   }
-  async function history(s: Session) {
-    const d = await request<{ messages: Message[] }>(
+  async function history(s: Session, incremental = false, before = 0) {
+    const d = await request<{
+      messages: Message[];
+      events: {
+        id: string;
+        kind: string;
+        created_at: string;
+        sequence: number;
+      }[];
+      control_mode: string;
+      state_version: number;
+      cursor: number;
+      next_before: number;
+      more: boolean;
+    }>(
       id,
       parentOrigin,
-      "/sessions/" + s.id + "/messages",
+      "/sessions/" +
+        s.id +
+        "/messages" +
+        (before
+          ? "?before=" + before
+          : incremental && cursor.current
+            ? "?after=" + cursor.current
+            : ""),
       "GET",
       s,
     );
-    setMessages(d.messages);
+    if (session.current?.id !== s.id) return [];
+    cursor.current = Math.max(cursor.current, d.cursor);
+    if (!incremental) setOlderBefore(d.more ? d.next_before : 0);
+    const newest = d.state_version >= modeVersion.current;
+    if (newest) {
+      modeVersion.current = d.state_version;
+      setMode(d.control_mode);
+    }
+    if (
+      newest &&
+      (d.control_mode === "closed" ||
+        (generationAI.current && d.control_mode !== "ai_active"))
+    )
+      abort.current?.abort();
+    setEvents((old) =>
+      Array.from(
+        new Map([...old, ...d.events].map((e) => [e.id, e])).values(),
+      ).sort((a, b) => a.sequence - b.sequence),
+    );
+    const incoming =
+      abort.current && d.control_mode === "ai_active"
+        ? d.messages.filter((m) => m.request_id !== retry.current?.request_id)
+        : d.messages;
+    setMessages((old) => mergeMessages(old, incoming));
     return d.messages;
+  }
+  async function earlier() {
+    const s = session.current;
+    if (!s || olderBusy) return;
+    setOlderBusy(true);
+    try {
+      if (list.current)
+        oldScroll.current = {
+          height: list.current.scrollHeight,
+          top: list.current.scrollTop,
+        };
+      await history(s, false, olderBefore);
+    } catch (e) {
+      oldScroll.current = null;
+      problem(e);
+    } finally {
+      setOlderBusy(false);
+    }
+  }
+  useEffect(() => {
+    const tick = async () => {
+      const s = session.current;
+      if (!s || preview || !shown.current || document.hidden || polling.current)
+        return;
+      polling.current = true;
+      try {
+        await history(s, true);
+      } catch (e) {
+        problem(e);
+      } finally {
+        polling.current = false;
+      }
+    };
+    const timer = setInterval(() => void tick(), 3000);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, []);
+  async function requestHuman() {
+    if (preview || mode === "closed") return;
+    setError("");
+    try {
+      let s = session.current;
+      if (!s) {
+        s = await request<Session>(
+          id,
+          parentOrigin,
+          "/sessions",
+          "POST",
+          null,
+          {},
+        );
+        store(s);
+      }
+      await request(
+        id,
+        parentOrigin,
+        "/sessions/" + s.id + "/request-human",
+        "POST",
+        s,
+        { request_id: crypto.randomUUID() },
+      );
+      abort.current?.abort();
+      await history(s, true);
+    } catch (e) {
+      problem(e);
+    }
   }
   async function stop() {
     const s = session.current;
@@ -146,6 +283,7 @@ function App() {
         }
       }
       if (event.data.type === "visibility") {
+        shown.current = !!event.data.data?.open;
         if (!event.data.data?.open) {
           void stop();
         } else {
@@ -197,10 +335,24 @@ function App() {
     }
   }, [draft]);
   useEffect(() => {
-    if (list.current) list.current.scrollTop = list.current.scrollHeight;
+    if (list.current) {
+      list.current.scrollTop = oldScroll.current
+        ? list.current.scrollHeight -
+          oldScroll.current.height +
+          oldScroll.current.top
+        : list.current.scrollHeight;
+      oldScroll.current = null;
+    }
   }, [messages, partial, pending, error]);
   async function send() {
-    if (preview || busy || abort.current || !draft.trim() || !cfg?.available)
+    if (
+      preview ||
+      busy ||
+      abort.current ||
+      !draft.trim() ||
+      !cfg?.available ||
+      mode === "closed"
+    )
       return;
     const content = draft;
     const payload =
@@ -209,6 +361,7 @@ function App() {
         : { request_id: crypto.randomUUID(), content };
     retry.current = payload;
     const controller = new AbortController();
+    generationAI.current = mode === "ai_active" && cfg.provider !== "disabled";
     abort.current = controller;
     setBusy(true);
     setError("");
@@ -237,11 +390,7 @@ function App() {
         controller.signal,
         (value) => setPartial((p) => p + value),
       );
-      setMessages((m) =>
-        [...m, ...received].filter(
-          (v, i, a) => a.findIndex((x) => x.id === v.id) === i,
-        ),
-      );
+      setMessages((m) => mergeMessages(m, received));
       retry.current = null;
     } catch (e) {
       problem(e);
@@ -259,6 +408,16 @@ function App() {
             setDraft("");
             retry.current = null;
           } else if (reply) {
+            setDraft("");
+            retry.current = null;
+          } else if (
+            found.some(
+              (m) => m.role === "user" && m.request_id === payload.request_id,
+            ) &&
+            (mode !== "ai_active" || cfg.provider === "disabled")
+          ) {
+            setError("");
+            setDraft("");
             retry.current = null;
           }
         } catch {}
@@ -267,6 +426,7 @@ function App() {
       setPending("");
       setPartial("");
       abort.current = null;
+      generationAI.current = false;
       input.current?.focus();
     }
   }
@@ -327,7 +487,15 @@ function App() {
                 <Icon name="chat" />
               </span>
             )}
-            <span className="virtual">{t("badge")}</span>
+            <span className="virtual">
+              {t(
+                mode === "human_active"
+                  ? "staff"
+                  : mode === "human_requested"
+                    ? "waiting"
+                    : "badge",
+              )}
+            </span>
           </div>
           <div className="header-actions">
             {settings?.allow_new && (
@@ -362,7 +530,31 @@ function App() {
         </div>
       )}
       {preview && <div className="preview-label">{t("preview")}</div>}
+      {mode !== "ai_active" && (
+        <div className="channel-state" role="status">
+          {t(
+            mode === "closed"
+              ? "closed"
+              : mode === "human_requested"
+                ? "requested"
+                : "humanActive",
+          )}
+        </div>
+      )}
+      {cfg?.provider === "disabled" && mode === "ai_active" && (
+        <div className="channel-state">{t("manualAvailable")}</div>
+      )}
       <div className="messages" ref={list} aria-live="polite">
+        {olderBefore > 0 && (
+          <button
+            className="request-human"
+            type="button"
+            disabled={olderBusy || busy}
+            onClick={() => void earlier()}
+          >
+            {t("older")}
+          </button>
+        )}
         <div className="welcome">
           <span className="welcome-icon">
             <Icon name="chat" />
@@ -382,12 +574,34 @@ function App() {
           <article
             key={m.id}
             className={"message " + m.role}
-            role={m.status !== "completed" ? "alert" : undefined}
-            aria-label={t(m.role === "user" ? "you" : "assistant")}
+            role={
+              m.status === "processing"
+                ? "status"
+                : m.status !== "completed"
+                  ? "alert"
+                  : undefined
+            }
+            aria-label={t(
+              m.role === "user"
+                ? "you"
+                : m.role === "operator"
+                  ? "staff"
+                  : "assistant",
+            )}
           >
+            {m.role === "operator" && (
+              <span className="speaker">{t("staff")}</span>
+            )}
             <MessageText
               value={
-                m.content || t(m.status === "canceled" ? "canceled" : "failed")
+                m.content ||
+                t(
+                  m.status === "processing"
+                    ? "generating"
+                    : m.status === "canceled"
+                      ? "canceled"
+                      : "failed",
+                )
               }
             />
             {m.content && m.status !== "completed" && (
@@ -402,21 +616,23 @@ function App() {
             <article className="message user">
               <MessageText value={pending} />
             </article>
-            <article className="message assistant partial">
-              {partial ? (
-                <MessageText value={partial} />
-              ) : (
-                <div
-                  className="typing"
-                  role="status"
-                  aria-label={t("generating")}
-                >
-                  <i />
-                  <i />
-                  <i />
-                </div>
-              )}
-            </article>
+            {generationAI.current && (
+              <article className="message assistant partial">
+                {partial ? (
+                  <MessageText value={partial} />
+                ) : (
+                  <div
+                    className="typing"
+                    role="status"
+                    aria-label={t("generating")}
+                  >
+                    <i />
+                    <i />
+                    <i />
+                  </div>
+                )}
+              </article>
+            )}
           </>
         )}
         {error &&
@@ -447,7 +663,13 @@ function App() {
               rows={1}
               value={draft}
               maxLength={cfg?.max_message_chars || 2000}
-              disabled={preview || !ready || !cfg?.available || busy}
+              disabled={
+                preview ||
+                !ready ||
+                !cfg?.available ||
+                busy ||
+                mode === "closed"
+              }
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
                 if (
@@ -460,7 +682,7 @@ function App() {
                 }
               }}
             />
-            {busy ? (
+            {busy && generationAI.current ? (
               <button
                 type="button"
                 className="send stop"
@@ -477,7 +699,14 @@ function App() {
                 className="send"
                 title={t("send")}
                 aria-label={t("send")}
-                disabled={preview || !draft.trim() || !ready || !cfg?.available}
+                disabled={
+                  preview ||
+                  busy ||
+                  !draft.trim() ||
+                  !ready ||
+                  !cfg?.available ||
+                  mode === "closed"
+                }
               >
                 <Icon name="send" />
               </button>
@@ -495,6 +724,15 @@ function App() {
                 </option>
               ))}
             </select>
+            {!preview && mode === "ai_active" && (
+              <button
+                type="button"
+                className="request-human"
+                onClick={() => void requestHuman()}
+              >
+                {t("requestHuman")}
+              </button>
+            )}
             {settings?.privacy_url ? (
               <a
                 href={settings.privacy_url}
@@ -509,6 +747,19 @@ function App() {
           </div>
         </form>
       </footer>
+      {events.length > 0 && (
+        <div className="channel-events" aria-live="polite">
+          {t(
+            events.at(-1)!.kind === "ai_active"
+              ? "aiReturned"
+              : events.at(-1)!.kind === "closed"
+                ? "closed"
+                : events.at(-1)!.kind === "human_active"
+                  ? "humanActive"
+                  : "requested",
+          )}
+        </div>
+      )}
       {confirmNew && (
         <div className="confirm">
           <section

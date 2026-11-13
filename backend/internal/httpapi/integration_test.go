@@ -177,7 +177,7 @@ func TestIntegration(t *testing.T) {
 	call("GET", base, "", bt, 200)
 	call("POST", base+"/assistants", `{"name":"blocked"}`, bt, 403)
 	call("GET", kbase+"/"+kid, "", bt, 200)
-	call("GET", chatPath, "", bt, 200)
+	call("GET", chatPath, "", bt, 403)
 	call("POST", chatPath+"/messages", fmt.Sprintf(`{"request_id":%q,"content":"Hi"}`, core.ID()), bt, 403)
 	call("PATCH", aiBase+"/ai/settings", `{"role":"Forbidden"}`, bt, 403)
 	call("POST", kbase+"/articles", `{"title":"Forbidden","content":"No"}`, bt, 403)

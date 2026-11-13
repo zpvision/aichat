@@ -7,6 +7,16 @@ export const languageNames = {
 };
 export const dictionaries = {
   en: {
+    older: "Load earlier messages",
+    staff: "Company staff",
+    waiting: "Staff requested",
+    requested:
+      "Your request has been passed to the team. A reply will appear here when someone joins.",
+    humanActive: "You are speaking with company staff.",
+    closed: "This conversation is closed. You can start a new one.",
+    requestHuman: "Contact a person",
+    manualAvailable: "AI is unavailable. You can leave a message for the team.",
+    aiReturned: "The virtual assistant is handling this conversation again.",
     title: "Your virtual assistant",
     subtitle: "A little clarity, one conversation at a time.",
     greeting:
@@ -41,6 +51,16 @@ export const dictionaries = {
     assistant: "Assistant",
   },
   ru: {
+    older: "Загрузить предыдущие сообщения",
+    staff: "Сотрудник компании",
+    waiting: "Ожидание сотрудника",
+    requested:
+      "Ваш запрос передан сотрудникам. Ответ появится здесь, когда кто-нибудь подключится.",
+    humanActive: "С вами общается сотрудник компании.",
+    closed: "Диалог завершён. Вы можете начать новый.",
+    requestHuman: "Связаться с сотрудником",
+    manualAvailable: "AI недоступен. Вы можете оставить сообщение сотрудникам.",
+    aiReturned: "Разговор снова ведёт виртуальный помощник.",
     title: "Ваш виртуальный помощник",
     subtitle: "Поможем разобраться — спокойно и по делу.",
     greeting:
@@ -74,6 +94,16 @@ export const dictionaries = {
     assistant: "Помощник",
   },
   cs: {
+    older: "Načíst starší zprávy",
+    staff: "Pracovník společnosti",
+    waiting: "Čekání na pracovníka",
+    requested:
+      "Váš požadavek byl předán pracovníkům. Odpověď se zde objeví, až se někdo připojí.",
+    humanActive: "Hovoříte s pracovníkem společnosti.",
+    closed: "Konverzace je uzavřena. Můžete začít novou.",
+    requestHuman: "Kontaktovat pracovníka",
+    manualAvailable: "AI není dostupná. Můžete zanechat zprávu pracovníkům.",
+    aiReturned: "Konverzaci opět vede virtuální asistent.",
     title: "Váš virtuální asistent",
     subtitle: "Pomůžeme vám se zorientovat, krok za krokem.",
     greeting:
@@ -107,6 +137,17 @@ export const dictionaries = {
     assistant: "Asistent",
   },
   de: {
+    older: "Frühere Nachrichten laden",
+    staff: "Unternehmensmitarbeiter",
+    waiting: "Mitarbeiter angefordert",
+    requested:
+      "Ihre Anfrage wurde an das Team übermittelt. Die Antwort erscheint hier, sobald jemand das Gespräch übernimmt.",
+    humanActive: "Sie sprechen mit einem Unternehmensmitarbeiter.",
+    closed: "Dieses Gespräch ist geschlossen. Sie können ein neues beginnen.",
+    requestHuman: "Mitarbeiter kontaktieren",
+    manualAvailable:
+      "KI ist nicht verfügbar. Sie können dem Team eine Nachricht hinterlassen.",
+    aiReturned: "Der virtuelle Assistent übernimmt das Gespräch wieder.",
     title: "Ihr virtueller Assistent",
     subtitle: "Wir schaffen Klarheit — Schritt für Schritt.",
     greeting:

@@ -96,7 +96,7 @@ func (s *Store) detail(ctx context.Context, v Scope, before int64, preview bool)
 	return d, e
 }
 func (s *Store) History(ctx context.Context, v Scope, limit int) ([]ChatMessage, error) {
-	rows, e := s.DB.Query(ctx, "SELECT m.role,m.content FROM conversation_messages m JOIN ai_executions e ON e.id=m.execution_id AND e.organization_id=m.organization_id AND e.assistant_id=m.assistant_id AND e.conversation_id=m.conversation_id WHERE m.organization_id=$1 AND m.assistant_id=$2 AND m.conversation_id=$3 AND e.status='completed' AND m.status='completed' ORDER BY m.sequence DESC LIMIT $4", v.OrganizationID, v.AssistantID, v.ConversationID, limit)
+	rows, e := s.DB.Query(ctx, "SELECT CASE WHEN m.role='operator' THEN 'assistant' ELSE m.role END,m.content FROM conversation_messages m LEFT JOIN ai_executions e ON e.id=m.execution_id AND e.organization_id=m.organization_id AND e.assistant_id=m.assistant_id AND e.conversation_id=m.conversation_id WHERE m.organization_id=$1 AND m.assistant_id=$2 AND m.conversation_id=$3 AND (m.role='user' OR e.status='completed' OR m.execution_id IS NULL) AND m.status='completed' ORDER BY m.sequence DESC LIMIT $4", v.OrganizationID, v.AssistantID, v.ConversationID, limit)
 	if e != nil {
 		return nil, e
 	}
@@ -124,12 +124,13 @@ func (s *Store) begin(ctx context.Context, v Scope, in MessageInput, language, h
 		return out, e
 	}
 	defer tx.Rollback(ctx)
-	var status string
+	var status, mode string
+	var version int64
 	kind := "preview"
 	if budget != nil {
 		kind = "website"
 	}
-	e = tx.QueryRow(ctx, "SELECT status FROM conversations WHERE organization_id=$1 AND assistant_id=$2 AND id=$3 AND kind=$4 FOR UPDATE", v.OrganizationID, v.AssistantID, v.ConversationID, kind).Scan(&status)
+	e = tx.QueryRow(ctx, "SELECT status,control_mode,state_version FROM conversations WHERE organization_id=$1 AND assistant_id=$2 AND id=$3 AND kind=$4 FOR UPDATE", v.OrganizationID, v.AssistantID, v.ConversationID, kind).Scan(&status, &mode, &version)
 	if e != nil {
 		return out, e
 	}
@@ -150,6 +151,38 @@ func (s *Store) begin(ctx context.Context, v Scope, in MessageInput, language, h
 	if !errors.Is(e, pgx.ErrNoRows) {
 		return out, e
 	}
+	// Manual visitor submissions share the same history and idempotency key space.
+	var manual []byte
+	e = tx.QueryRow(ctx, "SELECT row_to_json(m) FROM conversation_messages m WHERE conversation_id=$1 AND organization_id=$2 AND request_id=$3 AND execution_id IS NULL AND role='user'", v.ConversationID, v.OrganizationID, in.RequestID).Scan(&manual)
+	if e == nil {
+		json.Unmarshal(manual, &out.UserMessage)
+		if out.UserMessage.Content != in.Content {
+			return out, core.Fail("request_conflict", 409)
+		}
+		out.Manual = true
+		out.Replay = true
+		return out, nil
+	}
+	if !errors.Is(e, pgx.ErrNoRows) {
+		return out, e
+	}
+	if budget != nil && (mode != "ai_active" || provider == "disabled") {
+		if e = s.websiteBudget(ctx, tx, v, *budget, false); e != nil {
+			return out, e
+		}
+		id := core.ID()
+		e = tx.QueryRow(ctx, "INSERT INTO conversation_messages(id,organization_id,assistant_id,conversation_id,role,content,language,status,request_id) VALUES($1,$2,$3,$4,'user',$5,$6,'completed',$7) RETURNING row_to_json(conversation_messages)", id, v.OrganizationID, v.AssistantID, v.ConversationID, in.Content, language, in.RequestID).Scan(&manual)
+		if e != nil {
+			return out, e
+		}
+		json.Unmarshal(manual, &out.UserMessage)
+		_, e = tx.Exec(ctx, "UPDATE conversations SET last_message_at=now(),last_visitor_at=now(),updated_at=now() WHERE id=$1 AND organization_id=$2", v.ConversationID, v.OrganizationID)
+		if e != nil {
+			return out, e
+		}
+		out.Manual = true
+		return out, tx.Commit(ctx)
+	}
 	var active bool
 	if e = tx.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM ai_executions WHERE organization_id=$1 AND assistant_id=$2 AND conversation_id=$3 AND status='processing')", v.OrganizationID, v.AssistantID, v.ConversationID).Scan(&active); e != nil {
 		return out, e
@@ -158,12 +191,12 @@ func (s *Store) begin(ctx context.Context, v Scope, in MessageInput, language, h
 		return out, core.Fail("conversation_busy", 409)
 	}
 	if budget != nil {
-		if e = s.websiteBudget(ctx, tx, v, *budget); e != nil {
+		if e = s.websiteBudget(ctx, tx, v, *budget, true); e != nil {
 			return out, e
 		}
 	}
 	id := core.ID()
-	_, e = tx.Exec(ctx, "INSERT INTO ai_executions(id,organization_id,assistant_id,conversation_id,request_id,request_hash,provider,model,status,expires_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'processing',now()+$9 * interval '1 second')", id, v.OrganizationID, v.AssistantID, v.ConversationID, in.RequestID, hash, provider, model, int(timeout.Seconds())+15)
+	_, e = tx.Exec(ctx, "INSERT INTO ai_executions(id,organization_id,assistant_id,conversation_id,request_id,request_hash,provider,model,status,expires_at,state_version) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'processing',now()+$9 * interval '1 second',$10)", id, v.OrganizationID, v.AssistantID, v.ConversationID, in.RequestID, hash, provider, model, int(timeout.Seconds())+15, version)
 	if e != nil {
 		return out, e
 	}
@@ -173,12 +206,16 @@ func (s *Store) begin(ctx context.Context, v Scope, in MessageInput, language, h
 			content = in.Content
 			state = "completed"
 		}
-		_, e = tx.Exec(ctx, "INSERT INTO conversation_messages(id,organization_id,assistant_id,conversation_id,execution_id,role,content,language,status) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)", core.ID(), v.OrganizationID, v.AssistantID, v.ConversationID, id, role, content, language, state)
+		var requestID any
+		if role == "user" {
+			requestID = in.RequestID
+		}
+		_, e = tx.Exec(ctx, "INSERT INTO conversation_messages(id,organization_id,assistant_id,conversation_id,execution_id,role,content,language,status,request_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)", core.ID(), v.OrganizationID, v.AssistantID, v.ConversationID, id, role, content, language, state, requestID)
 		if e != nil {
 			return out, e
 		}
 	}
-	_, e = tx.Exec(ctx, "UPDATE conversations SET updated_at=now() WHERE organization_id=$1 AND assistant_id=$2 AND id=$3", v.OrganizationID, v.AssistantID, v.ConversationID)
+	_, e = tx.Exec(ctx, "UPDATE conversations SET updated_at=now(),last_message_at=now(),last_visitor_at=now() WHERE organization_id=$1 AND assistant_id=$2 AND id=$3", v.OrganizationID, v.AssistantID, v.ConversationID)
 	if e != nil {
 		return out, e
 	}
@@ -222,6 +259,14 @@ func (s *Store) Finish(ctx context.Context, v Scope, id, status, content, langua
 		return e
 	}
 	defer tx.Rollback(ctx)
+	var valid bool
+	e = tx.QueryRow(ctx, `SELECT c.kind='preview' OR (c.control_mode='ai_active' AND c.state_version=e.state_version) FROM conversations c JOIN ai_executions e ON e.conversation_id=c.id AND e.organization_id=c.organization_id WHERE c.organization_id=$1 AND c.assistant_id=$2 AND c.id=$3 AND e.id=$4 FOR UPDATE OF c`, v.OrganizationID, v.AssistantID, v.ConversationID, id).Scan(&valid)
+	if e != nil {
+		return e
+	}
+	if status == "completed" && !valid {
+		return core.Fail("ai_canceled", 409)
+	}
 	tag, e := tx.Exec(ctx, "UPDATE ai_executions SET status=$5,error_code=$6,duration_ms=CASE WHEN $7::bigint=0 THEN GREATEST(0,(extract(epoch FROM now()-created_at)*1000)::bigint) ELSE $7 END,input_tokens=$8,output_tokens=$9,provider_duration_ns=$10,finished_at=now() WHERE organization_id=$1 AND assistant_id=$2 AND conversation_id=$3 AND id=$4 AND status='processing'", v.OrganizationID, v.AssistantID, v.ConversationID, id, status, code, duration, usage.InputTokens, usage.OutputTokens, usage.DurationNS)
 	if e != nil {
 		return e
@@ -233,7 +278,7 @@ func (s *Store) Finish(ctx context.Context, v Scope, id, status, content, langua
 	if e != nil {
 		return e
 	}
-	_, e = tx.Exec(ctx, "UPDATE conversations SET updated_at=now() WHERE organization_id=$1 AND assistant_id=$2 AND id=$3", v.OrganizationID, v.AssistantID, v.ConversationID)
+	_, e = tx.Exec(ctx, "UPDATE conversations SET updated_at=now(),last_message_at=now() WHERE organization_id=$1 AND assistant_id=$2 AND id=$3", v.OrganizationID, v.AssistantID, v.ConversationID)
 	if e != nil {
 		return e
 	}
@@ -246,7 +291,7 @@ func (s *Store) Active(ctx context.Context, v Scope) (string, error) {
 }
 func (s *Store) Running(ctx context.Context, v Scope, id string) bool {
 	var running bool
-	e := s.DB.QueryRow(ctx, `SELECT e.status='processing' AND (c.kind='preview' OR EXISTS(SELECT 1 FROM widget_sessions s JOIN widgets w ON w.id=s.widget_id WHERE s.id=c.anonymous_session_id AND s.expires_at>now() AND w.enabled AND s.origin=ANY(w.origins))) FROM ai_executions e JOIN conversations c ON c.id=e.conversation_id AND c.organization_id=e.organization_id AND c.assistant_id=e.assistant_id WHERE e.organization_id=$1 AND e.assistant_id=$2 AND e.conversation_id=$3 AND e.id=$4`, v.OrganizationID, v.AssistantID, v.ConversationID, id).Scan(&running)
+	e := s.DB.QueryRow(ctx, `SELECT e.status='processing' AND (c.kind='preview' OR (c.control_mode='ai_active' AND c.state_version=e.state_version AND EXISTS(SELECT 1 FROM widget_sessions s JOIN widgets w ON w.id=s.widget_id WHERE s.id=c.anonymous_session_id AND s.expires_at>now() AND w.enabled AND s.origin=ANY(w.origins)))) FROM ai_executions e JOIN conversations c ON c.id=e.conversation_id AND c.organization_id=e.organization_id AND c.assistant_id=e.assistant_id WHERE e.organization_id=$1 AND e.assistant_id=$2 AND e.conversation_id=$3 AND e.id=$4`, v.OrganizationID, v.AssistantID, v.ConversationID, id).Scan(&running)
 	return e == nil && running
 }
 func (s *Store) Delete(ctx context.Context, v Scope) error {
@@ -257,6 +302,6 @@ func (s *Store) Delete(ctx context.Context, v Scope) error {
 	return e
 }
 func (s *Store) Recover(ctx context.Context) error {
-	_, e := s.DB.Exec(ctx, "WITH abandoned AS (UPDATE ai_executions SET status='failed',error_code='ai_interrupted',finished_at=now(),duration_ms=GREATEST(0,(extract(epoch FROM now()-created_at)*1000)::bigint) WHERE status='processing' AND expires_at<now() RETURNING id,organization_id,assistant_id,conversation_id) UPDATE conversation_messages m SET status='failed',content='' FROM abandoned a WHERE m.organization_id=a.organization_id AND m.assistant_id=a.assistant_id AND m.conversation_id=a.conversation_id AND m.execution_id=a.id AND m.role='assistant'")
+	_, e := s.DB.Exec(ctx, "WITH locked AS MATERIALIZED(SELECT c.id FROM conversations c WHERE EXISTS(SELECT 1 FROM ai_executions e WHERE e.conversation_id=c.id AND e.status='processing' AND e.expires_at<now()) ORDER BY c.id FOR UPDATE),abandoned AS (UPDATE ai_executions e SET status='failed',error_code='ai_interrupted',finished_at=now(),duration_ms=GREATEST(0,(extract(epoch FROM now()-e.created_at)*1000)::bigint) FROM locked c WHERE e.conversation_id=c.id AND e.status='processing' AND e.expires_at<now() RETURNING e.id,e.organization_id,e.assistant_id,e.conversation_id) UPDATE conversation_messages m SET status='failed',content='' FROM abandoned a WHERE m.organization_id=a.organization_id AND m.assistant_id=a.assistant_id AND m.conversation_id=a.conversation_id AND m.execution_id=a.id AND m.role='assistant'")
 	return e
 }

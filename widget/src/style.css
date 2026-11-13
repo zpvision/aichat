@@ -5,6 +5,11 @@
   font-synthesis: none;
   font-size: 1rem;
 }
+.channel-state,.channel-events{font-size:.8125rem;line-height:1.5;padding:10px 20px;background:#eff6ff;color:#355777;flex-shrink:0}
+.channel-events{padding:6px 20px;font-size:.75rem;background:#f7f9fc;color:#526780}
+.request-human{border:0;background:transparent;color:#176db2;padding:5px 2px;font-size:.75rem;line-height:1.4;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.composer-meta{flex-wrap:wrap}
+.message.operator{background:#edf6ff;border-bottom-left-radius:5px}
 * {
   box-sizing: border-box;
 }

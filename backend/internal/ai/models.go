@@ -47,14 +47,17 @@ type Conversation struct {
 	UpdatedAt      time.Time `json:"updated_at"`
 }
 type Message struct {
-	ID          string    `json:"id"`
-	ExecutionID string    `json:"execution_id"`
-	Sequence    int64     `json:"sequence"`
-	Role        string    `json:"role"`
-	Content     string    `json:"content"`
-	Language    string    `json:"language"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
+	AuthorUserID *string   `json:"author_user_id"`
+	RequestID    string    `json:"request_id"`
+	ChangeSeq    int64     `json:"change_seq"`
+	ID           string    `json:"id"`
+	ExecutionID  string    `json:"execution_id"`
+	Sequence     int64     `json:"sequence"`
+	Role         string    `json:"role"`
+	Content      string    `json:"content"`
+	Language     string    `json:"language"`
+	Status       string    `json:"status"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 type Execution struct {
 	ID                 string          `json:"id"`
@@ -83,6 +86,7 @@ type MessageInput struct {
 	Content   string `json:"content"`
 }
 type Result struct {
+	Manual           bool      `json:"manual"`
 	Execution        Execution `json:"execution"`
 	UserMessage      Message   `json:"user_message"`
 	AssistantMessage Message   `json:"assistant_message"`

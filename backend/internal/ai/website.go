@@ -62,7 +62,7 @@ func (s *Service) cancel(ctx context.Context, v Scope) error {
 type WebsiteLimits struct{ SessionMessages, SiteHourly, OrgHourly, SiteConcurrent, OrgConcurrent int }
 
 func DefaultWebsiteLimits() WebsiteLimits { return WebsiteLimits{50, 300, 1000, 2, 4} }
-func (s *Store) websiteBudget(ctx context.Context, tx pgx.Tx, v Scope, limit WebsiteLimits) error {
+func (s *Store) websiteBudget(ctx context.Context, tx pgx.Tx, v Scope, limit WebsiteLimits, generation bool) error {
 	if _, e := tx.Exec(ctx, "SELECT pg_advisory_xact_lock(hashtextextended($1,424))", v.OrganizationID); e != nil {
 		return e
 	}
@@ -76,11 +76,17 @@ func (s *Store) websiteBudget(ctx context.Context, tx pgx.Tx, v Scope, limit Web
 		return core.Fail("widget_session_limit", 429)
 	}
 	var siteHour, orgHour, siteActive, orgActive int
-	e = tx.QueryRow(ctx, `SELECT count(*) FILTER(WHERE c.site_id=$2 AND e.created_at>now()-interval '1 hour'),count(*) FILTER(WHERE e.created_at>now()-interval '1 hour'),count(*) FILTER(WHERE c.site_id=$2 AND e.status='processing'),count(*) FILTER(WHERE e.status='processing') FROM ai_executions e JOIN conversations c ON c.id=e.conversation_id AND c.organization_id=e.organization_id WHERE e.organization_id=$1 AND c.kind='website' AND (e.created_at>now()-interval '1 hour' OR e.status='processing')`, v.OrganizationID, site).Scan(&siteHour, &orgHour, &siteActive, &orgActive)
+	e = tx.QueryRow(ctx, `SELECT count(*) FILTER(WHERE c.site_id=$2),count(*) FROM conversation_messages m JOIN conversations c ON c.id=m.conversation_id AND c.organization_id=m.organization_id WHERE m.organization_id=$1 AND c.kind='website' AND m.role='user' AND m.created_at>now()-interval '1 hour'`, v.OrganizationID, site).Scan(&siteHour, &orgHour)
 	if e != nil {
 		return e
 	}
-	if siteHour >= limit.SiteHourly || orgHour >= limit.OrgHourly || siteActive >= limit.SiteConcurrent || orgActive >= limit.OrgConcurrent {
+	if generation {
+		e = tx.QueryRow(ctx, `SELECT count(*) FILTER(WHERE c.site_id=$2),count(*) FROM ai_executions e JOIN conversations c ON c.id=e.conversation_id AND c.organization_id=e.organization_id WHERE e.organization_id=$1 AND c.kind='website' AND e.status='processing'`, v.OrganizationID, site).Scan(&siteActive, &orgActive)
+		if e != nil {
+			return e
+		}
+	}
+	if siteHour >= limit.SiteHourly || orgHour >= limit.OrgHourly || generation && (siteActive >= limit.SiteConcurrent || orgActive >= limit.OrgConcurrent) {
 		return core.Fail("widget_capacity", 429)
 	}
 	_, e = tx.Exec(ctx, "UPDATE widget_sessions SET message_count=message_count+1 WHERE id=$1 AND organization_id=$2 AND assistant_id=$3", session, v.OrganizationID, v.AssistantID)

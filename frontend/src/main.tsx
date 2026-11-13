@@ -13,9 +13,12 @@ import {
   type Site,
 } from "./api";
 import "./style.css";
+import "./inbox.css";
 import { Knowledge } from "./Knowledge";
 import { PreviewChat } from "./PreviewChat";
 import { WidgetSettings } from "./WidgetSettings";
+import { Inbox } from "./Inbox";
+import { Team } from "./Team";
 
 function App() {
   const { t } = useTranslation();
@@ -36,6 +39,41 @@ function App() {
   const [dialog, setDialog] = useState("");
   const [editing, setEditing] = useState<Assistant | null>(null);
   const [siteDelete, setSiteDelete] = useState<Site | null>(null);
+  const [invite, setInvite] = useState(() => {
+    const token =
+      /^#invite=([A-Za-z0-9_-]{43})$/.exec(location.hash)?.[1] || "";
+    if (token)
+      history.replaceState(null, "", location.pathname + location.search);
+    return token;
+  });
+  const [summary, setSummary] = useState({ unread: 0, requested: 0 });
+  useEffect(() => {
+    setSummary({ unread: 0, requested: 0 });
+    if (!user || !org) return;
+    let active = true,
+      running = false;
+    const load = async () => {
+      if (document.hidden || running) return;
+      running = true;
+      try {
+        const v = await api<{ unread: number; requested: number }>(
+          "/organizations/" + org.id + "/inbox-summary",
+        );
+        if (active) setSummary(v);
+      } catch {
+      } finally {
+        running = false;
+      }
+    };
+    void load();
+    const timer = setInterval(() => void load(), 3000);
+    document.addEventListener("visibilitychange", load);
+    return () => {
+      active = false;
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", load);
+    };
+  }, [user?.id, org?.id]);
   useEffect(() => {
     if (!dialog && !siteDelete) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -256,6 +294,39 @@ function App() {
           {t(notice)}
         </div>
       )}
+      {invite && (
+        <div className="notice" role="status">
+          {t("inbox.invited")}{" "}
+          {user ? (
+            <button
+              className="primary"
+              disabled={busy}
+              onClick={() =>
+                void action(async () => {
+                  await api("/invitations/accept", "POST", { token: invite });
+                  setInvite("");
+                  setOrgs(await api<Organization[]>("/organizations"));
+                  setOrg(null);
+                  setPage("home");
+                  setNotice("inbox.joined");
+                })
+              }
+            >
+              {t("inbox.acceptInvite")}
+            </button>
+          ) : (
+            t("inbox.loginInvite")
+          )}
+        </div>
+      )}
+      {user && org && (summary.unread > 0 || summary.requested > 0) && (
+        <div className="inbox-notification" role="status">
+          <button onClick={() => setPage("inbox")}>
+            {t("inbox.notification", { count: summary.unread })} ·{" "}
+            {t("inbox.waiting", { count: summary.requested })}
+          </button>
+        </div>
+      )}
       {!user ? (
         <main className="auth-layout">
           <section className="intro">
@@ -370,22 +441,32 @@ function App() {
                 <div className="org-label">{org.name}</div>
                 {[
                   "home",
+                  "inbox",
                   "assistants",
                   "knowledge",
-                  "preview",
+                  ...(org.role !== "operator" ? ["preview"] : []),
                   "sites",
                   "widget",
+                  ...(org.role !== "operator" ? ["team"] : []),
                   ...(org.role === "owner" ? ["settings"] : []),
                 ].map((p) => (
                   <button
                     key={p}
+                    aria-label={t(
+                      ["widget", "inbox", "team"].includes(p) ? p + "Title" : p,
+                    )}
                     className={page === p ? "nav active" : "nav"}
                     onClick={() => {
                       setPage(p);
                       setDialog("");
                     }}
                   >
-                    {t(p === "widget" ? "widgetTitle" : p)}
+                    {t(
+                      ["widget", "inbox", "team"].includes(p) ? p + "Title" : p,
+                    )}
+                    {p === "inbox" && summary.unread > 0 && (
+                      <span className="inbox-count">{summary.unread}</span>
+                    )}
                   </button>
                 ))}
               </>
@@ -489,7 +570,13 @@ function App() {
                 </div>
                 <div className="page-heading">
                   <div>
-                    <h1>{t(page === "widget" ? "widgetTitle" : page)}</h1>
+                    <h1>
+                      {t(
+                        ["widget", "inbox", "team"].includes(page)
+                          ? page + "Title"
+                          : page,
+                      )}
+                    </h1>
                     <p>{t(page + "Hint")}</p>
                   </div>
                   {writable && (page === "assistants" || page === "sites") && (
@@ -655,6 +742,19 @@ function App() {
                     writable={writable}
                     initialAssistant={knowledgeAssistant}
                   />
+                )}
+                {page === "inbox" && (
+                  <Inbox
+                    key={org.id}
+                    organizationId={org.id}
+                    userId={user.id}
+                    role={org.role}
+                    sites={sites}
+                    assistants={assistants}
+                  />
+                )}
+                {page === "team" && org.role !== "operator" && (
+                  <Team key={org.id} organizationId={org.id} />
                 )}
                 {page === "widget" && (
                   <WidgetSettings

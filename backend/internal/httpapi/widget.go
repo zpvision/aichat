@@ -11,12 +11,14 @@ import (
 	"path/filepath"
 	"site-assistant/internal/ai"
 	"site-assistant/internal/core"
+	"site-assistant/internal/inbox"
 	"site-assistant/internal/widget"
 	"strings"
 	"time"
 )
 
 func (a *Server) widgetRoutes(m *http.ServeMux, s *widget.Service) {
+	a.inboxRoutes(m, s.Inbox)
 	admin := "/api/v1/organizations/{id}/sites/{siteId}/widget"
 	scope := func(r *http.Request) (string, string) { return r.PathValue("id"), r.PathValue("siteId") }
 	m.HandleFunc("GET "+admin, a.protect(func(w http.ResponseWriter, r *http.Request, u core.User) {
@@ -142,8 +144,21 @@ func (a *Server) widgetRoutes(m *http.ServeMux, s *widget.Service) {
 		a.result(w, 201, session, e)
 	}))
 	m.HandleFunc("GET "+public+"/sessions/{sessionId}/messages", protect(func(w http.ResponseWriter, r *http.Request, v widget.Widget, origin string) {
-		messages, e := s.History(r.Context(), v, r.PathValue("sessionId"), bearer(r), origin)
-		a.result(w, 200, map[string]any{"messages": messages}, e)
+		after, before, e := changeCursors(r)
+		if e != nil {
+			a.err(w, e)
+			return
+		}
+		page, e := s.Inbox.VisitorPage(r.Context(), v.ID, r.PathValue("sessionId"), bearer(r), origin, after, before)
+		a.result(w, 200, widget.PublicPage(page), e)
+	}))
+	m.HandleFunc("POST "+public+"/sessions/{sessionId}/request-human", protect(func(w http.ResponseWriter, r *http.Request, v widget.Widget, origin string) {
+		var in inbox.Action
+		if !a.decode(w, r, &in) {
+			return
+		}
+		c, e := s.Inbox.RequestHuman(r.Context(), v.ID, r.PathValue("sessionId"), bearer(r), origin, in)
+		a.result(w, 200, map[string]any{"control_mode": c.Mode, "state_version": c.Version}, e)
 	}))
 	m.HandleFunc("POST "+public+"/sessions/{sessionId}/cancel", protect(func(w http.ResponseWriter, r *http.Request, v widget.Widget, origin string) {
 		e := s.AI.WebsiteCancel(r.Context(), v.ID, r.PathValue("sessionId"), bearer(r), origin)
@@ -179,7 +194,24 @@ func (a *Server) widgetRoutes(m *http.ServeMux, s *widget.Service) {
 			}
 			return
 		}
-		sender(ai.Event{Type: "complete", Data: map[string]any{"request_id": in.RequestID, "messages": []widget.PublicMessage{{ID: result.UserMessage.ID, RequestID: in.RequestID, Role: "user", Content: result.UserMessage.Content, Status: result.UserMessage.Status, CreatedAt: result.UserMessage.CreatedAt}, {ID: result.AssistantMessage.ID, RequestID: in.RequestID, Role: "assistant", Content: result.AssistantMessage.Content, Status: result.AssistantMessage.Status, CreatedAt: result.AssistantMessage.CreatedAt}}}})
+		messages := []widget.PublicMessage{widget.FromMessage(result.UserMessage, in.RequestID)}
+		if result.AssistantMessage.ID != "" {
+			messages = append(messages, widget.FromMessage(result.AssistantMessage, in.RequestID))
+		}
+		complete := func() error {
+			return sender(ai.Event{Type: "complete", Data: map[string]any{"request_id": in.RequestID, "messages": messages}})
+		}
+		if !result.Manual {
+			scope, err := s.AI.Store.WebsiteScope(r.Context(), v.ID, r.PathValue("sessionId"), token, origin)
+			if err == nil {
+				err = s.AI.Store.Deliver(r.Context(), scope, result.Execution.ID, true, complete)
+			}
+			if err != nil {
+				sender(ai.Event{Type: "error", Data: map[string]string{"code": "ai_canceled"}})
+			}
+		} else {
+			complete()
+		}
 	}))
 	m.HandleFunc("GET "+public+"/logo", func(w http.ResponseWriter, r *http.Request) {
 		v, e := s.Store.Public(r.Context(), r.PathValue("widgetId"))

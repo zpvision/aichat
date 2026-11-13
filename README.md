@@ -1,10 +1,12 @@
-# site-assistant — этапы 1–4
+# site-assistant — этапы 1–5
 
 Фундамент SaaS, база знаний, общий AI-движок и публичный чат сайта: компании, роли, ассистенты, документы/импорт, hybrid retrieval, инструкции, preview и website диалоги с историей, streaming и отменой. Кабинет и iframe-виджет RU/EN/CS/DE. Embeddings — настоящая Ollama BGE-M3. Генерация по умолчанию — **явный MockProvider**, настоящая Gemma не подключена и не проверена. Публичное название задаёт `APP_BRAND_NAME`.
 
 Требования: Go 1.27.4+, Node.js 22+ (проверено на 24), Docker Compose. В корне сохранён исходный учебный пример GoLand; приложение запускается из `backend/`, а не через корневой `main.go`. При разрешённом GOTOOLCHAIN=auto Go сам загрузит требуемую версию из backend/go.mod.
 
 ## Локальный запуск (PowerShell)
+
+Этап 5: применить `005_operator_inbox.sql` обычным мигратором, пересобрать widget и открыть «Диалоги». «Сотрудники» позволяет создать одноразовую ссылку приглашения без email. AI/человек используют общую историю, PostgreSQL fencing и обновления по курсору. [Рабочее место операторов, права и проверки гонок](docs/operator-inbox.md). Настоящая Gemma по-прежнему не подключена.
 
 Для публичного чата дополнительно собрать `widget/` (`npm ci`, `npm run build`) перед запуском API. В существующий backend `.env` добавить параметры `WIDGET_*` из `.env.example`; для localhost нужен явный `WIDGET_ALLOW_LOCALHOST=true`. Независимая demo HTML: в `widget/` выполнить `npm run dev`, открыть `http://localhost:4173/widget/demo/index.html?widget=PUBLIC_WIDGET_ID`. ID, код установки и настройки — компания → «Внешний вид чата». Разрешить origin `http://localhost:4173` и включить widget. Полный порядок, анонимные сессии, безопасность, настройки и ограничения: [docs/widget.md](docs/widget.md).
 

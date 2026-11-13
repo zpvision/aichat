@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"site-assistant/internal/ai"
 	"site-assistant/internal/core"
+	"site-assistant/internal/inbox"
 	"site-assistant/internal/knowledge"
 	"strings"
 	"unicode/utf8"
@@ -28,11 +29,12 @@ type Service struct {
 	Files    knowledge.FileStorage
 	Importer *knowledge.Importer
 	Limiter  *Limiter
+	Inbox    *inbox.Service
 }
 
 func New(auth *core.Service, engine *ai.Service, c Config) *Service {
 	engine.WebsiteLimits = c.Limits
-	return &Service{Auth: auth, AI: engine, Store: &Store{DB: auth.Store.DB}, Config: c, Files: knowledge.LocalStorage{Root: c.FileRoot}, Importer: knowledge.NewImporter(), Limiter: NewLimiter()}
+	return &Service{Auth: auth, AI: engine, Store: &Store{DB: auth.Store.DB}, Config: c, Files: knowledge.LocalStorage{Root: c.FileRoot}, Importer: knowledge.NewImporter(), Limiter: NewLimiter(), Inbox: inbox.New(auth, engine, c.AppURL)}
 }
 func (s *Service) Access(ctx context.Context, user, org, site string, write bool) error {
 	if _, e := s.Auth.Access(ctx, user, org, write, false); e != nil {
@@ -252,7 +254,7 @@ func (s *Service) Resolve(ctx context.Context, id, origin string) (Widget, error
 	return w, core.Fail("widget_origin", 403)
 }
 func (s *Service) Public(w Widget) PublicConfig {
-	return PublicConfig{ID: w.ID, Settings: w.Settings, LogoURL: s.logoURL(w), Provider: s.AI.Config.Provider, Demo: s.AI.Config.Provider == "mock", Available: s.AI.Config.Provider != "disabled", MaxMessageChars: 2000}
+	return PublicConfig{ID: w.ID, Settings: w.Settings, LogoURL: s.logoURL(w), Provider: s.AI.Config.Provider, Demo: s.AI.Config.Provider == "mock", Available: true, MaxMessageChars: 2000}
 }
 func (s *Service) Session(ctx context.Context, w Widget, origin string) (Session, error) {
 	token := randomToken()

@@ -249,8 +249,8 @@ func TestConcurrentAndIsolation(t *testing.T) {
 		t.Fatal(e)
 	}
 	s.Store.DB.Exec(ctx, "INSERT INTO organization_members(organization_id,user_id,role) VALUES($1,$2,'operator')", v.OrganizationID, op.ID)
-	if _, e = s.Detail(ctx, op.ID, v, 0); e != nil {
-		t.Fatal(e)
+	if _, e = s.Detail(ctx, op.ID, v, 0); e == nil {
+		t.Fatal("operator read preview")
 	}
 	if _, e = s.Message(ctx, op.ID, v, in, false, nil); e == nil {
 		t.Fatal("operator generated")

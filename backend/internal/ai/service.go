@@ -53,8 +53,10 @@ func (s *Service) model() string {
 	return s.Config.Model
 }
 func (s *Service) Access(ctx context.Context, user string, v Scope, write bool) error {
-	if _, e := s.Auth.Access(ctx, user, v.OrganizationID, write, false); e != nil {
+	if role, e := s.Auth.Access(ctx, user, v.OrganizationID, write, false); e != nil {
 		return e
+	} else if role == "operator" {
+		return core.Fail("forbidden", 403)
 	}
 	if _, e := s.Auth.Assistant(ctx, user, v.OrganizationID, v.AssistantID); e != nil {
 		return e
@@ -170,14 +172,16 @@ func (s *Service) generate(parent context.Context, user string, v Scope, in Mess
 	if !requestUUID.MatchString(in.RequestID) || strings.TrimSpace(in.Content) == "" || !utf8.ValidString(in.Content) || utf8.RuneCountInString(in.Content) > 2000 || strings.ContainsRune(in.Content, 0) {
 		return result, core.Fail("validation", 422)
 	}
-	if s.Config.Provider == "disabled" {
+	if s.Config.Provider == "disabled" && !website {
 		return result, core.Fail("ai_disabled", 503)
 	}
-	select {
-	case s.slots <- struct{}{}:
-		defer func() { <-s.slots }()
-	default:
-		return result, core.Fail("ai_busy", 503)
+	if !website {
+		select {
+		case s.slots <- struct{}{}:
+			defer func() { <-s.slots }()
+		default:
+			return result, core.Fail("ai_busy", 503)
+		}
 	}
 	if e := s.Store.Recover(parent); e != nil {
 		return result, e
@@ -195,6 +199,9 @@ func (s *Service) generate(parent context.Context, user string, v Scope, in Mess
 		if result.Execution.Status == "processing" {
 			return result, core.Fail("request_in_progress", 409)
 		}
+		return result, nil
+	}
+	if result.Manual {
 		return result, nil
 	}
 	start := time.Now()
@@ -223,6 +230,14 @@ func (s *Service) generate(parent context.Context, user string, v Scope, in Mess
 			err = classified
 		}
 	}()
+	if website {
+		select {
+		case s.slots <- struct{}{}:
+			defer func() { <-s.slots }()
+		default:
+			return result, core.Fail("ai_busy", 503)
+		}
+	}
 	// Cross-process cancellation and deletion become observable without waiting for an inference chunk.
 	watchCtx, stopWatch := context.WithCancel(ctx)
 	watchDone := make(chan struct{})
@@ -247,7 +262,13 @@ func (s *Service) generate(parent context.Context, user string, v Scope, in Mess
 		}
 	}()
 	if stream {
-		if err = emit(Event{Type: "start", Data: result}); err != nil {
+		startEvent := func() error { return emit(Event{Type: "start", Data: result}) }
+		if website {
+			err = s.Store.Deliver(ctx, v, id, false, startEvent)
+		} else {
+			err = startEvent()
+		}
+		if err != nil {
 			return result, err
 		}
 	}
@@ -294,7 +315,11 @@ func (s *Service) generate(parent context.Context, user string, v Scope, in Mess
 			return e
 		}
 		if stream {
-			return emit(Event{Type: "delta", Data: map[string]string{"text": text}})
+			send := func() error { return emit(Event{Type: "delta", Data: map[string]string{"text": text}}) }
+			if website {
+				return s.Store.Deliver(ctx, v, id, false, send)
+			}
+			return send()
 		}
 		return nil
 	}

@@ -1,5 +1,7 @@
 # REST API
 
+Этап 5 добавляет company-scoped website inbox (`/organizations/{id}/conversations`, detail/messages/take/assign/resume-ai/close/notes/read), `/inbox-summary`, `/members`, invitations GET/POST/DELETE и `/invitations/accept`. Все пути под `/api/v1`, cabinet cookie/Origin/CSRF сохранены. Owner/admin работают со всей компанией; operator — со своими и свободными открытыми. Preview для operator теперь 403. Action требует request_id и текущий version, reply — также content. Публичный `/public/widgets/{widgetId}/sessions/{sessionId}/request-human` использует visitor token/origin; GET messages поддерживает after/before и mode/events. Human/disabled visitor POST возвращает SSE complete только с сохранённым user message, без AI execution. Публичные заметки/назначения/tenant IDs отсутствуют. [Полный протокол](operator-inbox.md), [OpenAPI](openapi.json).
+
 Полный машиночитаемый контракт: [openapi.json](openapi.json), OpenAPI 3.0.3. Генерация: `node scripts/generate-openapi.mjs` из корня. Ответы ресурсов — JSON-объекты, списки — массивы (включая пустой `[]`), ошибки — `{"error":{"code":"validation"}}`. Тексты локализует клиент. PATCH частичный; неизвестные JSON-поля отклоняются. Ограничение тела 32 KiB. DELETE принимает `{}` с Content-Type JSON. Чужие tenant ID дают 404.
 
 | Метод | Путь | Доступ |
