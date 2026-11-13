@@ -31,3 +31,7 @@ Origin/custom-header CSRF сохранены. Исключение Content-Type 
 ## Stage 6 additions
 
 `internal/leads` extends the monolith through an optional AI CollectionHook. Structured extraction is separate from streaming generation. Existing knowledge retrieval, conversations, website tokens and PostgreSQL handoff fencing remain authoritative. Only successful AI FinishWith may atomically publish extracted values. Explicit version-checked confirmation creates a lead. See leads.md.
+
+## Stage 7: integrations
+
+`internal/integrations` extends the Go monolith with company API-key authentication, standalone lead creation, recovery cursor feed and PostgreSQL webhook jobs. Lead INSERT triggers atomically create stable events and jobs for enabled endpoints, including visitor/staff leads from Stage 6. Jobs use SKIP LOCKED, bounded HTTP, lease fencing and retries. The existing lead tables/CRM are reused; standalone API leads have no fake conversation. HTTP: httpapi/integrations.go. See finkoper-integration.md.

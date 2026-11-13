@@ -77,3 +77,9 @@ Public: GET `/public/widgets/{widgetId}/config`, POST `/sessions`, GET/POST `/se
 ## Lead API (v0.6)
 
 Owner/admin GET/PUT assistant lead-settings; company GET leads and GET/PATCH/DELETE leads/{leadId}. PATCH accepts version plus status, assigned_user_id, values or note. Conversation collection GET and POST start/edit/cancel/submit are available to authorized staff, requiring human control for changes. The public widget exposes the same collection actions under its token-protected session; no administrative lead ID is returned. Current collection and conversation versions are required. All detailed schemas are in openapi.json.
+
+## Stage 7 universal integration API
+
+Server-to-server `/api/v1/external/leads`: GET creation/recovery feed (cursor, limit 1?100), POST explicit lead creation with mandatory Idempotency-Key, GET /{leadId}. Authorization: Bearer company API key; company comes from key, not request. Scopes leads:read/leads:write. No user-cookie or CSRF bypass applies to cabinet routes. No wildcard CORS.
+
+Owner/admin cabinet `/organizations/{id}/integrations`: keys GET/POST, keys/{id} DELETE; webhooks GET/POST, webhooks/{id} PATCH enabled; rotate/test POST; deliveries GET with optional before UUID for keyset pagination (100/page), deliveries/{id}/attempts GET (latest 100), retry POST. Exact schemas, secrets and error contracts are in openapi.json and finkoper-integration.md.

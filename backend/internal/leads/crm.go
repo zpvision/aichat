@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-const leadSelect = `SELECT to_jsonb(l)||jsonb_build_object('site',s.name,'can_open_conversation',($3<>'operator' OR c.assigned_user_id=NULLIF($2,'')::uuid OR (c.assigned_user_id IS NULL AND c.control_mode<>'closed'))) FROM leads l JOIN sites s ON s.id=l.site_id AND s.organization_id=l.organization_id JOIN conversations c ON c.id=l.conversation_id AND c.organization_id=l.organization_id `
+const leadSelect = `SELECT to_jsonb(l)||jsonb_build_object('site',COALESCE(s.name,''),'can_open_conversation',c.id IS NOT NULL AND ($3<>'operator' OR c.assigned_user_id=NULLIF($2,'')::uuid OR (c.assigned_user_id IS NULL AND c.control_mode<>'closed'))) FROM leads l LEFT JOIN sites s ON s.id=l.site_id AND s.organization_id=l.organization_id LEFT JOIN conversations c ON c.id=l.conversation_id AND c.organization_id=l.organization_id `
 
 func visible(l Lead, user, role string) bool {
 	return role != "operator" || l.Assigned != nil && *l.Assigned == user || l.Assigned == nil && (l.Status == "new" || l.Status == "in_progress")
@@ -263,7 +263,9 @@ func (s *Store) Patch(ctx context.Context, user, role, org, id string, in LeadPa
 			if code != "" {
 				return core.Fail(code, 422)
 			}
-			if old,ok:=l.Values[key];ok&&bytes.Equal(old.Value,v)&&old.Valid{continue}
+			if old, ok := l.Values[key]; ok && bytes.Equal(old.Value, v) && old.Valid {
+				continue
+			}
 			l.Values[key] = Value{Value: v, Valid: true, Source: "staff", UpdatedAt: time.Now().UTC()}
 		}
 		if len(Missing(l.Snapshot, l.Values)) > 0 {
@@ -348,16 +350,18 @@ func (s *Store) Delete(ctx context.Context, org, id string) error {
 		return e
 	}
 	defer tx.Rollback(ctx)
-	var conversation string
+	var conversation *string
 	e = tx.QueryRow(ctx, "SELECT conversation_id FROM leads WHERE organization_id=$1 AND id=$2", org, id).Scan(&conversation)
 	if e != nil {
 		return e
 	}
-	if _, e = tx.Exec(ctx, "SELECT id FROM conversations WHERE organization_id=$1 AND id=$2 FOR UPDATE", org, conversation); e != nil {
-		return e
-	}
-	if _, e = tx.Exec(ctx, "SELECT id FROM lead_collections WHERE organization_id=$1 AND conversation_id=$2 FOR UPDATE", org, conversation); e != nil {
-		return e
+	if conversation != nil {
+		if _, e = tx.Exec(ctx, "SELECT id FROM conversations WHERE organization_id=$1 AND id=$2 FOR UPDATE", org, *conversation); e != nil {
+			return e
+		}
+		if _, e = tx.Exec(ctx, "SELECT id FROM lead_collections WHERE organization_id=$1 AND conversation_id=$2 FOR UPDATE", org, *conversation); e != nil {
+			return e
+		}
 	}
 	tag, e := tx.Exec(ctx, "DELETE FROM leads WHERE organization_id=$1 AND id=$2", org, id)
 	if e != nil {

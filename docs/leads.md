@@ -52,4 +52,4 @@ Run `go test ./...` with `TEST_DATABASE_URL` ending `_test` for PostgreSQL tests
 
 Before production: define per-region/company retention for drafts, contacts, source messages, notes, backups and erasure requests; add scheduled retention/GC and deployment-wide limits. Deleting a lead is not deletion of the original conversation. There is no marketing consent, email/SMS sending or contact verification. In-memory fast limits are single-process; PostgreSQL generation budgets remain shared. Data goes only to the configured regional AI endpoint. Prompt text and extracted contacts are not copied into execution logs.
 
-The future `lead.created` transactional-outbox insertion point is documented in `Store.submit` immediately before commit. No event bus, webhook or FinKoper integration exists yet. Stage 7 remains a separate task.
+Stage 7 now attaches transactional lead.created events and delivery jobs using the shared leads INSERT trigger. HTTP delivery remains outside the creation transaction. See finkoper-integration.md for the universal company API and signed metadata webhooks. There is no FinKoper destination, SSO or external event bus.

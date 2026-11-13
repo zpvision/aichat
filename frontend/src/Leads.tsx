@@ -353,9 +353,15 @@ export function Leads({
                   )}
                 </>
               )}
-              <a href={l.privacy_url} target="_blank" rel="noopener noreferrer">
-                {tr("privacy")}
-              </a>
+              {l.privacy_url && (
+                <a
+                  href={l.privacy_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {tr("privacy")}
+                </a>
+              )}
               <h3>{tr("history")}</h3>
               <div className="lead-history">
                 {detail.events.map((e) => (

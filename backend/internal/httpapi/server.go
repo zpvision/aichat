@@ -48,6 +48,9 @@ func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, w
 	m := http.NewServeMux()
 	if widgets != nil {
 		a.widgetRoutes(m, widgets)
+		if widgets.Integrations != nil {
+			a.integrationRoutes(m, widgets.Integrations)
+		}
 	}
 	for _, k := range modules {
 		a.knowledgeRoutes(m, k)
@@ -170,7 +173,7 @@ func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, w
 				a.err(w, core.Fail("internal", 500))
 			}
 		}()
-		if r.Method != "GET" && r.Method != "HEAD" && !strings.HasPrefix(r.URL.Path, "/api/v1/public/widgets/") {
+		if r.Method != "GET" && r.Method != "HEAD" && !strings.HasPrefix(r.URL.Path, "/api/v1/public/widgets/") && !strings.HasPrefix(r.URL.Path, "/api/v1/external/") {
 			multipartUpload := r.Method == "POST" && (strings.HasSuffix(r.URL.Path, "/knowledge/upload") || strings.HasSuffix(r.URL.Path, "/widget/logo")) && strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data;")
 			if r.Header.Get("Origin") != c.PublicURL || r.Header.Get("X-CSRF-Protection") != "1" || (!strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") && !multipartUpload) {
 				a.err(w, core.Fail("csrf", 403))

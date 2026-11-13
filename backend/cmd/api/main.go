@@ -16,6 +16,7 @@ import (
 	"site-assistant/internal/core"
 	"site-assistant/internal/database"
 	"site-assistant/internal/httpapi"
+	"site-assistant/internal/integrations"
 	"site-assistant/internal/knowledge"
 	"site-assistant/internal/widget"
 	"syscall"
@@ -70,6 +71,11 @@ func run() error {
 		return e
 	}
 	widgets := widget.New(auth, engine, wc)
+	ic, e := integrations.Load(c.Production)
+	if e != nil {
+		return e
+	}
+	widgets.Integrations = integrations.New(auth, ic)
 	workerCtx, workerCancel := context.WithCancel(ctx)
 	workerDone := make(chan struct{})
 	go func() { defer close(workerDone); ks.Run(workerCtx) }()
@@ -77,6 +83,9 @@ func run() error {
 	aiDone := make(chan struct{})
 	go func() { defer close(aiDone); engine.Run(workerCtx) }()
 	defer func() { workerCancel(); <-aiDone }()
+	integrationDone := make(chan struct{})
+	go func() { defer close(integrationDone); widgets.Integrations.Run(workerCtx) }()
+	defer func() { workerCancel(); <-integrationDone }()
 	srv := &http.Server{Addr: c.Addr, Handler: httpapi.NewWithWidget(auth, c, ks, engine, widgets), BaseContext: func(net.Listener) context.Context { return ctx }, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 16384}
 	done := make(chan error, 1)
 	go func() {

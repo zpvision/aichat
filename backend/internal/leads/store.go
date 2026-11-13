@@ -286,7 +286,7 @@ func (s *Store) submit(ctx context.Context, tx pgx.Tx, v ai.Scope, c inbox.Conve
 	if e != nil {
 		return e
 	}
-	// Future lead.created transactional outbox belongs here, before commit. No webhook is sent.
+	// Stage 7 INSERT trigger atomically creates lead.created and delivery jobs. No HTTP runs in this transaction.
 	_, e = tx.Exec(ctx, "INSERT INTO lead_events(id,organization_id,lead_id,actor_id,kind,status) VALUES($1,$2,$3,$4,'created','new')", core.ID(), v.OrganizationID, id, nullable(user))
 	if e != nil {
 		return e

@@ -203,3 +203,80 @@
     font-size: 16px;
   }
 }
+.integration-page > .card {
+  padding: 24px;
+  margin: 20px 0;
+}
+.integration-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.integration-grid > .card {
+  padding: 24px;
+  min-width: 0;
+}
+.integration-grid .check {
+  flex-direction: row;
+  justify-content: flex-start;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.integration-grid .check input {
+  width: auto;
+}
+.integration-items article {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #dfebf8;
+  border-radius: 14px;
+  overflow-wrap: anywhere;
+}
+.integration-items small {
+  display: block;
+  margin: 8px 0;
+}
+.integration-items article > button {
+  margin-top: 12px;
+}
+.integration-secret {
+  border: 2px solid #1890ff;
+}
+.integration-secret textarea {
+  font-family: monospace;
+  overflow-wrap: anywhere;
+}
+.integration-deliveries {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.integration-deliveries article {
+  border: 1px solid #dfebf8;
+  border-radius: 14px;
+  padding: 16px;
+  min-width: 0;
+}
+.integration-deliveries small,
+.integration-deliveries code {
+  display: block;
+  overflow-wrap: anywhere;
+  margin: 8px 0;
+}
+.integration-journal {
+  background: #f3f7fc;
+  padding: 16px;
+  border-radius: 14px;
+  margin-top: 20px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 900px) {
+  .integration-grid {
+    grid-template-columns: 1fr;
+  }
+  .integration-grid > .card,
+  .integration-page > .card {
+    padding: 16px;
+  }
+}

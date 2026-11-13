@@ -21,6 +21,7 @@ import { Inbox } from "./Inbox";
 import { Team } from "./Team";
 import { LeadSettings } from "./LeadSettings";
 import { Leads } from "./Leads";
+import { Integrations } from "./Integrations";
 import "./leads.css";
 
 function App() {
@@ -448,7 +449,9 @@ function App() {
                   "home",
                   "inbox",
                   "leads",
-                  ...(org.role !== "operator" ? ["scenarios"] : []),
+                  ...(org.role !== "operator"
+                    ? ["scenarios", "integrations"]
+                    : []),
                   "assistants",
                   "knowledge",
                   ...(org.role !== "operator" ? ["preview"] : []),
@@ -771,6 +774,9 @@ function App() {
                     organizationId={org.id}
                     assistants={assistants}
                   />
+                )}
+                {page === "integrations" && writable && (
+                  <Integrations key={org.id} organizationId={org.id} />
                 )}
                 {page === "leads" && (
                   <Leads

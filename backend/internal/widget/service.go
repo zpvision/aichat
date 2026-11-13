@@ -16,6 +16,7 @@ import (
 	"site-assistant/internal/ai"
 	"site-assistant/internal/core"
 	"site-assistant/internal/inbox"
+	"site-assistant/internal/integrations"
 	"site-assistant/internal/knowledge"
 	"site-assistant/internal/leads"
 	"strings"
@@ -23,15 +24,16 @@ import (
 )
 
 type Service struct {
-	Auth     *core.Service
-	AI       *ai.Service
-	Store    *Store
-	Config   Config
-	Files    knowledge.FileStorage
-	Importer *knowledge.Importer
-	Limiter  *Limiter
-	Inbox    *inbox.Service
-	Leads    *leads.Service
+	Auth         *core.Service
+	AI           *ai.Service
+	Store        *Store
+	Config       Config
+	Files        knowledge.FileStorage
+	Importer     *knowledge.Importer
+	Limiter      *Limiter
+	Inbox        *inbox.Service
+	Leads        *leads.Service
+	Integrations *integrations.Service
 }
 
 func New(auth *core.Service, engine *ai.Service, c Config) *Service {

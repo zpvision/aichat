@@ -1,6 +1,6 @@
 # site-assistant — этапы 1–5
 
-Фундамент SaaS, база знаний, общий AI-движок и публичный чат сайта: компании, роли, ассистенты, документы/импорт, hybrid retrieval, инструкции, preview и website диалоги с историей, streaming и отменой. Кабинет и iframe-виджет RU/EN/CS/DE. Embeddings — настоящая Ollama BGE-M3. Генерация по умолчанию — **явный MockProvider**, настоящая Gemma не подключена и не проверена. Публичное название задаёт `APP_BRAND_NAME`.
+Stages 1-7: modular Go SaaS, multilingual cabinet, knowledge/RAG, preview and website chat, operator inbox, lead collection/mini-CRM and universal company API with signed outgoing webhooks. FinKoper and other CRMs consume AI Chat data; no destination-specific client or SSO exists. Gemma is not connected or quality-tested. Public brand: APP_BRAND_NAME. See docs/finkoper-integration.md for the current integration contract.
 
 Требования: Go 1.27.4+, Node.js 22+ (проверено на 24), Docker Compose. В корне сохранён исходный учебный пример GoLand; приложение запускается из `backend/`, а не через корневой `main.go`. При разрешённом GOTOOLCHAIN=auto Go сам загрузит требуемую версию из backend/go.mod.
 
@@ -71,3 +71,7 @@ npm audit
 ## Stage 6: scenarios and leads
 
 Apply the appended migration 006 with `./scripts/backend.ps1 -Migrate`. Build both clients as above. Open Scenarios, select the assistant, enable collection and configure fields; set a privacy URL in Website chat settings. Use Start a request in the installed widget, then review and explicitly send. Leads contains assignments, statuses, notes and links to existing conversations. No new dependencies or GPU are required. See [docs/leads.md](docs/leads.md) for mock fixtures, validation, permissions, API and retention limits.
+
+## Stage 7: universal integrations
+
+Apply migrations 007 and 008 with `./scripts/backend.ps1 -Migrate`. In company ? Integrations, create a read-only API key (optionally grant creation), configure a webhook, copy its signing secret once, and inspect test deliveries. FinKoper and all other CRMs are consumers of AI Chat, not destinations with invented APIs. See [integration contract and local receiver](docs/finkoper-integration.md). Set a stable base64-encoded 32-byte `WEBHOOK_ENCRYPTION_KEY` to enable webhook creation/delivery. Without it, cabinet and API keys still work. `WEBHOOK_DEV_RECEIVER_URL` optionally permits one exact loopback URL in development and is forbidden in production. Example receiver: `node scripts/webhook-receiver.mjs`, with WEBHOOK_SIGNING_SECRET set to the one-time endpoint secret. No FinKoper deployment, SSO or GPU is involved.

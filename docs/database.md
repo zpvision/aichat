@@ -37,3 +37,9 @@ Messages имеют monotonic bigint sequence для порядка и cursor pa
 ## Migration 006_leads.sql
 
 Append-only settings/fields, frozen per-conversation lead_collections, leads and lead_events. Composite tenant foreign keys, unique collection_id and version CAS prevent cross-tenant references and duplicate confirmations. Main contacts are typed, additional validated values use JSONB. Lead deletion cascades only its events; collection tombstone prevents resubmission. Conversations remain; sites with leads cannot be deleted until those leads are reviewed/deleted. Existing migrations 001?005 are unchanged. See leads.md for privacy/retention.
+
+## Migrations 007 and 008
+
+007_integrations.sql appends hashed scoped/expiring integration keys, encrypted webhook endpoints, integration_events, leased webhook_deliveries, webhook_attempts, integration_requests and minute budgets. Existing leads receive recovery events without retroactive network delivery. Creation triggers allocate events under a tenant row lock before sequence allocation, preventing commit-order cursor gaps. Main lead IDs/events remain stable across retry/deletion; event/request tombstones have no cascading lead FK.
+
+API leads permit nullable site/conversation/collection and source api. 008_integration_constraints.sql adds the explicit tenant/assistant FK needed for standalone leads, channel-shape checks and composite attempt/delivery scope. It was appended after 007 was exercised; previously applied migrations were not rewritten. Both are tested for repeat application without data deletion.

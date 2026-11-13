@@ -14,6 +14,7 @@ Object.assign(errors,{
  lead_state:['Состояние заявки изменилось. Обновите данные.','Request state changed. Refresh details.','Stav žádosti se změnil. Obnovte údaje.','Anfragestatus geändert. Daten aktualisieren.'],
  site_in_use:['У сайта есть лиды. Сначала обработайте или удалите их.','This website has leads. Review or delete them first.','Web má zájemce. Nejprve je zpracujte nebo smažte.','Diese Website hat Leads. Prüfen oder löschen Sie diese zuerst.'],
 });
+Object.assign(rows,{source_api:['Внешний API','External API','Externí API','Externe API'],provenance_integration:['Внешний API','External API','Externí API','Externe API']});
 for(const [i,l] of ['ru','en','cs','de'].entries()){
  const path=`frontend/src/locales/${l}/translation.json`,d=JSON.parse(fs.readFileSync(path));
  d.leads=['Лиды','Leads','Zájemci','Leads'][i];d.scenarios=['Сценарии','Scenarios','Scénáře','Szenarien'][i];d.leadsHint=rows.crmHint[i];d.scenariosHint=rows.consultingHint[i];d.lead=Object.fromEntries(Object.entries(rows).map(([k,v])=>[k,v[i]]));d.lead.standard=Object.fromEntries(Object.entries(standard).map(([k,v])=>[k,v[i]]));Object.assign(d.errors,Object.fromEntries(Object.entries(errors).map(([k,v])=>[k,v[i]])));fs.writeFileSync(path,JSON.stringify(d,null,2)+'\n');
