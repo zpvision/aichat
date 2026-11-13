@@ -280,3 +280,98 @@
     padding: 16px;
   }
 }
+.billing-page > .card {
+  padding: 24px;
+  margin: 20px 0;
+}
+.billing-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+.billing-heading > p {
+  width: 100%;
+  margin: 0;
+}
+.billing-heading h2 {
+  font-size: 32px;
+  margin: 10px 0;
+}
+.billing-meters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.billing-meter {
+  background: white;
+  padding: 22px;
+  border: 1px solid #e3ebf7;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px #20346006;
+}
+.billing-meter > div {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.billing-meter span {
+  font-size: 21px;
+  color: #225da2;
+  overflow-wrap: anywhere;
+}
+.billing-meter progress {
+  appearance: none;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #eaf1fb;
+  width: 100%;
+  height: 12px;
+  accent-color: #1890ff;
+  margin: 16px 0;
+}
+.billing-meter progress::-webkit-progress-bar {
+  background: #eaf1fb;
+  border-radius: 8px;
+}
+.billing-meter progress::-webkit-progress-value {
+  background: #1890ff;
+  border-radius: 8px;
+}
+.billing-meter progress::-moz-progress-bar {
+  background: #1890ff;
+  border-radius: 8px;
+}
+.billing-meter small {
+  display: block;
+  color: #526780;
+}
+.billing-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+.billing-history strong {
+  font-size: 13px;
+}
+@media (max-width: 1050px) {
+  .billing-meters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 520px) {
+  .billing-meters {
+    grid-template-columns: 1fr;
+  }
+  .billing-page > .card {
+    padding: 18px;
+  }
+  .billing-history {
+    font-size: 13px;
+  }
+}

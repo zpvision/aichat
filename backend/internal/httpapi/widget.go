@@ -207,6 +207,9 @@ func (a *Server) widgetRoutes(m *http.ServeMux, s *widget.Service) {
 		result, e := s.AI.WebsiteMessage(r.Context(), v.ID, r.PathValue("sessionId"), token, origin, in, true, emit)
 		if e != nil {
 			f := ai.Error(e).(*core.Fault)
+			if f.Code == "plan_limit_exceeded" || f.Code == "subscription_inactive" {
+				f = &core.Fault{Code: "ai_unavailable", Status: 503}
+			}
 			if w.Header().Get("Content-Type") == "text/event-stream; charset=utf-8" {
 				sender(ai.Event{Type: "error", Data: map[string]string{"code": f.Code}})
 			} else {

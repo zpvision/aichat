@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "site-assistant",
-    "version": "0.7.0",
-    "description": "Stages 1-7. Universal integrations; see docs/finkoper-integration.md. Versioned lead collection and explicit confirmation; see docs/leads.md. Cabinet: cookie auth, exact PUBLIC_APP_URL Origin and X-CSRF-Protection: 1 on writes, JSON (multipart knowledge/upload and widget/logo). Public widget: separate exact-origin CORS, visitor bearer tokens, no cookies. Inbox: website only, assignment/role scoped, version/idempotency checks, DB-fenced AI handoff. Errors use stable error.code. See docs/operator-inbox.md and docs/widget.md."
+    "version": "0.8.0",
+    "description": "Stages 1-8. Regional plans, usage and PostgreSQL quotas; see docs/billing.md. Universal integrations; see docs/finkoper-integration.md. Versioned lead collection and explicit confirmation; see docs/leads.md. Cabinet: cookie auth, exact PUBLIC_APP_URL Origin and X-CSRF-Protection: 1 on writes, JSON (multipart knowledge/upload and widget/logo). Public widget: separate exact-origin CORS, visitor bearer tokens, no cookies. Inbox: website only, assignment/role scoped, version/idempotency checks, DB-fenced AI handoff. Errors use stable error.code. See docs/operator-inbox.md and docs/widget.md."
   },
   "servers": [
     {
@@ -13449,6 +13449,111 @@
           }
         ]
       }
+    },
+    "/api/v1/organizations/{id}/billing": {
+      "get": {
+        "operationId": "operation97",
+        "summary": "Owner/admin: current regional subscription, frozen period quotas, actual resources and latest 24 periods. No payment or public plan mutation endpoint.",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingSnapshot"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission or CSRF denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found (also returned to nonmembers)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -14575,6 +14680,12 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "provider_invoked": {
+            "type": "boolean"
+          },
+          "commercial_counted": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -16776,6 +16887,337 @@
           "items",
           "next_cursor",
           "has_more"
+        ]
+      },
+      "BillingLimits": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "assistants": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          },
+          "sites": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          },
+          "members": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          },
+          "knowledge_sources": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          },
+          "knowledge_bytes": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          },
+          "ai_responses": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          },
+          "demo_responses": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          },
+          "ai_concurrent": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          },
+          "api_per_minute": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "nullable": true,
+            "description": "0 forbids; null means no plan cap. Platform safety limits remain separate."
+          }
+        },
+        "required": [
+          "assistants",
+          "sites",
+          "members",
+          "knowledge_sources",
+          "knowledge_bytes",
+          "ai_responses",
+          "demo_responses",
+          "ai_concurrent",
+          "api_per_minute"
+        ]
+      },
+      "BillingPeriod": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ends_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/BillingLimits"
+          },
+          "ai_used": {
+            "type": "integer"
+          },
+          "ai_reserved": {
+            "type": "integer"
+          },
+          "demo_used": {
+            "type": "integer"
+          },
+          "demo_reserved": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "organization_id",
+          "plan_id",
+          "starts_at",
+          "ends_at",
+          "limits",
+          "ai_used",
+          "ai_reserved",
+          "demo_used",
+          "demo_reserved"
+        ]
+      },
+      "BillingSubscription": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "plan_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "ru",
+              "eu"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "trialing",
+              "active",
+              "expired",
+              "suspended"
+            ]
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "valid_until": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "trial_end": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "activation_source": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "organization_id",
+          "plan_id",
+          "region",
+          "status",
+          "started_at",
+          "valid_until",
+          "trial_end",
+          "activation_source",
+          "updated_at"
+        ]
+      },
+      "BillingPlan": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "trial",
+              "start",
+              "business"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "region": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "offer": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "period_days": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "description",
+          "version",
+          "region",
+          "status",
+          "features",
+          "offer",
+          "period_days"
+        ]
+      },
+      "BillingSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "subscription": {
+            "$ref": "#/components/schemas/BillingSubscription"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/BillingPlan"
+          },
+          "period": {
+            "$ref": "#/components/schemas/BillingPeriod"
+          },
+          "resources": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "uncounted_files": {
+            "type": "integer"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BillingPeriod"
+            },
+            "maxItems": 24
+          },
+          "technical": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "executions": {
+                "type": "integer"
+              },
+              "input_tokens": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "output_tokens": {
+                "type": "integer",
+                "format": "int64",
+                "nullable": true
+              },
+              "input_token_reports": {
+                "type": "integer"
+              },
+              "output_token_reports": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "executions",
+              "input_tokens",
+              "output_tokens",
+              "input_token_reports",
+              "output_token_reports"
+            ]
+          }
+        },
+        "required": [
+          "subscription",
+          "plan",
+          "period",
+          "resources",
+          "uncounted_files",
+          "periods",
+          "technical"
         ]
       }
     }

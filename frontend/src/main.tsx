@@ -22,6 +22,7 @@ import { Team } from "./Team";
 import { LeadSettings } from "./LeadSettings";
 import { Leads } from "./Leads";
 import { Integrations } from "./Integrations";
+import { Billing } from "./Billing";
 import "./leads.css";
 
 function App() {
@@ -450,7 +451,7 @@ function App() {
                   "inbox",
                   "leads",
                   ...(org.role !== "operator"
-                    ? ["scenarios", "integrations"]
+                    ? ["scenarios", "integrations", "billing"]
                     : []),
                   "assistants",
                   "knowledge",
@@ -463,7 +464,9 @@ function App() {
                   <button
                     key={p}
                     aria-label={t(
-                      ["widget", "inbox", "team"].includes(p) ? p + "Title" : p,
+                      ["widget", "inbox", "team", "billing"].includes(p)
+                        ? p + "Title"
+                        : p,
                     )}
                     className={page === p ? "nav active" : "nav"}
                     onClick={() => {
@@ -472,7 +475,9 @@ function App() {
                     }}
                   >
                     {t(
-                      ["widget", "inbox", "team"].includes(p) ? p + "Title" : p,
+                      ["widget", "inbox", "team", "billing"].includes(p)
+                        ? p + "Title"
+                        : p,
                     )}
                     {p === "inbox" && summary.unread > 0 && (
                       <span className="inbox-count">{summary.unread}</span>
@@ -582,7 +587,7 @@ function App() {
                   <div>
                     <h1>
                       {t(
-                        ["widget", "inbox", "team"].includes(page)
+                        ["widget", "inbox", "team", "billing"].includes(page)
                           ? page + "Title"
                           : page,
                       )}
@@ -777,6 +782,9 @@ function App() {
                 )}
                 {page === "integrations" && writable && (
                   <Integrations key={org.id} organizationId={org.id} />
+                )}
+                {page === "billing" && writable && (
+                  <Billing key={org.id} organizationId={org.id} />
                 )}
                 {page === "leads" && (
                   <Leads

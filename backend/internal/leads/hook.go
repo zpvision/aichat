@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"site-assistant/internal/ai"
+	"site-assistant/internal/billing"
 	"strings"
 	"time"
 )
@@ -23,6 +24,9 @@ func (s *Service) Prepare(ctx context.Context, v ai.Scope, execution, message, c
 	out := ai.CollectionPreparation{}
 	d, out, process, e := s.Store.reserve(ctx, v, execution, message, language, explicitIntent(content))
 	if e != nil || !process {
+		return out, e
+	}
+	if e = billing.Reserve(ctx, s.Store.DB, v.OrganizationID, execution); e != nil {
 		return out, e
 	}
 	sources, e := s.Store.sources(ctx, v)

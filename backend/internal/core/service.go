@@ -35,6 +35,14 @@ func TranslateError(e error) error {
 	}
 	var p *pgconn.PgError
 	if errors.As(e, &p) {
+		if p.Code == "P0001" {
+			switch p.Message {
+			case "plan_limit_exceeded", "subscription_inactive", "storage_accounting_incomplete":
+				return Fail(p.Message, 409)
+			case "ai_canceled":
+				return Fail("ai_canceled", 409)
+			}
+		}
 		if p.Code == "23505" {
 			return Fail("conflict", 409)
 		}

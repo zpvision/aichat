@@ -129,7 +129,10 @@ try {
   });
   const reader = response.body.getReader();
   const first = await reader.read();
-  assert.match(new TextDecoder().decode(first.value), /event: start/);
+  let observed=new TextDecoder().decode(first.value);assert.match(observed,/event: start/);
+  while(!observed.includes('event: delta')){const part=await reader.read();if(part.done)throw Error('Generation ended before quota reservation check');observed+=new TextDecoder().decode(part.value);}
+  const reserved=await call('/organizations/'+org.id+'/billing');
+  assert.equal(reserved.period.demo_reserved,1,'Mock generation did not reserve quota');
   await stop();
   await reader.cancel().catch(() => {});
   await start("mock");
@@ -151,6 +154,10 @@ try {
     ),
     "Interrupted output not recovered",
   );
+  const recoveredUsage=await call('/organizations/'+org.id+'/billing');
+  assert.equal(recoveredUsage.period.demo_reserved,0,'Interrupted quota reservation leaked');
+  assert.equal(recoveredUsage.period.demo_used,0,'Interrupted output was counted');
+  assert.equal(recoveredUsage.period.ai_used,0,'Mock was commercially counted');
   const list = await call("/organizations/" + org.id + "/conversations");
   const id = list.items[0].id,
     item = "/organizations/" + org.id + "/conversations/" + id;
@@ -186,7 +193,7 @@ try {
     ),
   );
   console.log(
-    "PASS: real API process crash/restart, persisted recovery/history/assignment and disabled-provider manual messages; test database only.",
+    "PASS: real API process crash/restart, quota reservation recovery without charge, persisted history/assignment and disabled-provider manual messages; test database only.",
   );
 } finally {
   await stop();

@@ -18,3 +18,9 @@ Configurable collection, confirmation and mini-CRM are implemented in the existi
 ## Stage 7 update
 
 Universal company API and signed outgoing lead.created webhooks are implemented. FinKoper has no lead-creation API here and is a future consumer of this contract, as are other CRMs. No FinKoper client/adapter, field mapping or SSO is implemented. Next stages require separate authorization. Production retention, key management/rotation procedures, load testing and deployment-wide edge limits remain required.
+
+## Stage 8 update
+
+Regional Trial/Start/Business catalogs, company subscriptions, UTC usage periods, atomic AI reservations, resource/storage quotas, external API plan budgets, audited administrative CLI and the multilingual Plan and usage screen are implemented. Prices and payments remain deliberately unconfigured. Mock responses have only demo protection; real Gemma quality/cost evaluation remains pending. See billing.md.
+
+Future work requires a separate request: real payment providers and price approval for RU/EU, production retention and erasure, database-role hardening, load testing/observability, distributed edge abuse controls and real GPU evaluation. No subsequent stage is started automatically. Earlier Stage 6/7 future-task notes above are historical.

@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"log/slog"
 	"path/filepath"
+	"site-assistant/internal/billing"
 	"site-assistant/internal/core"
 	"sort"
 	"strings"
@@ -120,16 +121,29 @@ func (s *Service) Upload(ctx context.Context, user, org, a, name string, b []byt
 	if (format == "pdf" && !strings.HasPrefix(string(b), "%PDF-")) || (format == "docx" && !strings.HasPrefix(string(b), "PK\x03\x04")) {
 		return Source{}, core.Fail("invalid_file", 422)
 	}
-	key, e := s.Files.Put(ctx, b)
-	if e != nil {
+	id := core.ID()
+	if e := billing.ReserveFile(ctx, s.Store.DB, org, id, int64(len(b))); e != nil {
 		return Source{}, e
 	}
-	v := Source{ID: core.ID(), OrganizationID: org, AssistantID: a, Kind: "document", Title: filepath.Base(strings.ReplaceAll(name, "\\", "/")), Enabled: true, Format: format, FileKey: key, Checksum: checksum(b)}
-	if e = validate(v); e == nil {
+	cleanup := func() {
+		c, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		abandon, e := billing.AbandonFile(c, s.Store.DB, org, id)
+		if e == nil && abandon && s.Files.Delete(c, id) == nil {
+			billing.ConfirmDeleted(c, s.Store.DB, org, id)
+		}
+	}
+	if e := s.Files.PutAt(ctx, id, b); e != nil {
+		cleanup()
+		return Source{}, e
+	}
+	v := Source{ID: id, OrganizationID: org, AssistantID: a, Kind: "document", Title: filepath.Base(strings.ReplaceAll(name, "\\", "/")), Enabled: true, Format: format, FileKey: id, Checksum: checksum(b)}
+	e := validate(v)
+	if e == nil {
 		v, e = s.Store.Put(ctx, v, true)
 	}
 	if e != nil {
-		s.Files.Delete(ctx, key)
+		cleanup()
 	}
 	return v, e
 }
@@ -174,7 +188,10 @@ func (s *Service) Delete(ctx context.Context, user, org, a, id string) error {
 		return e
 	}
 	if key != "" {
-		return s.Files.Delete(ctx, key)
+		if e = s.Files.Delete(ctx, key); e != nil {
+			return e
+		}
+		return billing.ConfirmDeleted(ctx, s.Store.DB, org, key)
 	}
 	return nil
 }
@@ -230,6 +247,9 @@ func Fuse(a, b []Hit) []Hit {
 	return out[:min(5, len(out))]
 }
 func (s *Service) Run(ctx context.Context) {
+	if s.ReconcileStorage(ctx) != nil {
+		slog.Error("knowledge storage accounting incomplete")
+	}
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 	for {
@@ -237,6 +257,9 @@ func (s *Service) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
+			if e := s.cleanupStorage(ctx); e != nil && !errors.Is(e, pgx.ErrNoRows) && ctx.Err() == nil {
+				slog.Error("knowledge storage cleanup failed")
+			}
 			if e := s.ProcessOne(ctx); e != nil && !errors.Is(e, pgx.ErrNoRows) && ctx.Err() == nil {
 				slog.Error("knowledge worker operation failed")
 			}

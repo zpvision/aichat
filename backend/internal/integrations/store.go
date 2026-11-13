@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"site-assistant/internal/billing"
 	"site-assistant/internal/core"
 	"site-assistant/internal/leads"
 	"strconv"
@@ -61,6 +62,13 @@ func (s *Store) Authenticate(ctx context.Context, hash string) (Principal, error
 	}
 	if n > 600 {
 		return p, core.Fail("api_rate", 429)
+	}
+	cap, e := billing.APICap(ctx, tx, p.OrganizationID)
+	if e != nil {
+		return p, e
+	}
+	if cap != nil && int64(n) > *cap {
+		return p, core.Fail("plan_limit_exceeded", 429)
 	}
 	return p, tx.Commit(ctx)
 }

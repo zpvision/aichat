@@ -83,3 +83,9 @@ Owner/admin GET/PUT assistant lead-settings; company GET leads and GET/PATCH/DEL
 Server-to-server `/api/v1/external/leads`: GET creation/recovery feed (cursor, limit 1?100), POST explicit lead creation with mandatory Idempotency-Key, GET /{leadId}. Authorization: Bearer company API key; company comes from key, not request. Scopes leads:read/leads:write. No user-cookie or CSRF bypass applies to cabinet routes. No wildcard CORS.
 
 Owner/admin cabinet `/organizations/{id}/integrations`: keys GET/POST, keys/{id} DELETE; webhooks GET/POST, webhooks/{id} PATCH enabled; rotate/test POST; deliveries GET with optional before UUID for keyset pagination (100/page), deliveries/{id}/attempts GET (latest 100), retry POST. Exact schemas, secrets and error contracts are in openapi.json and finkoper-integration.md.
+
+## Stage 8 tariff and usage API (v0.8)
+
+`GET /api/v1/organizations/{id}/billing` requires a cabinet session and owner/admin membership. Returns subscription/plan, current period with frozen limits and used/reserved counters, resource counts/bytes, incomplete legacy-file count, retained execution token totals and the latest 24 periods. All timestamps are UTC. Operators and other tenants cannot read this endpoint. There is no HTTP grant/change/extend route; use the deployment CLI in billing.md.
+
+Resource/AI quota failures use `plan_limit_exceeded`; expired/suspended AI access uses `subscription_inactive` (409 in cabinet workflows). Unknown legacy-original sizes use `storage_accounting_incomplete`. External-key plan rate failures are 429. Public widget quota/expiry failures are masked as `ai_unavailable`, preserving the visitor message and operator access. NULL limits mean unlimited; zero means denied. Detailed JSON schemas are generated in openapi.json.

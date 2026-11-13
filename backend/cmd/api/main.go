@@ -12,6 +12,7 @@ import (
 	"os/signal"
 	foundation "site-assistant"
 	"site-assistant/internal/ai"
+	"site-assistant/internal/billing"
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/database"
@@ -40,7 +41,12 @@ func run() error {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	pool, e := pgxpool.New(ctx, c.DatabaseURL)
+	pc, e := pgxpool.ParseConfig(c.DatabaseURL)
+	if e != nil {
+		return errors.New("invalid database connection configuration")
+	}
+	pc.ConnConfig.RuntimeParams["app.region"] = c.Region
+	pool, e := pgxpool.NewWithConfig(ctx, pc)
 	if e != nil {
 		return errors.New("invalid database connection configuration")
 	}
@@ -52,7 +58,21 @@ func run() error {
 		return errors.New("database connection failed")
 	}
 	if *migrate {
-		return database.Migrate(ctx, pool, foundation.Migrations)
+		if e = database.Migrate(ctx, pool, foundation.Migrations); e != nil {
+			return e
+		}
+		days, e := billing.TrialDays()
+		if e != nil {
+			return e
+		}
+		return billing.Configure(ctx, pool, c.Region, days)
+	}
+	days, e := billing.TrialDays()
+	if e != nil {
+		return e
+	}
+	if e = billing.Configure(ctx, pool, c.Region, days); e != nil {
+		return e
 	}
 	store := &core.Store{DB: pool}
 	kc, e := knowledge.LoadConfig()

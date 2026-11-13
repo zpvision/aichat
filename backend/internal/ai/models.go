@@ -73,6 +73,8 @@ type Execution struct {
 	Sources            []knowledge.Hit `json:"sources"`
 	ResponseLanguage   string          `json:"response_language"`
 	PolicyFallback     bool            `json:"policy_fallback"`
+	ProviderInvoked    bool            `json:"provider_invoked"`
+	CommercialCounted  bool            `json:"commercial_counted"`
 	ProviderDurationNS *int64          `json:"provider_duration_ns"`
 	CreatedAt          time.Time       `json:"created_at"`
 }

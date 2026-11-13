@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"regexp"
+	"site-assistant/internal/billing"
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/knowledge"
@@ -341,11 +342,17 @@ func (s *Service) generate(parent context.Context, user string, v Scope, in Mess
 	}
 	var answer GenerateResult
 	if !request.HasKnowledge && s.Config.Provider != "mock" && request.CollectionQuestion == "" {
+		if err = billing.ReleaseFallback(ctx, s.Store.DB, v.OrganizationID, id); err != nil {
+			return result, err
+		}
 		answer.Content = request.Fallback
 		if err = delta(answer.Content); err != nil {
 			return result, err
 		}
 	} else {
+		if err = billing.Reserve(ctx, s.Store.DB, v.OrganizationID, id); err != nil {
+			return result, err
+		}
 		answer, err = s.Provider.Generate(ctx, request, stream, delta)
 		if err != nil {
 			return result, err

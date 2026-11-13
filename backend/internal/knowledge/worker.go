@@ -27,6 +27,9 @@ func (s *Service) ProcessOne(parent context.Context) error {
 		return parent.Err()
 	}
 	code := "processing_failed"
+	if f, ok := core.TranslateError(e).(*core.Fault); ok && f.Code == "plan_limit_exceeded" {
+		e = f
+	}
 	retry := true
 	var f *core.Fault
 	if errors.As(e, &f) {

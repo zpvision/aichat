@@ -1,6 +1,8 @@
-# site-assistant — этапы 1–5
+# site-assistant — этапы 1–8
 
-Stages 1-7: modular Go SaaS, multilingual cabinet, knowledge/RAG, preview and website chat, operator inbox, lead collection/mini-CRM and universal company API with signed outgoing webhooks. FinKoper and other CRMs consume AI Chat data; no destination-specific client or SSO exists. Gemma is not connected or quality-tested. Public brand: APP_BRAND_NAME. See docs/finkoper-integration.md for the current integration contract.
+Stages 1–8: modular Go SaaS, multilingual cabinet, knowledge/RAG, preview and website chat, operator inbox, lead collection/mini-CRM, universal company API with signed outgoing webhooks, regional plans/subscriptions and PostgreSQL usage quotas. FinKoper and other CRMs consume AI Chat data; no destination-specific client or SSO exists. Gemma is not connected or quality-tested. Public brand: APP_BRAND_NAME. See docs/finkoper-integration.md for the integration contract.
+
+Stage 8: apply the appended migration with `./scripts/backend.ps1 -Migrate`, then restart the API. `BILLING_TRIAL_DAYS=14` is configurable (1–90); existing and new organizations receive Trial. Owner/admin: company → **Тариф и использование / Plan and usage**. Prices/payments are not configured. Pilot Start/Business grants use only the protected deployment CLI (`backend/cmd/subscription`), never a public endpoint. AI limits do not block manual operator chat. [Plans, quotas, storage accounting and CLI instructions](docs/billing.md).
 
 Требования: Go 1.27.4+, Node.js 22+ (проверено на 24), Docker Compose. В корне сохранён исходный учебный пример GoLand; приложение запускается из `backend/`, а не через корневой `main.go`. При разрешённом GOTOOLCHAIN=auto Go сам загрузит требуемую версию из backend/go.mod.
 

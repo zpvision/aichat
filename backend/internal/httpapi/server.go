@@ -46,6 +46,7 @@ func newServer(s *core.Service, c config.Config, engine *ai.Service, modules ...
 func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, widgets *widget.Service, modules ...*knowledge.Service) http.Handler {
 	a := &Server{service: s, config: c, attempts: map[string]bucket{}, authSlots: make(chan struct{}, 4), uploadSlots: make(chan struct{}, 2)}
 	m := http.NewServeMux()
+	a.billingRoutes(m)
 	if widgets != nil {
 		a.widgetRoutes(m, widgets)
 		if widgets.Integrations != nil {

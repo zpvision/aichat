@@ -35,3 +35,9 @@ Origin/custom-header CSRF сохранены. Исключение Content-Type 
 ## Stage 7: integrations
 
 `internal/integrations` extends the Go monolith with company API-key authentication, standalone lead creation, recovery cursor feed and PostgreSQL webhook jobs. Lead INSERT triggers atomically create stable events and jobs for enabled endpoints, including visitor/staff leads from Stage 6. Jobs use SKIP LOCKED, bounded HTTP, lease fencing and retries. The existing lead tables/CRM are reused; standalone API leads have no fake conversation. HTTP: httpapi/integrations.go. See finkoper-integration.md.
+
+## Stage 8: subscriptions and shared quotas
+
+`internal/billing` owns regional plan snapshots, subscriptions, UTC periods, AI reservations, file accounting and audited CLI changes. PostgreSQL triggers enroll organizations and serialize committed resource changes. AI generation and structured extraction reserve the same execution before invoking a provider; completion/cancel/recovery settle the reservation atomically with the existing execution lifecycle. Conversation fencing remains authoritative. No transaction spans inference. Mock usage has its own protective bucket and never counts commercially. Manual operator replies remain independent of AI quotas.
+
+Knowledge originals reserve bytes before writing, attach atomically to the source and remain charged until physical deletion succeeds. The existing knowledge worker reconciles old originals and cleans abandoned reservations. External API authentication retains Stage 7 safety limits and applies the plan cap in its PostgreSQL transaction. There is no Redis, payment provider, billing microservice or HTTP plan-grant endpoint. See [billing.md](billing.md) for lock order, period/change rules, CLI and limitations.
