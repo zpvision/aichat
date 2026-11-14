@@ -9,3 +9,8 @@ RU и EU разворачиваются одинаковым исходным к
 Перед production: HTTPS reverse proxy на одном origin для статического frontend и /api; доверенная сеть к backend; TLS к БД; секреты вне Git; отдельная роль мигратора, ограниченные DB credentials приложения; backup/restore exercise; CSP на статическом frontend, HSTS на HTTPS proxy; мониторинг и нагрузочные тесты. У reverse proxy обязателен IP rate limit login/register: приложение считает peer IP и намеренно игнорирует потенциально подделанный X-Forwarded-For, поэтому без edge limit все запросы прокси попадут в общий лимит. Текущий лимитер хранится в памяти одного процесса, сбрасывается при перезапуске; для масштабирования понадобится общее хранилище или edge-политика.
 
 Срок сессии 7 дней без sliding refresh; очистка раз в час. Остановка API завершает текущие HTTP-запросы в течение 10 секунд и закрывает пул. Миграции применяются отдельной командой до запуска новой версии. Не запускать тесты против production DSN.
+
+
+## Stage 9A
+
+Stage 9A supplements this historical guide: use deployment-ru-eu.md, production-readiness.md, backup-restore.md and retention.md. No production deployment was performed.

@@ -34,7 +34,7 @@ func Load() (Config, error) {
 	if c.DatabaseURL == "" {
 		return c, fmt.Errorf("DATABASE_URL is required")
 	}
-	return c, nil
+	return c, c.ValidateProduction()
 }
 func env(k, d string) string {
 	if v, ok := os.LookupEnv(k); ok {

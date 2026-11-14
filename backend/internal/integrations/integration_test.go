@@ -31,6 +31,23 @@ import (
 
 type retriever struct{}
 
+func TestStartupEncryptionContinuity(t *testing.T) {
+	f := setup(t)
+	key := bytes.Repeat([]byte{7}, 32)
+	s := integrations.New(f.auth, integrations.Config{Key: key})
+	if _, e := s.CreateEndpoint(f.ctx, f.owner, f.org, integrations.EndpointInput{URL: "https://hooks.company.cz/webhook"}); e != nil {
+		t.Fatal(e)
+	}
+	if e := integrations.New(f.auth, integrations.Config{Key: key}).ValidateSecrets(f.ctx); e != nil {
+		t.Fatal("restart with original key", e)
+	}
+	for _, bad := range [][]byte{nil, bytes.Repeat([]byte{8}, 32)} {
+		if e := integrations.New(f.auth, integrations.Config{Key: bad}).ValidateSecrets(f.ctx); e == nil {
+			t.Fatal("missing/wrong key accepted")
+		}
+	}
+}
+
 func (retriever) Search(context.Context, string, string, string, knowledge.SearchInput) ([]knowledge.Hit, error) {
 	return nil, nil
 }

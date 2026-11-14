@@ -24,3 +24,8 @@ Universal company API and signed outgoing lead.created webhooks are implemented.
 Regional Trial/Start/Business catalogs, company subscriptions, UTC usage periods, atomic AI reservations, resource/storage quotas, external API plan budgets, audited administrative CLI and the multilingual Plan and usage screen are implemented. Prices and payments remain deliberately unconfigured. Mock responses have only demo protection; real Gemma quality/cost evaluation remains pending. See billing.md.
 
 Future work requires a separate request: real payment providers and price approval for RU/EU, production retention and erasure, database-role hardening, load testing/observability, distributed edge abuse controls and real GPU evaluation. No subsequent stage is started automatically. Earlier Stage 6/7 future-task notes above are historical.
+
+
+## Stage 9A
+
+Stage 9A operational baseline is implemented locally: startup hardening, ciphertext checks, protected metrics, bounded session cleanup, originals diagnostics, offline backup/restore and short load samples. See production-readiness.md for open gates; this does not authorize public deployment. Real Gemma/GPU evaluation belongs to separately requested Stage9B.

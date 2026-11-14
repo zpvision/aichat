@@ -49,3 +49,8 @@ API leads permit nullable site/conversation/collection and source api. 008_integ
 Adds billing_settings, billing_plans, billing_subscriptions, billing_periods, billing_reservations, billing_files and billing_audit. Prices remain NULL; RU/EU catalogs have independently editable versions and nullable typed limits (NULL unlimited, zero denied). Each period freezes its limits. New organizations receive Trial transactionally; existing organizations receive a migration Trial without deleting or retroactively charging data. Old originals are measured by the application, with unknown sizes failing closed for new uploads.
 
 Resource triggers serialize counters under the subscription row lock. AI reservation UUID equals execution UUID; settlement changes business totals atomically with execution status. Completed totals survive chat/execution deletion. Existing ai_executions gain provider_invoked and commercial_counted, without duplicating message text. Reservation rows intentionally retain opaque execution IDs without cascading execution deletion. File records retain accounting until actual removal. Region/plan and organization/period foreign keys prevent cross-region/cross-tenant links. Existing migrations 001–008 are unchanged; all migrations are tested twice in isolated test schemas. Details: [billing.md](billing.md).
+
+
+## Stage 9A
+
+Stage 9A adds no migrations and rewrites none. Operational cleanup touches only sufficiently expired login sessions, at most500 rows, SKIP LOCKED with3s statement timeout. Visitor-session cascade was reviewed and deliberately excluded. Metrics query existing tables and pg_stat_activity. No customer rows were mass-deleted.

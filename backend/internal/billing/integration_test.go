@@ -21,6 +21,7 @@ import (
 	"site-assistant/internal/inbox"
 	"site-assistant/internal/integrations"
 	"site-assistant/internal/knowledge"
+	"site-assistant/internal/ops"
 	"site-assistant/internal/widget"
 	"strings"
 	"sync"
@@ -31,6 +32,36 @@ import (
 )
 
 type retriever struct{}
+
+func TestOperationalCleanupAndMetrics(t *testing.T) {
+	f := setup(t)
+	s := ops.Store{DB: f.db}
+	if _, e := f.db.Exec(f.ctx, "INSERT INTO sessions(token_hash,user_id,expires_at) VALUES('expired',$1,now()-interval '30 days')", f.owner); e != nil {
+		t.Fatal(e)
+	}
+	n, e := s.Cleanup(f.ctx, 7, false)
+	if e != nil || n != 1 {
+		t.Fatal(n, e)
+	}
+	n, e = s.Cleanup(f.ctx, 7, true)
+	if e != nil || n != 1 {
+		t.Fatal(n, e)
+	}
+	if _, e = f.ai.Store.WebsiteScope(f.ctx, f.widget, f.session, f.token, "http://localhost:4173"); e != nil {
+		t.Fatal("cleanup removed visitor history", e)
+	}
+	if _, e = s.Metrics(f.ctx); e != nil {
+		t.Fatal(e)
+	}
+	t.Setenv("METRICS_TOKEN", strings.Repeat("test-only", 8))
+	r := httptest.NewRequest("GET", "/metrics", nil)
+	r.Header.Set("Authorization", "Bearer "+os.Getenv("METRICS_TOKEN"))
+	w := httptest.NewRecorder()
+	s.Handler()(w, r)
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "site_assistant_ai_active") || strings.Contains(w.Body.String(), f.org) {
+		t.Fatal("metrics authorization or privacy", w.Code)
+	}
+}
 
 func TestPeriodRolloverIsAtomicAndPreservesHistory(t *testing.T) {
 	f := setup(t)

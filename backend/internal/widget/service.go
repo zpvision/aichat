@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"regexp"
 	"site-assistant/internal/ai"
+	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/inbox"
 	"site-assistant/internal/integrations"
@@ -118,6 +119,9 @@ func (s *Service) origins(raw []string, domain string) ([]string, error) {
 	seen := map[string]bool{}
 	for _, r := range raw {
 		o, e := NormalizeOrigin(r)
+		if s.Config.Production && !config.PublicOrigin(r) {
+			return nil, core.Fail("widget_origin", 422)
+		}
 		if e != nil {
 			return nil, core.Fail("validation", 422)
 		}

@@ -12,6 +12,7 @@ import (
 	"site-assistant/internal/config"
 	"site-assistant/internal/core"
 	"site-assistant/internal/knowledge"
+	"site-assistant/internal/ops"
 	"site-assistant/internal/widget"
 	"strings"
 	"sync"
@@ -46,6 +47,7 @@ func newServer(s *core.Service, c config.Config, engine *ai.Service, modules ...
 func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, widgets *widget.Service, modules ...*knowledge.Service) http.Handler {
 	a := &Server{service: s, config: c, attempts: map[string]bucket{}, authSlots: make(chan struct{}, 4), uploadSlots: make(chan struct{}, 2)}
 	m := http.NewServeMux()
+	m.HandleFunc("GET /metrics", (ops.Store{DB: s.Store.DB}).Handler())
 	a.billingRoutes(m)
 	if widgets != nil {
 		a.widgetRoutes(m, widgets)
@@ -63,6 +65,18 @@ func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, w
 	m.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), time.Second*2)
 		defer cancel()
+		for _, k := range modules {
+			if k != nil {
+				if ops.Writable(k.Config.FileRoot) != nil {
+					a.err(w, core.Fail("not_ready", 503))
+					return
+				}
+			}
+		}
+		if widgets != nil && ops.Writable(widgets.Config.FileRoot) != nil {
+			a.err(w, core.Fail("not_ready", 503))
+			return
+		}
 		if s.Store.DB.Ping(ctx) != nil {
 			a.err(w, core.Fail("not_ready", 503))
 			return
@@ -164,7 +178,7 @@ func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, w
 		a.result(w, 200, map[string]bool{"ok": true}, e)
 	}))
 	m.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { a.err(w, core.Fail("not_found", 404)) })
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return ops.Observe(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Cache-Control", "no-store")
 		w.Header().Set("Referrer-Policy", "same-origin")
@@ -182,7 +196,7 @@ func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, w
 			}
 		}
 		m.ServeHTTP(w, r)
-	})
+	}))
 }
 func (a *Server) protect(next func(http.ResponseWriter, *http.Request, core.User)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -227,6 +241,8 @@ func (a *Server) err(w http.ResponseWriter, e error) {
 	e = core.TranslateError(e)
 	var f *core.Fault
 	errors.As(e, &f)
+	ops.Error(f.Code)
+	w.Header().Set("X-Error-Code", f.Code)
 	if f.Status == 500 {
 		slog.Error("request failed", "code", f.Code)
 	}

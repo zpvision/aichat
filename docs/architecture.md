@@ -41,3 +41,8 @@ Origin/custom-header CSRF сохранены. Исключение Content-Type 
 `internal/billing` owns regional plan snapshots, subscriptions, UTC periods, AI reservations, file accounting and audited CLI changes. PostgreSQL triggers enroll organizations and serialize committed resource changes. AI generation and structured extraction reserve the same execution before invoking a provider; completion/cancel/recovery settle the reservation atomically with the existing execution lifecycle. Conversation fencing remains authoritative. No transaction spans inference. Mock usage has its own protective bucket and never counts commercially. Manual operator replies remain independent of AI quotas.
 
 Knowledge originals reserve bytes before writing, attach atomically to the source and remain charged until physical deletion succeeds. The existing knowledge worker reconciles old originals and cleans abandoned reservations. External API authentication retains Stage 7 safety limits and applies the plan cap in its PostgreSQL transaction. There is no Redis, payment provider, billing microservice or HTTP plan-grant endpoint. See [billing.md](billing.md) for lock order, period/change rules, CLI and limitations.
+
+
+## Stage 9A
+
+Stage 9A: internal/ops adds restricted metrics, bounded technical cleanup and administrative originals diagnostics. Production validation and webhook ciphertext continuity run before workers/listener. Response observation unwraps to preserve SSE deadlines. Existing conversation fencing is unchanged; max pool20 and idle-in-transaction timeout30s. See production-readiness.md.

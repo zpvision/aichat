@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "site-assistant",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "description": "Stages 1-8. Regional plans, usage and PostgreSQL quotas; see docs/billing.md. Universal integrations; see docs/finkoper-integration.md. Versioned lead collection and explicit confirmation; see docs/leads.md. Cabinet: cookie auth, exact PUBLIC_APP_URL Origin and X-CSRF-Protection: 1 on writes, JSON (multipart knowledge/upload and widget/logo). Public widget: separate exact-origin CORS, visitor bearer tokens, no cookies. Inbox: website only, assignment/role scoped, version/idempotency checks, DB-fenced AI handoff. Errors use stable error.code. See docs/operator-inbox.md and docs/widget.md."
   },
   "servers": [
@@ -13554,10 +13554,43 @@
           }
         ]
       }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Private operational metrics; disabled without METRICS_TOKEN. Never expose via public ingress.",
+        "security": [
+          {
+            "metricsBearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Prometheus-compatible aggregate metrics",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Disabled or invalid monitoring credential"
+          },
+          "503": {
+            "description": "Database metrics unavailable"
+          }
+        }
+      }
     }
   },
   "components": {
     "securitySchemes": {
+      "metricsBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Separate deployment-only METRICS_TOKEN; private ingress only."
+      },
       "companyAPIKey": {
         "type": "http",
         "scheme": "bearer",

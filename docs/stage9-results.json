@@ -1,0 +1,173 @@
+{
+  "time": "2026-11-14T17:35:31.754Z",
+  "scope": "Mixed 10-client sample plus configuration/list ramp; not GPU capacity or endurance acceptance",
+  "mixed": [
+    {
+      "name": "sessions_sse_replay",
+      "concurrency": 10,
+      "requests": 20,
+      "rps": 16.764115070562255,
+      "p50_ms": 40.3116,
+      "p95_ms": 1123.2878,
+      "p99_ms": 1123.2878,
+      "http_errors": {
+        "429": 11
+      }
+    },
+    {
+      "name": "operator_history_take_reply",
+      "concurrency": 10,
+      "requests": 31,
+      "rps": 257.80676301986506,
+      "p50_ms": 29.818900000000212,
+      "p95_ms": 47.36329999999998,
+      "p99_ms": 48.55729999999994,
+      "http_errors": {
+        "409": 9
+      }
+    },
+    {
+      "name": "external_idempotency_feed",
+      "concurrency": 10,
+      "requests": 30,
+      "rps": 162.3033221867017,
+      "p50_ms": 38.210599999999886,
+      "p95_ms": 118.2788999999998,
+      "p99_ms": 128.90480000000025,
+      "http_errors": {}
+    },
+    {
+      "name": "knowledge_search",
+      "concurrency": 10,
+      "requests": 10,
+      "rps": 4.725946386123146,
+      "p50_ms": 1187.2938,
+      "p95_ms": 2113.8210000000004,
+      "p99_ms": 2113.8210000000004,
+      "http_errors": {}
+    }
+  ],
+  "reports": [
+    {
+      "concurrency": 10,
+      "requests": 20,
+      "rps": 564.5093002907354,
+      "p50_ms": 15.5016999999998,
+      "p95_ms": 25.476799999999457,
+      "p99_ms": 25.476799999999457,
+      "http_errors": {}
+    },
+    {
+      "concurrency": 25,
+      "requests": 50,
+      "rps": 513.0399360547011,
+      "p50_ms": 37.310199999999895,
+      "p95_ms": 56.8095000000003,
+      "p99_ms": 57.27430000000004,
+      "http_errors": {}
+    },
+    {
+      "concurrency": 50,
+      "requests": 100,
+      "rps": 594.0168249325488,
+      "p50_ms": 71.15009999999984,
+      "p95_ms": 128.57409999999982,
+      "p99_ms": 129.8732999999993,
+      "http_errors": {}
+    },
+    {
+      "concurrency": 100,
+      "requests": 200,
+      "rps": 545.051059020581,
+      "p50_ms": 167.6216000000004,
+      "p95_ms": 293.46559999999954,
+      "p99_ms": 297.84739999999965,
+      "http_errors": {
+        "429": 25
+      }
+    }
+  ],
+  "webhooks": {
+    "deliveries": 11,
+    "badSignatures": 0
+  },
+  "client_rss_bytes": 84344832,
+  "limitations": [
+    "Harness has no built-in process sampler; separate sparse process samples are included",
+    "No long-duration leak claim",
+    "Protective 429 responses are retained in results"
+  ],
+  "process_samples": [
+    {
+      "at": "2026-11-14T17:35:17.0615052Z",
+      "cpu_seconds": 3.234375,
+      "rss_bytes": 109297664,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:18.2182464Z",
+      "cpu_seconds": 3.234375,
+      "rss_bytes": 109297664,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:19.2442867Z",
+      "cpu_seconds": 3.25,
+      "rss_bytes": 109297664,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:20.2724967Z",
+      "cpu_seconds": 3.25,
+      "rss_bytes": 109297664,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:21.3074130Z",
+      "cpu_seconds": 3.265625,
+      "rss_bytes": 109297664,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:22.3305433Z",
+      "cpu_seconds": 3.28125,
+      "rss_bytes": 109297664,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:23.3585395Z",
+      "cpu_seconds": 3.28125,
+      "rss_bytes": 109297664,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:24.3754491Z",
+      "cpu_seconds": 3.796875,
+      "rss_bytes": 109375488,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:25.4110026Z",
+      "cpu_seconds": 4.328125,
+      "rss_bytes": 160591872,
+      "threads": 24
+    },
+    {
+      "at": "2026-11-14T17:35:26.4367003Z",
+      "cpu_seconds": 4.53125,
+      "rss_bytes": 137195520,
+      "threads": 24
+    }
+  ],
+  "post_run_postgres": {
+    "connections": 21,
+    "max_transaction_seconds": 0,
+    "deadlocks": 0
+  },
+  "restore": {
+    "new_database_only": true,
+    "manifest": "passed",
+    "login_company_conversation_lead_knowledge": "passed",
+    "originals": "Restored original present; protected CLI diagnostics passed"
+  }
+}

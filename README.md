@@ -1,5 +1,7 @@
 # site-assistant — этапы 1–8
 
+Stage 9A operational preparation: [readiness and remaining risks](docs/production-readiness.md), [backup/restore](docs/backup-restore.md), [retention](docs/retention.md), [local load tests](docs/load-testing.md), [independent RU/EU deployment](docs/deployment-ru-eu.md). Production/GPU deployment is not performed. Operations CLI requires the existing deployment administrative credential; defaults to read-only diagnostics/dry-run. No old migrations or root GoLand files are changed.
+
 Stages 1–8: modular Go SaaS, multilingual cabinet, knowledge/RAG, preview and website chat, operator inbox, lead collection/mini-CRM, universal company API with signed outgoing webhooks, regional plans/subscriptions and PostgreSQL usage quotas. FinKoper and other CRMs consume AI Chat data; no destination-specific client or SSO exists. Gemma is not connected or quality-tested. Public brand: APP_BRAND_NAME. See docs/finkoper-integration.md for the integration contract.
 
 Stage 8: apply the appended migration with `./scripts/backend.ps1 -Migrate`, then restart the API. `BILLING_TRIAL_DAYS=14` is configurable (1–90); existing and new organizations receive Trial. Owner/admin: company → **Тариф и использование / Plan and usage**. Prices/payments are not configured. Pilot Start/Business grants use only the protected deployment CLI (`backend/cmd/subscription`), never a public endpoint. AI limits do not block manual operator chat. [Plans, quotas, storage accounting and CLI instructions](docs/billing.md).

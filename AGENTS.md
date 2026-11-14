@@ -1,5 +1,11 @@
 # site-assistant
 
+- Stage 9A is authorized: ops diagnostics/retention, production validation, private metrics and offline backup/restore. No production, GPU/Gemma, FinKoper, push or Stage 9B. See docs/production-readiness.md for verified scope and remaining launch gates.
+- Do not delete widget_sessions during automatic retention: its FK cascades conversations. Only bounded expired login-session cleanup is automatic; other customer retention/erasure requires an approved policy. Operations CLI uses deployment admin credentials and dry-run by default.
+- Startup must decrypt all saved webhook secrets with the persistent key; never generate replacement keys or bypass the check to start an old test DB. Use a separate test DB/known test key. Back up ciphertext and escrow key separately.
+- /metrics requires METRICS_TOKEN and private ingress; no tenant/PII/path labels. Preserve response Unwrap so ResponseController SSE deadlines and fencing work. Existing 10s flush limit is unchanged. Never log raw paths/query/header/body/errors containing connection parameters.
+- Backup only with all writers stopped; restore only to a NEW *_test DB, never over dev/production. scripts/backup-restore.mjs uses standard Compose pg_dump/pg_restore; snapshots/fixture credentials stay outside Git. Load harness only accepts localhost URLs and explicit test acknowledgement. No claims about GPU throughput or long-duration leaks from short samples.
+
 Stages 1-7 use a modular Go monolith and React/Vite clients. Existing root GoLand sample is not the application; work in `backend/`, `frontend/`, `widget/`. No push or production actions without explicit authorization.
 
 - HTTP adapters: `backend/internal/httpapi`. Foundation business rules: `internal/core/service.go`, `auth.go`. Knowledge rules/worker: `internal/knowledge`. AI engine: `internal/ai`. SQL only in repository methods (`core/store.go`, `knowledge/store.go`, `knowledge/extracted.go`, `ai/store.go`) and migrations. Keep the module small.

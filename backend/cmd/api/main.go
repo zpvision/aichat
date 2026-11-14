@@ -19,6 +19,7 @@ import (
 	"site-assistant/internal/httpapi"
 	"site-assistant/internal/integrations"
 	"site-assistant/internal/knowledge"
+	"site-assistant/internal/ops"
 	"site-assistant/internal/widget"
 	"syscall"
 	"time"
@@ -46,6 +47,8 @@ func run() error {
 		return errors.New("invalid database connection configuration")
 	}
 	pc.ConnConfig.RuntimeParams["app.region"] = c.Region
+	pc.MaxConns = 20
+	pc.ConnConfig.RuntimeParams["idle_in_transaction_session_timeout"] = "30s"
 	pool, e := pgxpool.NewWithConfig(ctx, pc)
 	if e != nil {
 		return errors.New("invalid database connection configuration")
@@ -96,6 +99,18 @@ func run() error {
 		return e
 	}
 	widgets.Integrations = integrations.New(auth, ic)
+	retentionDays, e := ops.RetentionDays()
+	if e != nil {
+		return e
+	}
+	if e = widgets.Integrations.ValidateSecrets(ctx); e != nil {
+		return e
+	}
+	for _, root := range []string{kc.FileRoot, wc.FileRoot} {
+		if e = ops.Writable(root); e != nil {
+			return e
+		}
+	}
 	workerCtx, workerCancel := context.WithCancel(ctx)
 	workerDone := make(chan struct{})
 	go func() { defer close(workerDone); ks.Run(workerCtx) }()
@@ -118,8 +133,10 @@ func run() error {
 		select {
 		case <-ticker.C:
 			clean, cancel := context.WithTimeout(ctx, 5*time.Second)
-			if store.Cleanup(clean) != nil {
+			if n, e := (ops.Store{DB: pool}).Cleanup(clean, retentionDays, true); e != nil {
 				slog.Error("session cleanup failed")
+			} else if n > 0 {
+				slog.Info("technical cleanup", "kind", "expired_user_sessions", "deleted", n)
 			}
 			cancel()
 		case e := <-done:
