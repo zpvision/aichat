@@ -34,3 +34,7 @@ Stage 9A operational baseline is implemented locally: startup hardening, ciphert
 ## Stage 9A.1
 
 Stage9A.1 implemented private S3 originals/logos, mixed registry, scoped original download, safe migration/export and live Yandex/application/restore tests. Existing Stage9A deployment/legal/endurance gates remain. Stage9B Gemma/GPU testing requires a separate request; no new AI provider or production deployment was started.
+
+## Stage 9A.2
+
+Cosmic Violet marketing redesign is implemented: isolated public landing, original product/SVG compositions, four-language scripted demo, real registration/Trial CTA and responsive visual checks. See marketing-design.md and marketing-results.json. Cabinet/widget/storage business behavior is unchanged. The next requested design direction is the working Analytics section in Cosmic Violet; it is not implemented or started here. Real Gemma/GPU work and production deployment still require separate authorization.

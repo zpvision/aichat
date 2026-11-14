@@ -4,7 +4,7 @@ test("registration, company, assistant, site, locale, logout and login", async (
 }) => {
   const email = `browser-${Date.now()}@example.com`;
   const password = "browser-password-1234";
-  await page.goto("/");
+  await page.goto("/login");
   await page
     .getByRole("combobox", { name: "Interface language" })
     .selectOption("en");
@@ -102,7 +102,7 @@ test("authentication forms validate and display API errors on mobile", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 360, height: 900 });
-  await page.goto("/");
+  await page.goto("/login");
   await page.locator("header select").selectOption("en");
   await page.getByLabel("Email", { exact: true }).fill("unknown@example.com");
   await page

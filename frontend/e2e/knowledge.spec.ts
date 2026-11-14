@@ -20,7 +20,7 @@ test("knowledge articles, upload, real retrieval and responsive locales", async 
   await post("/organizations/" + org.id + "/assistants", {
     name: "Knowledge guide",
   });
-  await page.goto("/");
+  await page.goto("/app");
   await page
     .getByRole("button")
     .filter({

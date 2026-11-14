@@ -51,3 +51,7 @@ Stage 9A: internal/ops adds restricted metrics, bounded technical cleanup and ad
 ## Stage 9A.1
 
 Stage 9A.1: internal/objectstorage is the bounded AWS SDK v2 adapter; knowledge/object_store.go routes opaque UUID references through PostgreSQL object_files. Existing FileStorage, knowledge worker, quota accounting and atomic revision publication remain. cmd/api selects local/S3; originals and logos are separate purposes. Every tenant-facing file operation is scoped using server-resolved organization, including worker and public logo delivery. See object-storage.md.
+
+## Stage 9A.2: isolated marketing frontend
+
+`/` lazily loads `marketing/Landing`; `/app`, `/login`, `/register` and existing invitation hashes load the previous application moved to `Workspace.tsx`. Marketing CSS/tokens are scoped to `.cosmic` and separately bundled. The standalone widget remains unchanged. Demo scenarios use only local synthetic state; they never call generation, mutate CRM or spend quota. Four complete marketing dictionaries extend the existing i18next instance. No backend, API, migration or storage changes. See [marketing-design.md](marketing-design.md).

@@ -1,0 +1,267 @@
+{
+  "copy": {
+    "nav": ["Features", "How it works", "Industries", "Plans", "FAQ"],
+    "login": "Sign in",
+    "start": "Start free",
+    "try": "Try it free",
+    "watch": "Explore the demo",
+    "menu": "Open menu",
+    "close": "Close menu",
+    "language": "Site language",
+    "skip": "Skip to content",
+    "title": "AI Chat — a website consultant, built around your business",
+    "description": "Your company knowledge, customer conversations and confirmed requests in one platform. Discover how AI Chat supports your team.",
+    "eyebrow": "AN AI CONSULTANT FOR YOUR BUSINESS",
+    "hero": ["Customers ask.", "AI responds.", "Your pipeline grows."],
+    "heroBody": "Bring an AI consultant to your website. Connect your services and documents, help visitors find answers, collect requests and bring your team into the conversations that matter.",
+    "heroNote": "Your knowledge. Your team. Your control.",
+    "pilot": "Meet your next conversation",
+    "demoLabel": "Scripted demo · synthetic data",
+    "assistant": "AI consultant",
+    "company": "Forma Studio",
+    "greeting": "Hello! I can help you explore our studio’s services.",
+    "query": "I’d like to discuss a project. Where do I start?",
+    "answer": "Tell me a little about your goal. I’ll help find the right service and pass your request to the team once you confirm the details.",
+    "source": "Grounded in company materials",
+    "newLead": "New request",
+    "person": "Sofia",
+    "interest": "Project consultation",
+    "confirmed": "Confirmed by the visitor",
+    "handoff": "Conversation accepted by a teammate",
+    "operator": "Company teammate",
+    "operatorName": "Anna",
+    "typing": "Preparing a response",
+    "send": "Send",
+    "placeholder": "Write your question…",
+    "flow": ["Knowledge", "Conversation", "Request", "Team"],
+    "painTitle": "When the conversation stops, customers move on.",
+    "painBody": "Visitors need a clear next step. Give them a place to start a conversation, even when your team is busy.",
+    "pains": [
+      {
+        "title": "Questions after hours",
+        "body": "People explore your services in the evening and at weekends, too."
+      },
+      {
+        "title": "The same answers, again",
+        "body": "Repetitive questions take attention away from more involved work."
+      },
+      {
+        "title": "Interest without a request",
+        "body": "Someone browsed your website but didn’t know who to ask."
+      },
+      {
+        "title": "Conversations without context",
+        "body": "Your team needs the history to join at the right moment."
+      }
+    ],
+    "featureEyebrow": "FROM A QUESTION TO A NEXT STEP",
+    "featureTitle": "One AI consultant. More ways to help.",
+    "features": [
+      {
+        "title": "Speaks your business",
+        "body": "Your website, articles and documents provide the context. Your knowledge sets the direction of the conversation."
+      },
+      {
+        "title": "Makes things clearer",
+        "body": "Helps visitors understand your services and terms using the materials you connect."
+      },
+      {
+        "title": "Turns interest into requests",
+        "body": "Choose the fields you need. Visitors review their details before submitting."
+      },
+      {
+        "title": "Keeps the context",
+        "body": "Your team can follow the history, with important details still in the conversation."
+      },
+      {
+        "title": "Keeps people in control",
+        "body": "A teammate takes over, and automatic AI replies stop."
+      }
+    ],
+    "documents": [
+      "Company services",
+      "Working together",
+      "Articles and answers"
+    ],
+    "indexed": "Materials processed",
+    "history": "Conversation history",
+    "visitor": "Visitor",
+    "today": "Today",
+    "note": "Internal note",
+    "howTitle": "From your knowledge to a real conversation.",
+    "steps": [
+      {
+        "title": "Add your knowledge",
+        "body": "Upload your company materials, services and documents."
+      },
+      {
+        "title": "Connect your website",
+        "body": "Set the appearance and install the widget."
+      },
+      {
+        "title": "Welcome new requests",
+        "body": "AI helps visitors, gathers requests and brings your team into the conversation."
+      }
+    ],
+    "demoTitle": "See a better customer conversation unfold.",
+    "demoBody": "Choose a situation. Follow the journey from a first question to a clear next step.",
+    "scenarios": [
+      "Explore a service",
+      "Ask about pricing",
+      "Leave a request",
+      "Talk to a person"
+    ],
+    "questions": [
+      "What services does the studio offer?",
+      "What determines the project price?",
+      "I’d like to request a consultation.",
+      "Can I speak with someone on the team?"
+    ],
+    "answers": [
+      "Forma Studio helps design and launch websites. I can help clarify your goal and share it with the team.",
+      "The scope shapes the price. The team will prepare an estimate after learning about your project.",
+      "Of course. In this example, you’ve already shared your name and contact. Review the details before confirming.",
+      "I’ll pass the conversation to the team. Automatic replies stop, and your conversation history stays with them."
+    ],
+    "humanAnswer": "Hello, I’m Anna. I can see your question in the conversation. Let’s talk through your project.",
+    "demoHint": "A prepared scenario, not AI generation. No signup needed, no real leads created and no quota used.",
+    "replay": "Replay example",
+    "confirmDemo": "Confirm example",
+    "demoSuccess": "Demo request confirmed. Nothing was sent to a CRM.",
+    "contact": "Contact",
+    "request": "Request",
+    "interfaceTitle": "Your team’s work. One shared context.",
+    "interfaceBody": "Anonymized representations of platform capabilities. The separate analytics view is a concept.",
+    "tabs": ["Conversations", "Knowledge", "Leads", "Operators", "Analytics"],
+    "workspace": "Workspace",
+    "preview": "Demonstration interface",
+    "statusNew": "New",
+    "statusWork": "In progress",
+    "assigned": "Assigned to",
+    "queue": "Needs a teammate",
+    "taken": "Accepted",
+    "available": "Unassigned",
+    "humanTitle": "AI lends a hand. You keep the human touch.",
+    "humanBody": "Take over when it matters. Your teammate sees the history and continues the conversation while AI stops sending replies.",
+    "humanSteps": [
+      "AI helps the visitor",
+      "Visitor asks for a person",
+      "A teammate takes over",
+      "The conversation continues"
+    ],
+    "humanNote": "A handoff within the same conversation, with the context intact.",
+    "businessTitle": "Your business is unique. Make AI Chat your own.",
+    "businessBody": "Set the knowledge, tone and request fields. Your industry doesn’t define the limits of the conversation.",
+    "industries": [
+      {
+        "name": "Accounting firms",
+        "example": "Services, documents and requests for a consultation."
+      },
+      {
+        "name": "Legal services",
+        "example": "Practice areas and a description of the situation for a lawyer."
+      },
+      {
+        "name": "Consulting",
+        "example": "Business goals and the right first conversation."
+      },
+      {
+        "name": "Online stores",
+        "example": "Information from your catalog and questions about purchasing terms."
+      },
+      {
+        "name": "Education",
+        "example": "Programs, learning formats and requests for guidance."
+      },
+      {
+        "name": "Service businesses",
+        "example": "Service type, location and a description of the task."
+      }
+    ],
+    "integrationTitle": "Part of your workflow. Connected to your systems.",
+    "integrationBody": "Retrieve confirmed requests through the REST API. Signed webhooks notify your CRM about events so it can fetch the data and handle it on its own terms.",
+    "api": "REST API",
+    "webhook": "Signed webhook",
+    "crm": "Your CRM",
+    "integrationNote": "A universal API, without claiming a ready-made connector for a particular CRM.",
+    "analyticsTitle": "See the conversation. Understand the outcome.",
+    "analyticsBody": "A vision of your customer conversations in one place. This demonstration dashboard illustrates the product’s direction.",
+    "concept": "Analytics concept · illustrative figures",
+    "metrics": ["Conversations", "Requests", "Conversion", "Team handoffs"],
+    "chartTitle": "From a first question to a request",
+    "chartLegend": ["Conversations", "Requests"],
+    "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "priceTitle": "Start with Trial. Find your scale.",
+    "priceBody": "Three existing platform plans. Pricing is not yet finalized; your company’s current capabilities and limits are available in the cabinet.",
+    "plans": [
+      {
+        "name": "Trial",
+        "tag": "Get to know the platform",
+        "body": "Create your company and explore how it works."
+      },
+      {
+        "name": "Start",
+        "tag": "For a smaller team",
+        "body": "For your company knowledge and customer conversations."
+      },
+      {
+        "name": "Business",
+        "tag": "For a growing business",
+        "body": "For multiple services, websites and teammates."
+      }
+    ],
+    "pricePending": "Commercial terms to be confirmed",
+    "planFeatures": [
+      "Assistants and company knowledge",
+      "Conversations and teamwork",
+      "Requests and a universal API"
+    ],
+    "planNote": "New companies receive Trial. Start or Business access for a pilot is agreed separately. Online payments are not connected yet.",
+    "faqTitle": "Good questions. Clear answers.",
+    "faqs": [
+      {
+        "q": "How do I get started?",
+        "a": "Create a company and assistant, add your materials, configure a website and install the JavaScript widget. Automatic replies require a connected AI model."
+      },
+      {
+        "q": "Which websites can use it?",
+        "a": "The widget can be installed where adding JavaScript is allowed, including CMS websites. Configure the permitted domain and check compatibility with your website’s security policies."
+      },
+      {
+        "q": "Can I upload my documents?",
+        "a": "Text-layer PDF, DOCX, TXT and Markdown are supported. You can also write articles and import public pages. Scanned-document OCR is not included."
+      },
+      {
+        "q": "Can a teammate reply manually?",
+        "a": "Yes. A teammate takes over and replies from the operator cabinet. Automatic AI replies stop after the handoff."
+      },
+      {
+        "q": "How do requests reach my CRM?",
+        "a": "Use a company API key and REST API. A signed webhook announces an event, and your external system retrieves the request data. Specific connectors are configured separately."
+      },
+      {
+        "q": "Which languages are available?",
+        "a": "The cabinet and widget support Russian, English, Czech and German. Response language is configured separately; answer quality depends on the connected model and your materials."
+      },
+      {
+        "q": "Where is the data stored?",
+        "a": "The architecture supports independent RU/EU installations with separate databases and storage. The actual region and processing terms are established when deploying."
+      },
+      {
+        "q": "What if the knowledge has no answer?",
+        "a": "The assistant should explain that verified information is unavailable and offer a teammate’s help. Behavior is configurable, and responses should be tested before publishing."
+      },
+      {
+        "q": "Does this demo create a real lead?",
+        "a": "No. This page uses synthetic data and prepared scenarios. It does not call an AI model or create leads."
+      }
+    ],
+    "finalTitle": "Your website is ready for a real conversation.",
+    "finalBody": "Connect an AI consultant and turn visitors’ questions into requests your team can work with.",
+    "footer": "Less distance between a question and a conversation.",
+    "rights": "An AI consultant platform for business.",
+    "footerNote": "Illustrative scenarios. No guaranteed conversion claims.",
+    "backTop": "Back to top",
+    "demoData": "Demonstration data"
+  }
+}

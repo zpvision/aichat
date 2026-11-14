@@ -1,0 +1,70 @@
+{
+    "stage":  "9A.2 Cosmic Violet",
+    "base_commit":  "5ebbe9406410b19300d93a8a7c9502380e6ad657",
+    "verified_at":  "2026-11-14T19:57:20.5975460Z",
+    "frontend_tests":  22,
+    "widget_tests":  4,
+    "previous_browser_scenarios":  9,
+    "marketing_browser_scenarios":  3,
+    "responsive_widths":  [
+                              360,
+                              390,
+                              768,
+                              1024,
+                              1440,
+                              1920
+                          ],
+    "languages":  [
+                      "ru",
+                      "en",
+                      "cs",
+                      "de"
+                  ],
+    "visual_iterations":  2,
+    "screenshots_directory":  "artifacts/stage9a2",
+    "backend_suite":  "PASS with isolated PostgreSQL and PDF/public-import/real BGE-M3 flags",
+    "vet_and_api_cli_builds":  "PASS",
+    "npm_audits":  "0 known vulnerabilities in frontend and widget",
+    "accessibility":  {
+                          "engine":  "axe-core 4.11.0",
+                          "checks":  20,
+                          "violations":  0,
+                          "scope":  "Five product tabs at EN1440/RU390/DE360/CS768; automated subset only"
+                      },
+    "performance":  {
+                        "date":  "2026-11-14T19:55:30.959Z",
+                        "conditions":  "Chromium, production Vite preview, cold cache, 4x CPU slowdown, 40ms latency, 10Mbps download; local API; one sample per viewport; no field CWV claim",
+                        "results":  [
+                                        {
+                                            "width":  1440,
+                                            "lcp":  1840,
+                                            "cls":  0.0164278333800516,
+                                            "longTasks":  2,
+                                            "fcp":  1168,
+                                            "domReady":  312.20000000298023,
+                                            "transferBytes":  201758,
+                                            "requests":  9,
+                                            "workspaceLoaded":  false,
+                                            "externalRequests":  0
+                                        },
+                                        {
+                                            "width":  390,
+                                            "lcp":  1868,
+                                            "cls":  0.004003307371794872,
+                                            "longTasks":  3,
+                                            "fcp":  1292,
+                                            "domReady":  369.5999999977648,
+                                            "transferBytes":  201758,
+                                            "requests":  9,
+                                            "workspaceLoaded":  false,
+                                            "externalRequests":  0
+                                        }
+                                    ]
+                    },
+    "limitations":  [
+                        "SPA requires JavaScript for localized content/metadata; social fallback is English",
+                        "Chromium lab checks, not field CWV or a Safari/Firefox device matrix",
+                        "Demo is scripted; analytics is a marked concept; no Gemma quality claim",
+                        "No new cloud S3 live test or production action in this stage"
+                    ]
+}

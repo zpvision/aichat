@@ -1,0 +1,267 @@
+{
+  "copy": {
+    "nav": ["Možnosti", "Jak to funguje", "Pro koho", "Tarify", "FAQ"],
+    "login": "Přihlásit se",
+    "start": "Začít zdarma",
+    "try": "Vyzkoušet zdarma",
+    "watch": "Prohlédnout demo",
+    "menu": "Otevřít nabídku",
+    "close": "Zavřít nabídku",
+    "language": "Jazyk webu",
+    "skip": "Přejít na obsah",
+    "title": "AI Chat — AI konzultant pro váš web",
+    "description": "Znalosti vaší firmy, rozhovory se zákazníky a potvrzené poptávky na jedné platformě. Objevte AI Chat pro svůj tým.",
+    "eyebrow": "AI KONZULTANT PRO VAŠE PODNIKÁNÍ",
+    "hero": ["Zákazníci se ptají.", "AI odpovídá.", "Vy získáváte poptávky."],
+    "heroBody": "Připojte AI konzultanta ke svému webu. Využije vaše služby a dokumenty, pomůže návštěvníkům najít odpovědi, shromáždí poptávky a důležité rozhovory předá vašemu týmu.",
+    "heroNote": "Vaše znalosti. Váš tým. Vaše kontrola.",
+    "pilot": "Seznamte se s platformou",
+    "demoLabel": "Scénářové demo · syntetická data",
+    "assistant": "AI konzultant",
+    "company": "Studio Forma",
+    "greeting": "Dobrý den! Pomohu vám zorientovat se ve službách našeho studia.",
+    "query": "Chci probrat projekt. Kde mám začít?",
+    "answer": "Napište mi něco o svém záměru. Pomohu vybrat službu a po potvrzení údajů předám poptávku týmu.",
+    "source": "Podle materiálů společnosti",
+    "newLead": "Nová poptávka",
+    "person": "Žofie",
+    "interest": "Konzultace projektu",
+    "confirmed": "Potvrzeno návštěvníkem",
+    "handoff": "Rozhovor převzal člen týmu",
+    "operator": "Pracovník společnosti",
+    "operatorName": "Anna",
+    "typing": "Připravuje odpověď",
+    "send": "Odeslat",
+    "placeholder": "Napište svůj dotaz…",
+    "flow": ["Znalosti", "Rozhovor", "Poptávka", "Tým"],
+    "painTitle": "Když rozhovor stojí, zákazníci jdou dál.",
+    "painBody": "Návštěvníci potřebují jasný další krok. Dejte jim možnost začít rozhovor, i když má váš tým právě plné ruce práce.",
+    "pains": [
+      {
+        "title": "Dotazy mimo pracovní dobu",
+        "body": "Lidé si vybírají služby také večer a o víkendech."
+      },
+      {
+        "title": "Stále stejné odpovědi",
+        "body": "Opakující se otázky odvádějí pozornost od složitější práce."
+      },
+      {
+        "title": "Zájem bez poptávky",
+        "body": "Návštěvník prošel web, ale nevěděl, na koho se obrátit."
+      },
+      {
+        "title": "Rozhovory bez souvislostí",
+        "body": "Tým potřebuje historii, aby se mohl včas zapojit."
+      }
+    ],
+    "featureEyebrow": "OD DOTAZU K DALŠÍMU KROKU",
+    "featureTitle": "Jeden AI konzultant. Mnoho užitečných úkolů.",
+    "features": [
+      {
+        "title": "Rozumí vašemu podnikání",
+        "body": "Web, články a dokumenty tvoří kontext odpovědí. Směr rozhovoru určují vaše znalosti."
+      },
+      {
+        "title": "Pomůže se zorientovat",
+        "body": "Odpovídá na otázky ke službám a podmínkám podle připojených materiálů."
+      },
+      {
+        "title": "Shromažďuje poptávky",
+        "body": "Nastavte potřebná pole. Návštěvník si před odesláním zkontroluje údaje."
+      },
+      {
+        "title": "Zachovává souvislosti",
+        "body": "Tým má přístup k historii a důležité podrobnosti zůstávají v rozhovoru."
+      },
+      {
+        "title": "Člověk má kontrolu",
+        "body": "Pracovník převezme rozhovor a automatické odpovědi se zastaví."
+      }
+    ],
+    "documents": [
+      "Služby společnosti",
+      "Podmínky spolupráce",
+      "Články a odpovědi"
+    ],
+    "indexed": "Materiály zpracovány",
+    "history": "Historie rozhovoru",
+    "visitor": "Návštěvník",
+    "today": "Dnes",
+    "note": "Interní poznámka",
+    "howTitle": "Od vašich znalostí ke skutečnému rozhovoru.",
+    "steps": [
+      {
+        "title": "Přidejte znalosti",
+        "body": "Nahrajte firemní materiály, služby a dokumenty."
+      },
+      {
+        "title": "Připojte web",
+        "body": "Nastavte vzhled a vložte widget."
+      },
+      {
+        "title": "Získávejte poptávky",
+        "body": "AI pomáhá návštěvníkům, shromažďuje poptávky a zapojuje tým."
+      }
+    ],
+    "demoTitle": "Podívejte se, jak AI Chat mluví se zákazníky.",
+    "demoBody": "Vyberte situaci. Sledujte cestu od prvního dotazu k jasnému dalšímu kroku.",
+    "scenarios": [
+      "Dotaz na službu",
+      "Dotaz na cenu",
+      "Odeslání poptávky",
+      "Předání pracovníkovi"
+    ],
+    "questions": [
+      "Jaké služby studio nabízí?",
+      "Na čem závisí cena projektu?",
+      "Chci požádat o konzultaci.",
+      "Mohu mluvit s někým z týmu?"
+    ],
+    "answers": [
+      "Studio Forma pomáhá s návrhem a spuštěním webů. Pomohu upřesnit váš záměr a předám ho týmu.",
+      "Cena závisí na rozsahu zadání. Tým připraví odhad po seznámení s vaším projektem.",
+      "Samozřejmě. V tomto příkladu jste již uvedli jméno a kontakt. Před potvrzením údaje zkontrolujte.",
+      "Předám rozhovor týmu. Automatické odpovědi se zastaví a historie zůstane k dispozici."
+    ],
+    "humanAnswer": "Dobrý den, jsem Anna. Vidím váš dotaz v rozhovoru. Pojďme probrat podrobnosti projektu.",
+    "demoHint": "Připravený scénář, nikoli generování AI. Bez registrace, skutečných leadů a čerpání kvóty.",
+    "replay": "Přehrát znovu",
+    "confirmDemo": "Potvrdit příklad",
+    "demoSuccess": "Ukázková poptávka potvrzena. Do CRM se nic neodeslalo.",
+    "contact": "Kontakt",
+    "request": "Poptávka",
+    "interfaceTitle": "Práce vašeho týmu. V jednom kontextu.",
+    "interfaceBody": "Anonymizované ukázky možností platformy. Samostatná analytika je koncept.",
+    "tabs": ["Rozhovory", "Znalosti", "Leady", "Operátoři", "Analytika"],
+    "workspace": "Pracovní prostor",
+    "preview": "Ukázkové rozhraní",
+    "statusNew": "Nová",
+    "statusWork": "V řešení",
+    "assigned": "Odpovědná osoba",
+    "queue": "Čeká na pracovníka",
+    "taken": "Převzato",
+    "available": "Nepřiřazeno",
+    "humanTitle": "AI pomáhá. Důležité rozhovory zůstávají vám.",
+    "humanBody": "Zapojte se ve správnou chvíli. Pracovník vidí historii a pokračuje v komunikaci, zatímco AI už do rozhovoru neodpovídá.",
+    "humanSteps": [
+      "AI pomáhá návštěvníkovi",
+      "Návštěvník požádá o člověka",
+      "Pracovník převezme rozhovor",
+      "Rozhovor pokračuje"
+    ],
+    "humanNote": "Předání v rámci stejného rozhovoru, bez ztráty souvislostí.",
+    "businessTitle": "Vaše firma je jedinečná. AI Chat se přizpůsobí.",
+    "businessBody": "Určete znalosti, tón komunikace a pole poptávky. Obor neomezuje smysluplný rozhovor.",
+    "industries": [
+      {
+        "name": "Účetní společnosti",
+        "example": "Služby, dokumenty a žádosti o konzultaci."
+      },
+      {
+        "name": "Právní služby",
+        "example": "Oblast práva a popis situace pro právníka."
+      },
+      {
+        "name": "Poradenství",
+        "example": "Cíle firmy a vhodný první kontakt."
+      },
+      {
+        "name": "E-shopy",
+        "example": "Informace z katalogu a otázky k nákupním podmínkám."
+      },
+      {
+        "name": "Vzdělávání",
+        "example": "Programy, formy studia a žádosti o informace."
+      },
+      {
+        "name": "Servisní firmy",
+        "example": "Druh služby, město a popis úkolu."
+      }
+    ],
+    "integrationTitle": "AI Chat spolupracuje s vašimi systémy.",
+    "integrationBody": "Získávejte potvrzené poptávky přes REST API. Podepsané webhooky upozorní CRM na událost, aby si stáhlo data a zpracovalo je podle vlastních pravidel.",
+    "api": "REST API",
+    "webhook": "Podepsaný webhook",
+    "crm": "Vaše CRM",
+    "integrationNote": "Univerzální API bez tvrzení o hotovém konektoru pro konkrétní CRM.",
+    "analyticsTitle": "Vidíte rozhovory i jejich výsledek.",
+    "analyticsBody": "Tak může vypadat jednotný přehled zákaznické komunikace. Ukázkový dashboard představuje směr rozvoje produktu.",
+    "concept": "Koncept analytiky · ukázková čísla",
+    "metrics": ["Rozhovory", "Poptávky", "Konverze", "Předání týmu"],
+    "chartTitle": "Od prvního dotazu k poptávce",
+    "chartLegend": ["Rozhovory", "Poptávky"],
+    "days": ["Po", "Út", "St", "Čt", "Pá", "So", "Ne"],
+    "priceTitle": "Začněte s Trial. Najděte svůj rozsah.",
+    "priceBody": "Tři existující tarify platformy. Ceny zatím nejsou schválené; aktuální možnosti a limity své firmy najdete v kabinetu.",
+    "plans": [
+      {
+        "name": "Trial",
+        "tag": "První seznámení",
+        "body": "Vytvořte firmu a prozkoumejte platformu."
+      },
+      {
+        "name": "Start",
+        "tag": "Pro menší tým",
+        "body": "Pro znalosti firmy a komunikaci se zákazníky."
+      },
+      {
+        "name": "Business",
+        "tag": "Pro rostoucí firmu",
+        "body": "Pro více služeb, webů a spolupracovníků."
+      }
+    ],
+    "pricePending": "Obchodní podmínky se připravují",
+    "planFeatures": [
+      "Asistenti a firemní znalosti",
+      "Rozhovory a týmová práce",
+      "Poptávky a univerzální API"
+    ],
+    "planNote": "Nová firma získá Trial. Start či Business pro pilot se domlouvá samostatně. Online platby zatím nejsou připojené.",
+    "faqTitle": "Dobré otázky. Jasné odpovědi.",
+    "faqs": [
+      {
+        "q": "Jak AI Chat připojím?",
+        "a": "Vytvořte firmu a asistenta, přidejte materiály, nastavte web a vložte JavaScript widgetu. Automatické odpovědi vyžadují připojený AI model."
+      },
+      {
+        "q": "Na jakých webech funguje?",
+        "a": "Widget lze vložit tam, kde je povolen JavaScript, včetně webů s CMS. Nastavte povolenou doménu a ověřte bezpečnostní pravidla svého webu."
+      },
+      {
+        "q": "Mohu nahrát vlastní dokumenty?",
+        "a": "Podporovány jsou PDF s textovou vrstvou, DOCX, TXT a Markdown. Můžete psát články a importovat veřejné stránky. OCR skenů zatím není součástí."
+      },
+      {
+        "q": "Může pracovník odpovídat ručně?",
+        "a": "Ano. Pracovník převezme rozhovor a odpovídá z operátorského kabinetu. Automatické odpovědi AI se po předání zastaví."
+      },
+      {
+        "q": "Jak dostanu poptávku do CRM?",
+        "a": "Pomocí firemního API klíče a REST API. Podepsaný webhook oznámí událost a externí systém získá údaje. Konkrétní konektor se nastavuje samostatně."
+      },
+      {
+        "q": "Jaké jazyky jsou dostupné?",
+        "a": "Kabinet a widget podporují ruštinu, angličtinu, češtinu a němčinu. Jazyk odpovědi se nastavuje zvlášť; kvalita závisí na modelu a materiálech."
+      },
+      {
+        "q": "Kde se ukládají data?",
+        "a": "Architektura počítá s oddělenými instalacemi RU/EU s vlastními databázemi a úložišti. Skutečný region a podmínky zpracování se určují při nasazení."
+      },
+      {
+        "q": "Co když znalosti neobsahují odpověď?",
+        "a": "Asistent má sdělit, že ověřená informace není k dispozici, a nabídnout pomoc pracovníka. Chování lze nastavit a odpovědi je nutné před zveřejněním ověřit."
+      },
+      {
+        "q": "Vytvoří demo skutečný lead?",
+        "a": "Ne. Stránka používá syntetická data a připravené scénáře. Nevolá AI model ani nevytváří skutečné leady."
+      }
+    ],
+    "finalTitle": "Váš web je připraven na skutečný rozhovor.",
+    "finalBody": "Připojte AI konzultanta a proměňte dotazy návštěvníků v poptávky pro svůj tým.",
+    "footer": "Blíž od otázky ke smysluplnému rozhovoru.",
+    "rights": "Platforma AI konzultantů pro firmy.",
+    "footerNote": "Ukázkové scénáře. Bez záruk konverze.",
+    "backTop": "Nahoru",
+    "demoData": "Ukázková data"
+  }
+}

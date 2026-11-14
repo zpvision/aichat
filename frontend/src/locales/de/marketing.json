@@ -1,0 +1,267 @@
+{
+  "copy": {
+    "nav": ["Funktionen", "So funktioniert’s", "Branchen", "Tarife", "FAQ"],
+    "login": "Anmelden",
+    "start": "Kostenlos starten",
+    "try": "Kostenlos testen",
+    "watch": "Demo ansehen",
+    "menu": "Menü öffnen",
+    "close": "Menü schließen",
+    "language": "Sprache der Website",
+    "skip": "Zum Inhalt springen",
+    "title": "AI Chat — Ihr KI-Berater für die Website",
+    "description": "Unternehmenswissen, Kundengespräche und bestätigte Anfragen auf einer Plattform. Entdecken Sie AI Chat für Ihr Team.",
+    "eyebrow": "EIN KI-BERATER FÜR IHR UNTERNEHMEN",
+    "hero": ["Kunden fragen.", "KI antwortet.", "Sie gewinnen Anfragen."],
+    "heroBody": "Bringen Sie einen KI-Berater auf Ihre Website. Nutzen Sie Ihre Leistungen und Dokumente als Grundlage, beantworten Sie Besucherfragen, sammeln Sie Anfragen und übergeben Sie wichtige Gespräche an Ihr Team.",
+    "heroNote": "Ihr Wissen. Ihr Team. Ihre Kontrolle.",
+    "pilot": "Lernen Sie die Plattform kennen",
+    "demoLabel": "Szenario-Demo · synthetische Daten",
+    "assistant": "KI-Berater",
+    "company": "Studio Forma",
+    "greeting": "Hallo! Ich helfe Ihnen, die Leistungen unseres Studios kennenzulernen.",
+    "query": "Ich möchte ein Projekt besprechen. Wie fange ich an?",
+    "answer": "Erzählen Sie mir von Ihrem Ziel. Ich helfe bei der Auswahl und leite Ihre Anfrage nach Ihrer Bestätigung an das Team weiter.",
+    "source": "Auf Basis der Unternehmensunterlagen",
+    "newLead": "Neue Anfrage",
+    "person": "Sophie",
+    "interest": "Projektberatung",
+    "confirmed": "Vom Besucher bestätigt",
+    "handoff": "Gespräch vom Team übernommen",
+    "operator": "Mitarbeiter des Unternehmens",
+    "operatorName": "Anna",
+    "typing": "Antwort wird vorbereitet",
+    "send": "Senden",
+    "placeholder": "Schreiben Sie Ihre Frage…",
+    "flow": ["Wissen", "Gespräch", "Anfrage", "Team"],
+    "painTitle": "Wenn Antworten fehlen, ziehen Kunden weiter.",
+    "painBody": "Besucher brauchen einen klaren nächsten Schritt. Geben Sie ihnen einen Einstieg ins Gespräch, auch wenn Ihr Team gerade beschäftigt ist.",
+    "pains": [
+      {
+        "title": "Fragen nach Feierabend",
+        "body": "Auch abends und am Wochenende informieren sich Menschen über Ihre Leistungen."
+      },
+      {
+        "title": "Immer dieselben Antworten",
+        "body": "Wiederkehrende Fragen kosten Aufmerksamkeit für anspruchsvollere Aufgaben."
+      },
+      {
+        "title": "Interesse ohne Anfrage",
+        "body": "Jemand hat die Website besucht, wusste aber nicht, wen er fragen kann."
+      },
+      {
+        "title": "Gespräche ohne Überblick",
+        "body": "Ihr Team braucht den Verlauf, um rechtzeitig einzusteigen."
+      }
+    ],
+    "featureEyebrow": "VON DER FRAGE ZUM NÄCHSTEN SCHRITT",
+    "featureTitle": "Ein KI-Berater. Viele sinnvolle Aufgaben.",
+    "features": [
+      {
+        "title": "Kennt Ihre Geschäftswelt",
+        "body": "Website, Artikel und Dokumente liefern den Kontext. Ihr Wissen gibt dem Gespräch die Richtung."
+      },
+      {
+        "title": "Schafft Klarheit",
+        "body": "Hilft bei Fragen zu Leistungen und Bedingungen anhand Ihrer angebundenen Materialien."
+      },
+      {
+        "title": "Sammelt Anfragen",
+        "body": "Sie bestimmen die Felder. Besucher prüfen ihre Angaben vor dem Absenden."
+      },
+      {
+        "title": "Bewahrt den Kontext",
+        "body": "Ihr Team sieht den Verlauf. Wichtige Details bleiben im Gespräch."
+      },
+      {
+        "title": "Der Mensch behält die Kontrolle",
+        "body": "Ein Mitarbeiter übernimmt und automatische KI-Antworten stoppen."
+      }
+    ],
+    "documents": [
+      "Unternehmensleistungen",
+      "Zusammenarbeit",
+      "Artikel und Antworten"
+    ],
+    "indexed": "Materialien verarbeitet",
+    "history": "Gesprächsverlauf",
+    "visitor": "Besucher",
+    "today": "Heute",
+    "note": "Interne Notiz",
+    "howTitle": "Von Ihrem Wissen zum echten Gespräch.",
+    "steps": [
+      {
+        "title": "Wissen hinzufügen",
+        "body": "Laden Sie Unternehmensmaterialien, Leistungen und Dokumente hoch."
+      },
+      {
+        "title": "Website verbinden",
+        "body": "Passen Sie das Erscheinungsbild an und installieren Sie das Widget."
+      },
+      {
+        "title": "Anfragen erhalten",
+        "body": "KI hilft Besuchern, sammelt Anfragen und bindet Ihr Team ein."
+      }
+    ],
+    "demoTitle": "So wird aus einer Frage ein gutes Kundengespräch.",
+    "demoBody": "Wählen Sie eine Situation. Erleben Sie den Weg von der ersten Frage zum nächsten Schritt.",
+    "scenarios": [
+      "Frage zur Leistung",
+      "Frage zum Preis",
+      "Anfrage stellen",
+      "Mit einem Menschen sprechen"
+    ],
+    "questions": [
+      "Welche Leistungen bietet das Studio an?",
+      "Wovon hängt der Projektpreis ab?",
+      "Ich möchte eine Beratung anfragen.",
+      "Kann ich mit jemandem aus dem Team sprechen?"
+    ],
+    "answers": [
+      "Studio Forma unterstützt beim Design und Start von Websites. Ich helfe, Ihr Ziel zu klären und es an das Team weiterzugeben.",
+      "Der Preis hängt vom Umfang ab. Das Team erstellt eine Einschätzung, nachdem es Ihr Projekt kennengelernt hat.",
+      "Gerne. In diesem Beispiel haben Sie Namen und Kontakt schon genannt. Prüfen Sie die Angaben vor der Bestätigung.",
+      "Ich übergebe das Gespräch an das Team. Automatische Antworten stoppen, der Verlauf bleibt erhalten."
+    ],
+    "humanAnswer": "Hallo, ich bin Anna. Ich sehe Ihre Frage im Verlauf. Lassen Sie uns die Projektdetails besprechen.",
+    "demoHint": "Ein vorbereitetes Szenario, keine KI-Generierung. Ohne Anmeldung, echte Leads oder Quotenverbrauch.",
+    "replay": "Beispiel wiederholen",
+    "confirmDemo": "Beispiel bestätigen",
+    "demoSuccess": "Demo-Anfrage bestätigt. Es wurde nichts an ein CRM gesendet.",
+    "contact": "Kontakt",
+    "request": "Anfrage",
+    "interfaceTitle": "Die Arbeit Ihres Teams. Ein gemeinsamer Kontext.",
+    "interfaceBody": "Anonymisierte Darstellungen der Plattformfunktionen. Die separate Analyseansicht ist ein Konzept.",
+    "tabs": ["Gespräche", "Wissen", "Leads", "Mitarbeiter", "Analyse"],
+    "workspace": "Arbeitsbereich",
+    "preview": "Demo-Oberfläche",
+    "statusNew": "Neu",
+    "statusWork": "In Bearbeitung",
+    "assigned": "Zuständig",
+    "queue": "Mitarbeiter benötigt",
+    "taken": "Übernommen",
+    "available": "Nicht zugewiesen",
+    "humanTitle": "KI unterstützt. Wichtige Gespräche bleiben bei Ihnen.",
+    "humanBody": "Übernehmen Sie im richtigen Moment. Ihr Mitarbeiter sieht den Verlauf und setzt das Gespräch fort, während die KI nicht mehr antwortet.",
+    "humanSteps": [
+      "KI hilft dem Besucher",
+      "Besucher bittet um einen Menschen",
+      "Ein Mitarbeiter übernimmt",
+      "Das Gespräch geht weiter"
+    ],
+    "humanNote": "Eine Übergabe im selben Gespräch, ohne den Kontext zu verlieren.",
+    "businessTitle": "Ihr Unternehmen ist einzigartig. AI Chat passt sich an.",
+    "businessBody": "Legen Sie Wissen, Ton und Anfragefelder fest. Ihre Branche begrenzt nicht die Möglichkeiten eines guten Gesprächs.",
+    "industries": [
+      {
+        "name": "Buchhaltung",
+        "example": "Leistungen, Unterlagen und Anfragen für eine Beratung."
+      },
+      {
+        "name": "Rechtsberatung",
+        "example": "Rechtsgebiete und eine Situationsbeschreibung für den Anwalt."
+      },
+      {
+        "name": "Unternehmensberatung",
+        "example": "Geschäftsziele und ein passender erster Austausch."
+      },
+      {
+        "name": "Onlinehandel",
+        "example": "Kataloginformationen und Fragen zu Kaufbedingungen."
+      },
+      {
+        "name": "Bildung",
+        "example": "Programme, Lernformate und Beratungsanfragen."
+      },
+      {
+        "name": "Dienstleistungen",
+        "example": "Leistungsart, Ort und eine Beschreibung der Aufgabe."
+      }
+    ],
+    "integrationTitle": "AI Chat ergänzt Ihre Abläufe und Systeme.",
+    "integrationBody": "Rufen Sie bestätigte Anfragen über die REST API ab. Signierte Webhooks informieren Ihr CRM über Ereignisse, damit es die Daten abholt und nach Ihren Regeln verarbeitet.",
+    "api": "REST API",
+    "webhook": "Signierter Webhook",
+    "crm": "Ihr CRM",
+    "integrationNote": "Eine universelle API. Kein Versprechen eines fertigen Konnektors für ein bestimmtes CRM.",
+    "analyticsTitle": "Sie sehen das Gespräch. Und sein Ergebnis.",
+    "analyticsBody": "So kann ein gemeinsamer Überblick über Kundenanfragen aussehen. Dieses Demo-Dashboard zeigt die Entwicklungsrichtung des Produkts.",
+    "concept": "Analysekonzept · illustrative Zahlen",
+    "metrics": ["Gespräche", "Anfragen", "Konversion", "Team-Übergaben"],
+    "chartTitle": "Von der ersten Frage zur Anfrage",
+    "chartLegend": ["Gespräche", "Anfragen"],
+    "days": ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+    "priceTitle": "Mit Trial starten. Passend mitwachsen.",
+    "priceBody": "Drei bestehende Plattformtarife. Preise sind noch nicht festgelegt; aktuelle Funktionen und Limits Ihres Unternehmens sehen Sie im Arbeitsbereich.",
+    "plans": [
+      {
+        "name": "Trial",
+        "tag": "Zum Kennenlernen",
+        "body": "Erstellen Sie Ihr Unternehmen und entdecken Sie die Plattform."
+      },
+      {
+        "name": "Start",
+        "tag": "Für kleinere Teams",
+        "body": "Für Unternehmenswissen und Kundengespräche."
+      },
+      {
+        "name": "Business",
+        "tag": "Für wachsende Unternehmen",
+        "body": "Für mehrere Bereiche, Websites und Teammitglieder."
+      }
+    ],
+    "pricePending": "Konditionen werden noch festgelegt",
+    "planFeatures": [
+      "Assistenten und Unternehmenswissen",
+      "Gespräche und Teamarbeit",
+      "Anfragen und universelle API"
+    ],
+    "planNote": "Neue Unternehmen erhalten Trial. Start oder Business für einen Pilot wird separat vereinbart. Onlinezahlungen sind noch nicht angebunden.",
+    "faqTitle": "Gute Fragen. Klare Antworten.",
+    "faqs": [
+      {
+        "q": "Wie verbinde ich AI Chat?",
+        "a": "Erstellen Sie ein Unternehmen und einen Assistenten, ergänzen Sie Materialien, konfigurieren Sie die Website und installieren Sie das JavaScript-Widget. Automatische Antworten benötigen ein verbundenes KI-Modell."
+      },
+      {
+        "q": "Welche Websites werden unterstützt?",
+        "a": "Das Widget kann dort eingebunden werden, wo JavaScript erlaubt ist, auch in CMS-Websites. Richten Sie die erlaubte Domain ein und prüfen Sie die Sicherheitsrichtlinien Ihrer Website."
+      },
+      {
+        "q": "Kann ich eigene Dokumente hochladen?",
+        "a": "PDF mit Textebene, DOCX, TXT und Markdown werden unterstützt. Außerdem können Sie Artikel erstellen und öffentliche Seiten importieren. OCR für Scans ist noch nicht enthalten."
+      },
+      {
+        "q": "Kann ein Mitarbeiter manuell antworten?",
+        "a": "Ja. Ein Mitarbeiter übernimmt das Gespräch und antwortet im Operator-Arbeitsbereich. Automatische KI-Antworten stoppen nach der Übergabe."
+      },
+      {
+        "q": "Wie kommen Anfragen ins CRM?",
+        "a": "Über einen Unternehmens-API-Schlüssel und die REST API. Ein signierter Webhook meldet ein Ereignis; Ihr externes System ruft die Daten ab. Einzelne Konnektoren werden separat eingerichtet."
+      },
+      {
+        "q": "Welche Sprachen gibt es?",
+        "a": "Arbeitsbereich und Widget unterstützen Russisch, Englisch, Tschechisch und Deutsch. Die Antwortsprache wird separat eingestellt; Qualität hängt von Modell und Materialien ab."
+      },
+      {
+        "q": "Wo werden die Daten gespeichert?",
+        "a": "Die Architektur ermöglicht unabhängige RU/EU-Installationen mit getrennten Datenbanken und Speichern. Tatsächliche Region und Verarbeitungsbedingungen werden beim Deployment festgelegt."
+      },
+      {
+        "q": "Was passiert ohne passende Wissensquelle?",
+        "a": "Der Assistent soll fehlende bestätigte Informationen offen benennen und Unterstützung durch einen Mitarbeiter anbieten. Das Verhalten ist konfigurierbar und Antworten sollten vor Veröffentlichung geprüft werden."
+      },
+      {
+        "q": "Erstellt die Demo einen echten Lead?",
+        "a": "Nein. Diese Seite verwendet synthetische Daten und vorbereitete Szenarien. Sie ruft kein KI-Modell auf und erstellt keine echten Leads."
+      }
+    ],
+    "finalTitle": "Ihre Website ist bereit für ein echtes Gespräch.",
+    "finalBody": "Verbinden Sie einen KI-Berater und machen Sie aus Besucherfragen konkrete Anfragen für Ihr Team.",
+    "footer": "Weniger Abstand zwischen Frage und Gespräch.",
+    "rights": "Eine KI-Beraterplattform für Unternehmen.",
+    "footerNote": "Illustrative Szenarien. Keine garantierte Konversion.",
+    "backTop": "Nach oben",
+    "demoData": "Demonstrationsdaten"
+  }
+}

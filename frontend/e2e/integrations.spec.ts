@@ -67,7 +67,7 @@ test("universal CRM API, signed local webhook retry and one-time secrets", async
     receiver.listen(18086, "127.0.0.1", resolve);
   });
   try {
-    await page.goto("/");
+    await page.goto("/app");
     await page
       .getByRole("button")
       .filter({

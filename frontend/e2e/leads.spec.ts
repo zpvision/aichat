@@ -67,7 +67,7 @@ test("scenario, partial mock extraction, confirmation and operator CRM with real
     op = await operatorContext.newPage();
   visitor.on("pageerror", (e) => console.log("WIDGET ERROR", e.message));
   try {
-    await page.goto("/");
+    await page.goto("/app");
     await page
       .getByRole("button")
       .filter({
@@ -222,7 +222,7 @@ test("scenario, partial mock extraction, confirmation and operator CRM with real
       version: conversation.conversation.state_version,
       assignee: operator.id,
     });
-    await op.goto("/");
+    await op.goto("/app");
     await op
       .getByRole("button")
       .filter({

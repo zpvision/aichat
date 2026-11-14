@@ -65,7 +65,7 @@ test("new organization receives real Trial usage, independent company quotas and
   });
   expect(denied.status()).toBe(409);
   expect((await denied.json()).error.code).toBe("plan_limit_exceeded");
-  await page.goto("/");
+  await page.goto("/app");
   await page
     .getByRole("button")
     .filter({

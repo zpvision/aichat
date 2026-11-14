@@ -54,7 +54,7 @@ test("operator inbox, invitations and website handoff end to end", async ({
     p2 = await two.newPage(),
     visitor = await visitorContext.newPage();
   try {
-    await page.goto("/");
+    await page.goto("/app");
     await page
       .getByRole("button")
       .filter({

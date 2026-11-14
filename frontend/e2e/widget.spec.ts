@@ -46,7 +46,7 @@ test("installed widget: appearance, anonymous sessions, streaming, cancellation 
       { timeout: 45000 },
     )
     .toBe("ready");
-  await page.goto("/");
+  await page.goto("/app");
   await page
     .getByRole("button")
     .filter({

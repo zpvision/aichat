@@ -1,0 +1,7 @@
+body {
+  margin: 0;
+}
+.entry-loading {
+  min-height: 100svh;
+  background: #140d33;
+}

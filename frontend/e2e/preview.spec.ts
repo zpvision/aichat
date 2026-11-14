@@ -50,7 +50,7 @@ test("preview chat uses real RAG and explicit mock generation with history and c
       .click();
     await page.getByRole("button", { name: "Test chat", exact: true }).click();
   };
-  await page.goto("/");
+  await page.goto("/app");
   await open();
   await expect(
     page.getByText(/Demonstration mode — responses are test responses/),
