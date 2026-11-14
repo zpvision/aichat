@@ -12,6 +12,8 @@ import (
 
 type Store struct{ DB *pgxpool.Pool }
 
+func(s Store) HasObjectRegistry(ctx context.Context)(bool,error){var v bool;e:=s.DB.QueryRow(ctx,"SELECT to_regclass('object_files') IS NOT NULL").Scan(&v);return v,e}
+
 func RetentionDays() (int, error) {
 	v := os.Getenv("RETENTION_SESSION_DAYS")
 	if v == "" {
@@ -44,6 +46,28 @@ type Original struct {
 	Organization string `json:"organization_id"`
 	ID           string `json:"source_id"`
 	State        string `json:"state"`
+}
+
+func (s Store) OriginalsWith(ctx context.Context, size func(context.Context, string) (int64, error)) ([]Original, error) {
+	rows, e := s.DB.Query(ctx, "SELECT organization_id,id,file_key FROM knowledge_sources WHERE kind='document' ORDER BY organization_id,id")
+	if e != nil {
+		return nil, e
+	}
+	defer rows.Close()
+	out := []Original{}
+	for rows.Next() {
+		var v Original
+		var key string
+		if e = rows.Scan(&v.Organization, &v.ID, &key); e != nil {
+			return nil, e
+		}
+		v.State = "present"
+		if _, e = size(ctx, key); e != nil {
+			v.State = "missing_or_unavailable"
+		}
+		out = append(out, v)
+	}
+	return out, rows.Err()
 }
 
 func (s Store) Originals(ctx context.Context, root string) ([]Original, error) {

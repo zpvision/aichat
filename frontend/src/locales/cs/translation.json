@@ -223,7 +223,8 @@
     "empty": "Zatím žádné podklady",
     "emptyHint": "Přidejte podklady pro vybraného asistenta.",
     "notExtracted": "Text zatím nebyl extrahován. Zkontrolujte stav zpracování.",
-    "confirmDelete": "Smazat podklad a jeho index?"
+    "confirmDelete": "Smazat podklad a jeho index?",
+    "downloadOriginal": "St?hnout origin?l"
   },
   "preview": "Testovací chat",
   "previewHint": "Ověřte nastavení asistenta a postup od dotazu k odpovědi.",

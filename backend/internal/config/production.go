@@ -31,6 +31,9 @@ func PublicOrigin(raw string) bool {
 }
 
 func (c Config) ValidateProduction() error {
+	return c.validateProduction(false)
+}
+func (c Config) validateProduction(administrative bool) error {
 	if !c.Production {
 		return nil
 	}
@@ -51,7 +54,7 @@ func (c Config) ValidateProduction() error {
 	if len(p) < 24 || strings.Contains(p, "local-development") || u.Query().Get("sslmode") != "verify-full" {
 		return fmt.Errorf("production database requires strong credentials and sslmode=verify-full")
 	}
-	if os.Getenv("AI_PROVIDER") == "" || os.Getenv("AI_PROVIDER") == "mock" || os.Getenv("WIDGET_ALLOW_LOCALHOST") == "true" || os.Getenv("WEBHOOK_DEV_RECEIVER_URL") != "" || os.Getenv("BILLING_ADMIN_TOKEN") != "" {
+	if os.Getenv("AI_PROVIDER") == "" || os.Getenv("AI_PROVIDER") == "mock" || os.Getenv("WIDGET_ALLOW_LOCALHOST") == "true" || os.Getenv("WEBHOOK_DEV_RECEIVER_URL") != "" || (!administrative && os.Getenv("BILLING_ADMIN_TOKEN") != "") {
 		return fmt.Errorf("unsafe production module configuration")
 	}
 	return nil

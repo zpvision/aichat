@@ -29,3 +29,8 @@ Future work requires a separate request: real payment providers and price approv
 ## Stage 9A
 
 Stage 9A operational baseline is implemented locally: startup hardening, ciphertext checks, protected metrics, bounded session cleanup, originals diagnostics, offline backup/restore and short load samples. See production-readiness.md for open gates; this does not authorize public deployment. Real Gemma/GPU evaluation belongs to separately requested Stage9B.
+
+
+## Stage 9A.1
+
+Stage9A.1 implemented private S3 originals/logos, mixed registry, scoped original download, safe migration/export and live Yandex/application/restore tests. Existing Stage9A deployment/legal/endurance gates remain. Stage9B Gemma/GPU testing requires a separate request; no new AI provider or production deployment was started.

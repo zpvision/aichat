@@ -12,6 +12,7 @@ import (
 	"site-assistant/internal/ai"
 	"site-assistant/internal/core"
 	"site-assistant/internal/inbox"
+	"site-assistant/internal/knowledge"
 	"site-assistant/internal/leads"
 	"site-assistant/internal/widget"
 	"strings"
@@ -242,7 +243,7 @@ func (a *Server) widgetRoutes(m *http.ServeMux, s *widget.Service) {
 			a.err(w, core.Fail("not_found", 404))
 			return
 		}
-		b, e := s.Files.Read(r.Context(), v.LogoKey, 2<<20)
+		b, e := knowledge.Scoped(s.Files, v.OrganizationID).Read(r.Context(), v.LogoKey, 2<<20)
 		if e != nil {
 			a.err(w, core.Fail("not_found", 404))
 			return

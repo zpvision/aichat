@@ -1,0 +1,23 @@
+import {test,expect} from '@playwright/test';
+import {createHash} from 'node:crypto';
+test('real private S3 PDF, BGE-M3, authorized original and widget logo',async({page,browser})=>{
+ test.skip(process.env.LIVE_STORAGE_APP!=='1','explicit S3 app opt-in');test.setTimeout(180000);
+ const h={Origin:'http://localhost:5173','X-CSRF-Protection':'1'};
+ const post=async(p:string,data:unknown)=>{const r=await page.request.post('/api/v1'+p,{headers:h,data});expect(r.ok(),String(r.status())).toBe(true);return r.json()};
+ const email=`s3-${Date.now()}@example.com`,password='synthetic-browser-password';await post('/auth/register',{email,password,preferred_locale:'en'});await post('/auth/login',{email,password});
+ const org=await post('/organizations',{name:'S3 synthetic company',country:'RU'}),a=await post(`/organizations/${org.id}/assistants`,{name:'S3 guide'}),base=`/organizations/${org.id}/assistants/${a.id}/knowledge`;
+ const objects=['<</Type/Catalog/Pages 2 0 R>>','<</Type/Pages/Kids[4 0 R]/Count 1>>','<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>','<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Resources<</Font<</F1 3 0 R>>>>/Contents 5 0 R>>'];
+ const stream='BT /F1 12 Tf 72 720 Td (Synthetic Aurora accounting costs 450 EUR monthly.) Tj ET';objects.push(`<</Length ${stream.length}>>\nstream\n${stream}\nendstream`);let pdf='%PDF-1.4\n';const offsets=[0];objects.forEach((o,i)=>{offsets.push(Buffer.byteLength(pdf));pdf+=`${i+1} 0 obj\n${o}\nendobj\n`});const xref=Buffer.byteLength(pdf);pdf+=`xref\n0 ${offsets.length}\n0000000000 65535 f \n`+offsets.slice(1).map(x=>String(x).padStart(10,'0')+' 00000 n \n').join('')+`trailer<</Size ${offsets.length}/Root 1 0 R>>\nstartxref\n${xref}\n%%EOF`;const bytes=Buffer.from(pdf);
+ await page.goto('/');await page.getByRole('button').filter({has:page.getByRole('heading',{name:'S3 synthetic company',exact:true})}).click();await page.getByRole('button',{name:'Knowledge base',exact:true}).click();await page.getByRole('tab',{name:'Documents',exact:true}).click();await page.getByLabel('Choose a document').setInputFiles({name:'synthetic.pdf',mimeType:'application/pdf',buffer:bytes});await page.getByRole('button',{name:'Upload',exact:true}).click();await expect(page.getByText('Ready',{exact:true})).toBeVisible({timeout:90000});
+ const source=(await(await page.request.get('/api/v1'+base)).json())[0];const downloaded=await page.request.get('/api/v1'+base+'/'+source.id+'/original');expect(downloaded.ok()).toBe(true);expect(createHash('sha256').update(await downloaded.body()).digest('hex')).toBe(createHash('sha256').update(bytes).digest('hex'));
+ const hits=await post(base+'/search',{query:'Aurora accounting monthly cost',mode:'hybrid'});expect(hits[0].document_id).toBe(source.id);expect(hits[0].model).toBe('bge-m3');
+ const outsider=await browser.newContext();await outsider.request.post('http://localhost:5173/api/v1/auth/register',{headers:h,data:{email:`other-${email}`,password,preferred_locale:'en'}});await outsider.request.post('http://localhost:5173/api/v1/auth/login',{headers:h,data:{email:`other-${email}`,password}});expect((await outsider.request.get('http://localhost:5173/api/v1'+base+'/'+source.id+'/original')).status()).toBe(404);await outsider.close();
+ const site=await post(`/organizations/${org.id}/sites`,{name:'S3 site',domain:'synthetic.example',assistant_id:a.id}),admin=`/organizations/${org.id}/sites/${site.id}/widget`,w=await post(admin,{});
+ const png=await page.screenshot({clip:{x:0,y:0,width:16,height:16}});
+ const logo=await page.request.post('/api/v1'+admin+'/logo',{headers:h,multipart:{file:{name:'logo.png',mimeType:'image/png',buffer:png}}});expect(logo.ok(),String(logo.status())).toBe(true);
+ expect((await page.request.patch('/api/v1'+admin,{headers:h,data:{enabled:true,origins:['http://localhost:4173'],settings:w.widget.settings}})).ok()).toBe(true);
+ const conf=await(await page.request.get(`/api/v1/public/widgets/${w.widget.id}/config`,{headers:{Origin:'http://localhost:4173'}})).json();expect(conf.logo_url).toBeTruthy();const image=await page.request.get(conf.logo_url);expect(image.ok()).toBe(true);expect(image.headers()['content-type']).toBe('image/png');
+ await page.goto(`http://localhost:4173/widget/demo/index.html?widget=${w.widget.id}`);await page.getByRole('button',{name:'Open chat',exact:true}).click();await expect(page.frameLocator('iframe.sa-frame').locator('img').first()).toBeVisible();
+ await page.screenshot({path:'../artifacts/stage9a1/widget-s3.png'});
+ expect((await page.request.delete('/api/v1'+base+'/'+source.id,{headers:h,data:{}})).ok()).toBe(true);
+});

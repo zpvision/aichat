@@ -19,7 +19,7 @@ func (s *Service) ReconcileStorage(ctx context.Context) error {
 		}
 		for _, f := range files {
 			after = f.ID
-			size, e := s.Files.Size(ctx, f.Key)
+			size, e := Scoped(s.Files, f.Org).Size(ctx, f.Key)
 			if e == nil {
 				e = billing.RegisterExisting(ctx, s.Store.DB, f.Org, f.ID, f.Key, size)
 			}
@@ -35,7 +35,7 @@ func (s *Service) cleanupStorage(ctx context.Context) error {
 	if e != nil {
 		return e
 	}
-	if e = s.Files.Delete(ctx, f.Key); e != nil {
+	if e = Scoped(s.Files, f.Org).Delete(ctx, f.Key); e != nil {
 		return e
 	}
 	return billing.ConfirmDeleted(ctx, s.Store.DB, f.Org, f.Key)

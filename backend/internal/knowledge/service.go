@@ -47,6 +47,17 @@ func (s *Service) Get(ctx context.Context, user, org, a, id string) (Source, err
 	return s.Store.Get(ctx, org, a, id)
 }
 func checksum(b []byte) string { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
+
+func (s *Service) Original(ctx context.Context, user, org, a, id string) ([]byte, error) {
+	v, e := s.Get(ctx, user, org, a, id)
+	if e != nil {
+		return nil, e
+	}
+	if v.Kind != "document" {
+		return nil, core.Fail("not_found", 404)
+	}
+	return Scoped(s.Files, org).Read(ctx, v.FileKey, s.Config.MaxUpload)
+}
 func validate(v Source) error {
 	if strings.TrimSpace(v.Title) == "" || len(v.Title) > 240 || len(v.Content) > maxText || strings.ContainsRune(v.Content, 0) || (!validLang(v.Language)) {
 		return core.Fail("validation", 422)
@@ -129,11 +140,11 @@ func (s *Service) Upload(ctx context.Context, user, org, a, name string, b []byt
 		c, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		abandon, e := billing.AbandonFile(c, s.Store.DB, org, id)
-		if e == nil && abandon && s.Files.Delete(c, id) == nil {
+		if e == nil && abandon && Scoped(s.Files, org).Delete(c, id) == nil {
 			billing.ConfirmDeleted(c, s.Store.DB, org, id)
 		}
 	}
-	if e := s.Files.PutAt(ctx, id, b); e != nil {
+	if e := Scoped(s.Files, org).PutAt(ctx, id, b); e != nil {
 		cleanup()
 		return Source{}, e
 	}
@@ -188,7 +199,7 @@ func (s *Service) Delete(ctx context.Context, user, org, a, id string) error {
 		return e
 	}
 	if key != "" {
-		if e = s.Files.Delete(ctx, key); e != nil {
+		if e = Scoped(s.Files, org).Delete(ctx, key); e != nil {
 			return e
 		}
 		return billing.ConfirmDeleted(ctx, s.Store.DB, org, key)

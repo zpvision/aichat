@@ -223,7 +223,8 @@
     "empty": "No materials yet",
     "emptyHint": "Add materials for the selected assistant.",
     "notExtracted": "Text has not been extracted yet. Check processing status.",
-    "confirmDelete": "Delete this material and its index?"
+    "confirmDelete": "Delete this material and its index?",
+    "downloadOriginal": "Download original"
   },
   "preview": "Test chat",
   "previewHint": "Check assistant settings and the question-to-answer flow.",

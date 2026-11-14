@@ -1,0 +1,94 @@
+{
+  "date": "2026-11-14",
+  "provider": "Yandex Object Storage via AWS SDK for Go v2",
+  "credentials": "protected environment only; not recorded",
+  "live": {
+    "head_bucket": "passed",
+    "objects": [
+      {
+        "type": "TXT",
+        "bytes": 62,
+        "sha256": "b370da243c263e2c559b8dc30b84b19bccf78b7a1c655d9c946f4a9eafe0dc8d"
+      },
+      {
+        "type": "PDF",
+        "bytes": 561,
+        "sha256": "34a4d934c0701b2d7c80e927046ef9d40db0b5d838f26b882ddb07cfa09c0d56"
+      },
+      {
+        "type": "PNG",
+        "bytes": 88,
+        "sha256": "7fbe3086e4c6aa8998c0d51c7c89622b00b712b7344393e38e38befe67acb456"
+      }
+    ],
+    "head_get_sha_type_size": "passed",
+    "anonymous_read": "denied",
+    "missing_object": "passed",
+    "exact_created_key_cleanup": "passed",
+    "bucket_listing_or_acl_changes": false,
+    "invalid_access_key": "rejected by live HEAD of created test object",
+    "invalid_secret_key": "rejected by live HEAD of created test object"
+  },
+  "application": {
+    "pdf_extraction": "real Poppler",
+    "embeddings": "real local BGE-M3",
+    "hybrid_retrieval": "passed",
+    "txt_md_docx_indexing": "passed",
+    "original_authorized_download_sha": "passed",
+    "foreign_tenant_access": "denied",
+    "reindex_old_active_revision": "preserved",
+    "worker_recovery": "abandoned PG lease, recreated service, empty local directory",
+    "widget_logo": "real S3, Go public endpoint, visible iframe image",
+    "browser": "passed"
+  },
+  "migration": {
+    "dry_run": "passed",
+    "copy_sha_size": "passed",
+    "replay": "verified and skipped",
+    "local_original": "retained",
+    "synthetic_missing_original": "skipped; metadata retained",
+    "quota": "existing counters reused, no migration increment"
+  },
+  "failure_contracts": {
+    "transport": "local HTTP SDK contracts: denied operations, canceled/deadline context, dropped connection, corrupt download",
+    "postgres": "real isolated PostgreSQL: failed readiness commit after PUT; physical cleanup and quota release",
+    "concurrent_quota": "real PostgreSQL plus local S3 HTTP contract: one of two six-byte uploads at ten-byte cap",
+    "iam_policy_changes": false
+  },
+  "backup": {
+    "export": "verified referenced synthetic originals and logo only",
+    "postgres_snapshot": "custom pg_dump; manifest verified",
+    "restore": "NEW test DB; remapped registry to exported local files",
+    "application_original_sha": "passed",
+    "public_logo_sha": "passed",
+    "source_s3_deleted_during_restore": false,
+    "offline_restore_without_s3_credentials": "passed with real PostgreSQL and verified local file"
+  },
+  "regression": {
+    "backend": "full suite with isolated PG, PDF/public-import/real-embedding flags plus live S3",
+    "vet_build": "passed API and all CLI",
+    "frontend_tests": 19,
+    "widget_tests": 4,
+    "browser_scenarios": 10,
+    "dependency_audits": "no known vulnerabilities",
+    "real_ai_streaming_process_restart": "passed",
+    "gemma_gpu": "not contacted",
+    "production_cli_credential_validation": "API rejects raw admin credential; authenticated CLI retains other production checks"
+  },
+  "cleanup": {
+    "application_exact_objects_verified_absent": 6,
+    "live_scoped_test_objects": "cleaned and HEAD checked",
+    "created_application_databases": "removed after tests",
+    "unrelated_bucket_objects": "not enumerated or changed",
+    "legacy_records": 15,
+    "legacy_missing_originals": 2,
+    "legacy_changed": false
+  },
+  "limitations": [
+    "No new in-place binary-replacement API; metadata edits/reindex and new source upload retained",
+    "No automated production cross-bucket restore or deletion of retained local copies",
+    "Read-only/write-only IAM role behavior tested with HTTP contracts; no IAM/ACL mutations",
+    "Worker lease recovery tested by service recreation; actual process kill was the existing AI-streaming restart scenario",
+    "No production/Gemma/GPU quality or load claims"
+  ]
+}

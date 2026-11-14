@@ -94,3 +94,8 @@ Resource/AI quota failures use `plan_limit_exceeded`; expired/suspended AI acces
 ## Stage 9A
 
 Stage 9A: GET /metrics requires deployment-only METRICS_TOKEN Bearer credential (empty/short token disables with404). Exclude this route from public ingress. Process/HTTP totals, queue/failure/stale counts and PostgreSQL activity contain no tenant/path/PII labels. X-Request-ID is server-generated on HTTP responses. readyz checks PostgreSQL and writable originals/widget roots; healthz remains process liveness. No new tenant mutation or subscription-grant route.
+
+
+## Stage 9A.1
+
+Stage9A.1 adds authorized GET knowledge/{documentId}/original under the existing organization/assistant path. Cookie auth and tenant membership required; attachment bytes, no S3 URL/token. Public widget logo keeps its existing narrow route and resolves organization/purpose server-side. No public object-key, upload-signing or storage-administration endpoint exists. Full contract is generated in OpenAPI.

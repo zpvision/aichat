@@ -54,3 +54,8 @@ Resource triggers serialize counters under the subscription row lock. AI reserva
 ## Stage 9A
 
 Stage 9A adds no migrations and rewrites none. Operational cleanup touches only sufficiently expired login sessions, at most500 rows, SKIP LOCKED with3s statement timeout. Visitor-session cascade was reviewed and deliberately excluded. Metrics query existing tables and pg_stat_activity. No customer rows were mass-deleted.
+
+
+## Stage 9A.1
+
+Migration010_object_storage.sql appends object_files: tenant, purpose, provider, physical key, endpoint/region/bucket identity hash, nullable size, SHA256, pending/ready/deleted state. Existing source/logo UUIDs backfill as local without reading/deleting bytes; missing originals persist. Stable source/billing UUIDs remain unchanged during migration. A registered temporary copy precedes remote migration PUT; verified metadata switch is transactional. Old migrations001?009 are unchanged; test schemas apply all migrations twice.

@@ -54,7 +54,7 @@ func (s *Service) process(ctx context.Context, j Job) error {
 	}
 	pages := []Page{{Text: v.Content}}
 	if v.Kind == "document" {
-		b, e := s.Files.Read(ctx, v.FileKey, s.Config.MaxUpload)
+		b, e := Scoped(s.Files, v.OrganizationID).Read(ctx, v.FileKey, s.Config.MaxUpload)
 		if e != nil {
 			return e
 		}

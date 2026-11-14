@@ -22,6 +22,17 @@ func (a *Server) knowledgeRoutes(m *http.ServeMux, k *knowledge.Service) {
 		v, e := k.Get(r.Context(), u.ID, org, as, id)
 		a.result(w, 200, v, e)
 	}))
+	m.HandleFunc("GET "+base+"/{documentId}/original", a.protect(func(w http.ResponseWriter, r *http.Request, u core.User) {
+		org, as, id := scope(r)
+		b, e := k.Original(r.Context(), u.ID, org, as, id)
+		if e != nil {
+			a.err(w, e)
+			return
+		}
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Header().Set("Content-Disposition", "attachment; filename=original")
+		w.Write(b)
+	}))
 	m.HandleFunc("POST "+base+"/articles", a.protect(func(w http.ResponseWriter, r *http.Request, u core.User) {
 		var in knowledge.Input
 		if !a.knowledgeDecode(w, r, &in) {

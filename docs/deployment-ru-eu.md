@@ -1,5 +1,7 @@
 # Independent RU/EU deployment plan
 
+Stage 9A.1: STORAGE_PROVIDER=local remains supported. RU may explicitly use private Yandex S3 (`https://storage.yandexcloud.net`, ru-central1), separate service account/bucket. EU must use its own provider/account/bucket/DB. Configure S3_* via protected regional environment; never reuse RU credentials in EU. No browser S3 CORS is needed. HeadBucket readiness is cached5seconds; live PUT/GET permission must be verified with synthetic objects before enabling traffic. Apply migration010 and review dry-run before moving legacy files. See object-storage.md and updated backup-restore.md; no deployment or replication was performed.
+
 One code version, two independent installations; no shared user/lead/document DB, storage, key, backup or GPU. No deployment is performed by this stage.
 
 ```

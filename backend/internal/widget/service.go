@@ -237,16 +237,16 @@ func (s *Service) UploadLogo(ctx context.Context, user, org, site string, b []by
 	}
 	var out bytes.Buffer
 	png.Encode(&out, im)
-	key, e := s.Files.Put(ctx, out.Bytes())
+	key, e := knowledge.Scoped(s.Files, org).Put(ctx, out.Bytes())
 	if e != nil {
 		return Admin{}, e
 	}
 	if e = s.Store.Logo(ctx, org, site, key); e != nil {
-		s.Files.Delete(ctx, key)
+		// Keep an uncertain committed logo; unreferenced uploads are cleaned administratively.
 		return Admin{}, e
 	}
 	if w.LogoKey != "" {
-		s.Files.Delete(ctx, w.LogoKey)
+		knowledge.Scoped(s.Files, org).Delete(ctx, w.LogoKey)
 	}
 	return s.Admin(ctx, user, org, site)
 }

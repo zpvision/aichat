@@ -33,3 +33,19 @@ func TestProductionOrigins(t *testing.T) {
 		t.Fatal("public origin rejected")
 	}
 }
+
+func TestAdministrativeCredentialIsCLIOnly(t *testing.T) {
+	for k, v := range map[string]string{"APP_ENV": "production", "APP_REGION": "eu", "PUBLIC_APP_URL": "https://app.company.cz", "WIDGET_PUBLIC_URL": "https://widget.company.cz", "AI_PROVIDER": "disabled", "WIDGET_ALLOW_LOCALHOST": "false", "WEBHOOK_DEV_RECEIVER_URL": "", "BILLING_ADMIN_TOKEN": "synthetic-deployment-credential", "DATABASE_URL": "postgres://app:long-random-test-credential-12345@db.internal/app?sslmode=verify-full"} {
+		t.Setenv(k, v)
+	}
+	if _, e := Load(); e == nil {
+		t.Fatal("API accepted raw deployment credential")
+	}
+	if _, e := LoadAdministrative(); e != nil {
+		t.Fatal(e)
+	}
+	t.Setenv("AI_PROVIDER", "mock")
+	if _, e := LoadAdministrative(); e == nil {
+		t.Fatal("CLI bypassed other production requirements")
+	}
+}

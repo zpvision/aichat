@@ -19,6 +19,7 @@ import (
 	"site-assistant/internal/httpapi"
 	"site-assistant/internal/integrations"
 	"site-assistant/internal/knowledge"
+	"site-assistant/internal/objectstorage"
 	"site-assistant/internal/ops"
 	"site-assistant/internal/widget"
 	"syscall"
@@ -94,6 +95,12 @@ func run() error {
 		return e
 	}
 	widgets := widget.New(auth, engine, wc)
+	sc, e := objectstorage.Load()
+	if e != nil {
+		return e
+	}
+	ks.Files = knowledge.NewObjectStore(pool, sc, kc.FileRoot, "knowledge")
+	widgets.Files = knowledge.NewObjectStore(pool, sc, wc.FileRoot, "logos")
 	ic, e := integrations.Load(c.Production)
 	if e != nil {
 		return e
@@ -106,10 +113,14 @@ func run() error {
 	if e = widgets.Integrations.ValidateSecrets(ctx); e != nil {
 		return e
 	}
-	for _, root := range []string{kc.FileRoot, wc.FileRoot} {
-		if e = ops.Writable(root); e != nil {
-			return e
-		}
+	check, cancelStorage := context.WithTimeout(ctx, 5*time.Second)
+	e = knowledge.CheckStorage(check, ks.Files, kc.FileRoot)
+	if e == nil {
+		e = knowledge.CheckStorage(check, widgets.Files, wc.FileRoot)
+	}
+	cancelStorage()
+	if e != nil {
+		return errors.New("object storage check failed")
 	}
 	workerCtx, workerCancel := context.WithCancel(ctx)
 	workerDone := make(chan struct{})

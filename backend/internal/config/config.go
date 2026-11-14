@@ -13,6 +13,13 @@ type Config struct {
 }
 
 func Load() (Config, error) {
+	return load(false)
+}
+
+// LoadAdministrative retains production validation but permits the explicit
+// deployment credential in a CLI process. Each CLI still authenticates it.
+func LoadAdministrative() (Config, error) { return load(true) }
+func load(administrative bool) (Config, error) {
 	if v := env("APP_ENV", "development"); v != "development" && v != "production" {
 		return Config{}, fmt.Errorf("invalid APP_ENV")
 	}
@@ -34,7 +41,7 @@ func Load() (Config, error) {
 	if c.DatabaseURL == "" {
 		return c, fmt.Errorf("DATABASE_URL is required")
 	}
-	return c, c.ValidateProduction()
+	return c, c.validateProduction(administrative)
 }
 func env(k, d string) string {
 	if v, ok := os.LookupEnv(k); ok {

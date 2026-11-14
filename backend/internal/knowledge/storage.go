@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"site-assistant/internal/core"
+	"site-assistant/internal/ops"
 )
 
 type FileStorage interface {
@@ -17,6 +18,8 @@ type FileStorage interface {
 	Delete(context.Context, string) error
 }
 type LocalStorage struct{ Root string }
+
+func (s LocalStorage) Check(ctx context.Context) error { return ops.Writable(s.Root) }
 
 var safeKey = regexp.MustCompile(`^[a-f0-9-]{36}$`)
 
@@ -64,6 +67,16 @@ func (s LocalStorage) PutAt(ctx context.Context, key string, b []byte) error {
 func (s LocalStorage) Read(ctx context.Context, key string, max int64) ([]byte, error) {
 	if !safeKey.MatchString(key) {
 		return nil, core.Fail("invalid_file", 422)
+	}
+	if e := ctx.Err(); e != nil {
+		return nil, e
+	}
+	n, e := s.Size(ctx, key)
+	if e != nil {
+		return nil, e
+	}
+	if max < 0 || n > max {
+		return nil, core.Fail("file_too_large", 413)
 	}
 	f, e := os.Open(filepath.Join(s.Root, key))
 	if e != nil {

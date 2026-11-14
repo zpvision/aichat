@@ -8,6 +8,8 @@ import (
 	"os"
 	"site-assistant/internal/billing"
 	"site-assistant/internal/config"
+	"site-assistant/internal/knowledge"
+	"site-assistant/internal/objectstorage"
 	"site-assistant/internal/ops"
 )
 
@@ -26,7 +28,7 @@ func run() error {
 	if !billing.AuthorizedAdmin() {
 		return fmt.Errorf("admin required")
 	}
-	c, e := config.Load()
+	c, e := config.LoadAdministrative()
 	if e != nil {
 		return e
 	}
@@ -41,7 +43,20 @@ func run() error {
 	var out any
 	switch *action {
 	case "originals":
-		out, e = s.Originals(ctx, *root)
+		sc, err := objectstorage.Load()
+		if err != nil {
+			return err
+		}
+		var upgraded bool
+		if upgraded, err = s.HasObjectRegistry(ctx); err != nil {
+			return err
+		}
+		if upgraded {
+			files := knowledge.NewObjectStore(db, sc, *root, "knowledge")
+			out, e = s.OriginalsWith(ctx, files.Size)
+		} else {
+			out, e = s.Originals(ctx, *root)
+		}
 	case "metrics":
 		out, e = s.Metrics(ctx)
 	case "cleanup":

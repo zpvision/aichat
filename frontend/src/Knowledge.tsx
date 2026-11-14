@@ -475,6 +475,7 @@ export function Knowledge({
                         </button>
                         {writable && (
                           <>
+                            {s.kind === "document" && <a href={"/api/v1"+base+"/"+s.id+"/original"}>{t("kb.downloadOriginal")}</a>}
                             {s.kind === "article" && (
                               <button
                                 disabled={busy}

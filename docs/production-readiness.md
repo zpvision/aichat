@@ -1,5 +1,7 @@
 # Stage 9A readiness
 
+Stage 9A.1 storage update: private S3 integration and live Yandex verification passed, including real PDF/BGE-M3/RAG, TXT/MD/DOCX processing, original download, widget logo and test backup/restore. Startup/readyz use bounded HeadBucket checks cached5seconds and reject recorded bucket identity mismatches; no health-check PUTs. Registry, missing originals, migration and orphan lifecycle are described in object-storage.md. This does not remove the existing deployment/endurance/legal-policy gates below or establish Gemma/GPU readiness.
+
 This is a preparation report, not production certification. No deployment, FinKoper, Gemma or GPU tests were performed. Stage 9B must measure the actual model separately.
 
 | Requirement | State / evidence | Remaining risk | Before pilot | Before public launch |

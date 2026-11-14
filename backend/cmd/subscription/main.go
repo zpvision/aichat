@@ -33,7 +33,7 @@ func run() error {
 	if *org == "" || *name == "" {
 		return fmt.Errorf("organization and expect-name are required")
 	}
-	c, e := config.Load()
+	c, e := config.LoadAdministrative()
 	if e != nil {
 		return e
 	}

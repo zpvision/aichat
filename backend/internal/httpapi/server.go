@@ -67,13 +67,13 @@ func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, w
 		defer cancel()
 		for _, k := range modules {
 			if k != nil {
-				if ops.Writable(k.Config.FileRoot) != nil {
+				if knowledge.CheckStorage(ctx, k.Files, k.Config.FileRoot) != nil {
 					a.err(w, core.Fail("not_ready", 503))
 					return
 				}
 			}
 		}
-		if widgets != nil && ops.Writable(widgets.Config.FileRoot) != nil {
+		if widgets != nil && knowledge.CheckStorage(ctx, widgets.Files, widgets.Config.FileRoot) != nil {
 			a.err(w, core.Fail("not_ready", 503))
 			return
 		}

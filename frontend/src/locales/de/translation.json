@@ -223,7 +223,8 @@
     "empty": "Noch keine Materialien",
     "emptyHint": "Fügen Sie Materialien für den gewählten Assistenten hinzu.",
     "notExtracted": "Der Text wurde noch nicht extrahiert. Prüfen Sie den Verarbeitungsstatus.",
-    "confirmDelete": "Material und Index löschen?"
+    "confirmDelete": "Material und Index löschen?",
+    "downloadOriginal": "Original herunterladen"
   },
   "preview": "Testchat",
   "previewHint": "Prüfen Sie die Assistenteneinstellungen und den Ablauf von Frage zu Antwort.",

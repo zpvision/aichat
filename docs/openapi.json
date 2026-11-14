@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "site-assistant",
-    "version": "0.9.0",
+    "version": "0.9.1",
     "description": "Stages 1-8. Regional plans, usage and PostgreSQL quotas; see docs/billing.md. Universal integrations; see docs/finkoper-integration.md. Versioned lead collection and explicit confirmation; see docs/leads.md. Cabinet: cookie auth, exact PUBLIC_APP_URL Origin and X-CSRF-Protection: 1 on writes, JSON (multipart knowledge/upload and widget/logo). Public widget: separate exact-origin CORS, visitor bearer tokens, no cookies. Inbox: website only, assignment/role scoped, version/idempotency checks, DB-fenced AI handoff. Errors use stable error.code. See docs/operator-inbox.md and docs/widget.md."
   },
   "servers": [
@@ -13579,6 +13579,67 @@
           },
           "503": {
             "description": "Database metrics unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{id}/assistants/{assistantId}/knowledge/{documentId}/original": {
+      "get": {
+        "summary": "Authorized original download through Go; no private object URL is exposed.",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "assistantId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "documentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Original bytes",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Session required"
+          },
+          "404": {
+            "description": "Not found in authorized tenant scope"
+          },
+          "500": {
+            "description": "Safe storage error"
           }
         }
       }

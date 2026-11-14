@@ -46,3 +46,8 @@ Knowledge originals reserve bytes before writing, attach atomically to the sourc
 ## Stage 9A
 
 Stage 9A: internal/ops adds restricted metrics, bounded technical cleanup and administrative originals diagnostics. Production validation and webhook ciphertext continuity run before workers/listener. Response observation unwraps to preserve SSE deadlines. Existing conversation fencing is unchanged; max pool20 and idle-in-transaction timeout30s. See production-readiness.md.
+
+
+## Stage 9A.1
+
+Stage 9A.1: internal/objectstorage is the bounded AWS SDK v2 adapter; knowledge/object_store.go routes opaque UUID references through PostgreSQL object_files. Existing FileStorage, knowledge worker, quota accounting and atomic revision publication remain. cmd/api selects local/S3; originals and logos are separate purposes. Every tenant-facing file operation is scoped using server-resolved organization, including worker and public logo delivery. See object-storage.md.
