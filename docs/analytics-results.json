@@ -1,0 +1,71 @@
+{
+    "stage":  "9A.3 Cosmic Violet Analytics",
+    "base_commit":  "c16a69c90691028d9312b00cd5f522fb6da38636",
+    "verified_at":  "2026-11-15T00:51:42.3745509Z",
+    "migration":  "011_analytics_indexes.sql",
+    "new_tables":  0,
+    "new_fields":  0,
+    "new_indexes":  7,
+    "endpoint":  "GET /api/v1/organizations/{id}/analytics",
+    "frontend_tests":  26,
+    "widget_tests":  4,
+    "browser_scenarios":  13,
+    "backend":  "Full Go/PostgreSQL/PDF/public-import/real BGE-M3 suite PASS; targeted analytics tests rerun after neutral execution_error category rename",
+    "vet_builds":  "API and all existing CLI builds PASS",
+    "npm_audit":  "0 known vulnerabilities in frontend/widget",
+    "crash_recovery":  "PASS: own process 18085, quota/history/assignment/disabled-provider manual flow",
+    "large_dataset":  {
+                          "operator_messages":  1500,
+                          "sites":  3,
+                          "concurrent_wall_ms":  1707,
+                          "handoff_events":  3000,
+                          "assistants":  3,
+                          "writer_row_lock_held":  true,
+                          "executions":  6000,
+                          "concurrent_reports":  8,
+                          "samples":  [
+                                          {
+                                              "days":  7,
+                                              "milliseconds":  231,
+                                              "cohort_conversations":  4668
+                                          },
+                                          {
+                                              "days":  30,
+                                              "milliseconds":  801,
+                                              "cohort_conversations":  20009
+                                          }
+                                      ],
+                          "total_conversations":  30000
+                      },
+    "small_application":  {
+                              "http_report_ms":  29,
+                              "kpis":  {
+                                           "leads":  1,
+                                           "dialogs":  4,
+                                           "eligible":  4,
+                                           "handoffs":  1,
+                                           "converted":  1,
+                                           "generation_ms":  null,
+                                           "without_operator":  3
+                                       },
+                              "real_postgresql":  true,
+                              "provider":  "mock",
+                              "visual_iteration":  "2"
+                          },
+    "accessibility":  {
+                          "checks":  12,
+                          "violations":  0,
+                          "engine":  "axe-core 4.11.0"
+                      },
+    "visual_iterations":  2,
+    "screenshot_directory":  "artifacts/stage9a3",
+    "local_test_database":  "site_assistant_analytics_final_test",
+    "limitations":  [
+                        "No actual resolution or consultation-quality metric",
+                        "Missing provider timing/tokens stay null; Mock is not commercial AI",
+                        "Current states/billing period differ explicitly from historical cohorts",
+                        "Local synthetic query timings are not production/GPU guarantees",
+                        "S3 cloud live tests not repeated; no new S3 behavior",
+                        "Chromium checks, not full Safari/Firefox/device matrix"
+                    ]
+}

@@ -49,6 +49,7 @@ func newServerWithWidget(s *core.Service, c config.Config, engine *ai.Service, w
 	m := http.NewServeMux()
 	m.HandleFunc("GET /metrics", (ops.Store{DB: s.Store.DB}).Handler())
 	a.billingRoutes(m)
+	a.analyticsRoutes(m)
 	if widgets != nil {
 		a.widgetRoutes(m, widgets)
 		if widgets.Integrations != nil {

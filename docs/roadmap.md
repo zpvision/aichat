@@ -38,3 +38,7 @@ Stage9A.1 implemented private S3 originals/logos, mixed registry, scoped origina
 ## Stage 9A.2
 
 Cosmic Violet marketing redesign is implemented: isolated public landing, original product/SVG compositions, four-language scripted demo, real registration/Trial CTA and responsive visual checks. See marketing-design.md and marketing-results.json. Cabinet/widget/storage business behavior is unchanged. The next requested design direction is the working Analytics section in Cosmic Violet; it is not implemented or started here. Real Gemma/GPU work and production deployment still require separate authorization.
+
+## Stage 9A.3
+
+Working business analytics is implemented in the existing cabinet: real PostgreSQL overview, AI quality and team views, calendar/site/assistant filters, documented cohort conversion, operator attribution and billing usage. Cosmic Violet tokens are shared without repainting other pages. See analytics.md. Marketing analytics stays a marked concept. Actual resolution/answer quality and GPU capacity remain unverified. Next is separately authorized Stage9B for real Gemma; no GPU/production deployment is started here.

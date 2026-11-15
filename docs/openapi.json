@@ -13450,9 +13450,193 @@
         ]
       }
     },
-    "/api/v1/organizations/{id}/billing": {
+    "/api/v1/organizations/{id}/analytics": {
       "get": {
         "operationId": "operation97",
+        "summary": "Owner/admin only: read-only website business analytics, consistent snapshot, previous calendar-period comparison. No transcript/contacts. See docs/analytics.md for cohort and signal definitions.",
+        "security": [
+          {
+            "session": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsReport"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission or CSRF denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found (also returned to nonmembers)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Inclusive local date; both dates omitted defaults seven days"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Inclusive local date; at most93 calendar days"
+          },
+          {
+            "name": "timezone",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "IANA zone; default UTC, calendar/DST boundaries"
+          },
+          {
+            "name": "site",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            },
+            "description": "Optional website intersection, never an access grant"
+          },
+          {
+            "name": "assistant",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            },
+            "description": "Optional assistant intersection"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1000,
+              "default": 0
+            },
+            "description": "20 rows per paginated list"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dialogs",
+                "leads",
+                "handoffs",
+                "conversion"
+              ],
+              "default": "dialogs"
+            },
+            "description": "Site/assistant ordering"
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{id}/billing": {
+      "get": {
+        "operationId": "operation98",
         "summary": "Owner/admin: current regional subscription, frozen period quotas, actual resources and latest 24 periods. No payment or public plan mutation endpoint.",
         "security": [
           {
@@ -16981,6 +17165,558 @@
           "items",
           "next_cursor",
           "has_more"
+        ]
+      },
+      "AnalyticsKPI": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "dialogs": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "leads": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "eligible": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "converted": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "without_operator": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "handoffs": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "generation_ms": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "dialogs",
+          "leads",
+          "eligible",
+          "converted",
+          "without_operator",
+          "handoffs",
+          "generation_ms"
+        ]
+      },
+      "AnalyticsPoint": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "bucket_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "dialogs": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "leads": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "handoffs": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "no_sources": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "failed": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "canceled": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "bucket_date",
+          "dialogs",
+          "leads",
+          "handoffs",
+          "no_sources",
+          "failed",
+          "canceled"
+        ]
+      },
+      "AnalyticsSite": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "site_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "assistant_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "site": {
+            "type": "string",
+            "nullable": true
+          },
+          "assistant": {
+            "type": "string"
+          },
+          "dialogs": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "leads": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "eligible": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "converted": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "conversion": {
+            "type": "number",
+            "nullable": true
+          },
+          "handoffs": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "site_id",
+          "assistant_id",
+          "site",
+          "assistant",
+          "dialogs",
+          "leads",
+          "eligible",
+          "converted",
+          "conversion",
+          "handoffs"
+        ]
+      },
+      "AnalyticsAttention": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "site_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "assistant_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "site": {
+            "type": "string",
+            "nullable": true
+          },
+          "assistant": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "execution_error",
+              "no_sources"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "conversation_id",
+          "site_id",
+          "assistant_id",
+          "site",
+          "assistant",
+          "created_at",
+          "category"
+        ]
+      },
+      "AnalyticsOperator": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "taken": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "replies": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "closed": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "assigned_now": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "response_ms": {
+            "type": "number",
+            "nullable": true
+          },
+          "response_samples": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "user_id",
+          "name",
+          "taken",
+          "replies",
+          "closed",
+          "assigned_now",
+          "response_ms",
+          "response_samples"
+        ]
+      },
+      "AnalyticsReport": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "period": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "end": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "previous_start": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "timezone": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "start",
+              "end",
+              "previous_start",
+              "timezone"
+            ]
+          },
+          "kpis": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "current": {
+                "$ref": "#/components/schemas/AnalyticsKPI"
+              },
+              "previous": {
+                "$ref": "#/components/schemas/AnalyticsKPI"
+              }
+            },
+            "required": [
+              "current",
+              "previous"
+            ]
+          },
+          "timeseries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsPoint"
+            },
+            "maxItems": 93
+          },
+          "handling": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "without_operator": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "with_operator": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "waiting_now": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "human_active_now": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "without_operator",
+              "with_operator",
+              "waiting_now",
+              "human_active_now"
+            ]
+          },
+          "quality": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "no_sources": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "failed": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              },
+              "canceled": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "no_sources",
+              "failed",
+              "canceled"
+            ]
+          },
+          "executions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "provider": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0
+                },
+                "input_tokens": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "nullable": true
+                },
+                "output_tokens": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0,
+                  "nullable": true
+                }
+              },
+              "required": [
+                "provider",
+                "status",
+                "count",
+                "input_tokens",
+                "output_tokens"
+              ]
+            }
+          },
+          "lead_sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "website",
+                    "staff",
+                    "api"
+                  ]
+                },
+                "status": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer",
+                  "format": "int64",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "source",
+                "status",
+                "count"
+              ]
+            }
+          },
+          "sites": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsSite"
+            },
+            "maxItems": 20
+          },
+          "sites_total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "attention": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsAttention"
+            },
+            "maxItems": 20
+          },
+          "attention_total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "operators": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsOperator"
+            },
+            "maxItems": 20
+          },
+          "operators_total": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "insights": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "top_site": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "site_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  },
+                  "site": {
+                    "type": "string"
+                  },
+                  "leads": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0
+                  }
+                }
+              },
+              "top_assistant": {
+                "type": "object",
+                "nullable": true,
+                "properties": {
+                  "assistant_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  },
+                  "assistant": {
+                    "type": "string"
+                  },
+                  "handoffs": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 0
+                  }
+                }
+              }
+            },
+            "required": [
+              "top_site",
+              "top_assistant"
+            ]
+          }
+        },
+        "required": [
+          "period",
+          "kpis",
+          "timeseries",
+          "handling",
+          "quality",
+          "executions",
+          "lead_sources",
+          "sites",
+          "sites_total",
+          "attention",
+          "attention_total",
+          "operators",
+          "operators_total",
+          "insights"
         ]
       },
       "BillingLimits": {

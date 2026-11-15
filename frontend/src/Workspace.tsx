@@ -22,6 +22,7 @@ import { LeadSettings } from "./LeadSettings";
 import { Leads } from "./Leads";
 import { Integrations } from "./Integrations";
 import { Billing } from "./Billing";
+import { Analytics } from "./analytics/Analytics";
 import "./leads.css";
 
 export default function App() {
@@ -457,7 +458,7 @@ export default function App() {
                   "inbox",
                   "leads",
                   ...(org.role !== "operator"
-                    ? ["scenarios", "integrations", "billing"]
+                    ? ["analytics", "scenarios", "integrations", "billing"]
                     : []),
                   "assistants",
                   "knowledge",
@@ -791,6 +792,24 @@ export default function App() {
                 )}
                 {page === "billing" && writable && (
                   <Billing key={org.id} organizationId={org.id} />
+                )}
+                {page === "analytics" && writable && (
+                  <Analytics
+                    key={org.id}
+                    organizationId={org.id}
+                    timezone={org.timezone}
+                    sites={sites}
+                    assistants={assistants}
+                    onConversation={(id) => {
+                      setConversationId(id);
+                      setPage("inbox");
+                    }}
+                    onLeads={() => {
+                      setLeadId("");
+                      setPage("leads");
+                    }}
+                    onBilling={() => setPage("billing")}
+                  />
                 )}
                 {page === "leads" && (
                   <Leads

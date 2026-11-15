@@ -55,3 +55,9 @@ Stage 9A.1: internal/objectstorage is the bounded AWS SDK v2 adapter; knowledge/
 ## Stage 9A.2: isolated marketing frontend
 
 `/` lazily loads `marketing/Landing`; `/app`, `/login`, `/register` and existing invitation hashes load the previous application moved to `Workspace.tsx`. Marketing CSS/tokens are scoped to `.cosmic` and separately bundled. The standalone widget remains unchanged. Demo scenarios use only local synthetic state; they never call generation, mutate CRM or spend quota. Four complete marketing dictionaries extend the existing i18next instance. No backend, API, migration or storage changes. See [marketing-design.md](marketing-design.md).
+
+## Stage 9A.3: business analytics
+
+`internal/analytics` authorizes Owner/Admin through core.Service.Access, validates calendar/IANA filters and computes a consistent SQL aggregate report in a short read-only PostgreSQL transaction. It reads existing website conversations, metadata, lead confirmations and immutable author/mode events, without transcript/contacts or new model calls. Seven indexes in migration011 support period and first-message lookups. SQL planner settings are LOCAL to the measured report, not global. No quota, fencing, storage, outbox or inference changes. HTTP adapter: `/api/v1/organizations/{id}/analytics`. All paginated lists use 20-row limits. Existing billing Snapshot remains the usage authority.
+
+`frontend/src/analytics` supplies the working three-tab view; existing CRM/inbox/billing handle drill-through. Palette/font tokens are shared with marketing through scoped `design/cosmic-tokens.css`; other cabinet/widget styles remain unchanged. Four analytics dictionaries extend i18next. Marketing analytics remains a labelled concept; the cabinet now uses real tenant data. See [analytics.md](analytics.md).

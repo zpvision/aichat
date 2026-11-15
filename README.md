@@ -1,5 +1,7 @@
 # site-assistant — этапы 1–8
 
+Stage 9A.3: компания → **Аналитика / Analytics** (Owner/Admin). Рабочие PostgreSQL KPI, динамика публичных диалогов и заявок, качество AI, команда, источники и реальные квоты. RU/EN/CS/DE, Cosmic Violet, фильтры календарных дат/часового пояса/сайта/ассистента. Применить новую индексную миграцию011 обычным мигратором перед запуском API. [Определения, формулы, ограничения и проверки](docs/analytics.md). Без утверждений об успешном решении обращений или качестве Gemma.
+
 Stage 9A.2: публичный лендинг **Cosmic Violet** на `/`, регистрация `/register`, вход `/login`, прежний кабинет `/app`. Четыре языка, сценарное демо без создания лидов/расхода квот, оригинальные SVG-композиции и изолированные стили. Кабинет, клиентский виджет и S3 не перекрашены. [Архитектура, визуальные проверки и ограничения](docs/marketing-design.md).
 
 Stage 9A.1: private S3-compatible original/logo storage, mixed local/S3 registry, authorized original download, safe administrative migration/export and real Yandex tests. Apply migration010 before API startup. Default remains STORAGE_PROVIDER=local; configure protected S3_* environment to select s3. [Object storage, migration and verification](docs/object-storage.md). Never overwrite an existing .env with the example or start bulk migration automatically.
