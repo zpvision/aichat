@@ -140,6 +140,15 @@ function LeadCard({ d, compact = false }: { d: Copy; compact?: boolean }) {
   );
 }
 function Chat({ d, hero = false }: { d: Copy; hero?: boolean }) {
+  const answer = (
+    <>
+      <p className="cv-message cv-message-out">{d.answer}</p>
+      <span className="cv-source-note">
+        <Check />
+        {d.source}
+      </span>
+    </>
+  );
   return (
     <div className={`cv-chat ${hero ? "cv-hero-chat" : ""}`}>
       <div className="cv-chat-header">
@@ -160,11 +169,14 @@ function Chat({ d, hero = false }: { d: Copy; hero?: boolean }) {
           <Mark small />
           <div>
             <span className="cv-message-author">{d.assistant}</span>
-            <p className="cv-message cv-message-out">{d.answer}</p>
-            <span className="cv-source-note">
-              <Check />
-              {d.source}
-            </span>
+            {hero && (
+              <div className="cv-typing cv-hero-typing" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </div>
+            )}
+            {hero ? <div className="cv-hero-answer">{answer}</div> : answer}
           </div>
         </div>
       </div>
