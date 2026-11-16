@@ -10,6 +10,7 @@ import (
 )
 
 type Config struct {
+	APIKey                                                                         string
 	Provider, BaseURL, Model                                                       string
 	Timeout                                                                        time.Duration
 	MaxOutputTokens, Concurrency, HistoryMessages, ContextChars, RAGChars, RAGTopK int
@@ -18,7 +19,7 @@ type Config struct {
 }
 
 func LoadConfig(production bool) (Config, error) {
-	c := Config{Provider: env("AI_PROVIDER", "mock"), BaseURL: env("AI_BASE_URL", "http://localhost:11434"), Model: env("AI_MODEL", "gemma4:26b"), Timeout: 120 * time.Second, MaxOutputTokens: 500, Concurrency: 4, HistoryMessages: 20, ContextChars: 24000, RAGChars: 12000, RAGTopK: 5, Temperature: .3}
+	c := Config{Provider: env("AI_PROVIDER", "mock"), APIKey: env("AI_API_KEY", ""), BaseURL: env("AI_BASE_URL", "http://localhost:11434"), Model: env("AI_MODEL", "gemma4:26b"), Timeout: 120 * time.Second, MaxOutputTokens: 500, Concurrency: 4, HistoryMessages: 20, ContextChars: 24000, RAGChars: 12000, RAGTopK: 5, Temperature: .3}
 	if c.Provider != "mock" && c.Provider != "disabled" && c.Provider != "ollama" {
 		return c, fmt.Errorf("invalid AI_PROVIDER")
 	}

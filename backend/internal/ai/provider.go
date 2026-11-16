@@ -94,7 +94,7 @@ type ollamaResponse struct {
 }
 
 func (o *OllamaProvider) Generate(ctx context.Context, r GenerateRequest, stream bool, emit func(string) error) (GenerateResult, error) {
-	payload := map[string]any{"model": o.Config.Model, "messages": r.Messages, "stream": stream, "think": o.Config.Think, "options": map[string]any{"num_predict": o.Config.MaxOutputTokens, "temperature": o.Config.Temperature}}
+	payload := map[string]any{"model": o.Config.Model, "messages": r.Messages, "stream": stream, "think": o.Config.Think, "keep_alive": -1, "truncate": false, "options": map[string]any{"num_ctx": 8192, "num_predict": o.Config.MaxOutputTokens, "temperature": o.Config.Temperature}}
 	if len(r.JSONSchema) > 0 {
 		if !json.Valid(r.JSONSchema) {
 			return GenerateResult{}, core.Fail("validation", 422)
@@ -110,6 +110,9 @@ func (o *OllamaProvider) Generate(ctx context.Context, r GenerateRequest, stream
 		return GenerateResult{}, core.Fail("ai_unavailable", 503)
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if o.Config.APIKey != "" {
+		req.Header.Set("Authorization", "Bearer "+o.Config.APIKey)
+	}
 	resp, e := o.Client.Do(req)
 	if e != nil {
 		if ctx.Err() != nil {
